@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>Hexo</title>
+  <title>恶魔の低语</title>
   
-  
+  <subtitle>为何我身处人群,却时感孤独</subtitle>
   <link href="https://zuoer96.github.io/atom.xml" rel="self"/>
   
   <link href="https://zuoer96.github.io/"/>
@@ -10,7 +10,7 @@
   <id>https://zuoer96.github.io/</id>
   
   <author>
-    <name>John Doe</name>
+    <name>左耳</name>
     
   </author>
   
