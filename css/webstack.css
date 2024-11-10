@@ -1,0 +1,170 @@
+/* 容器 */
+.nb-container {
+  width: 100%;
+  height: 100vh;
+  /* background-color: red; */
+  margin-top: -10px;
+}
+/* 侧边栏样式 */
+.nb-sidebar-menu {
+  width: 250px;
+  background-color: #2c2e2f; /* 深灰色背景 */
+  color: #979898; /* 浅色字体 */
+  height: 100vh;
+  position: fixed; /* 固定在左侧 */
+  top: 60px;
+  left: 0;
+  overflow-y: auto; /* 滚动条处理 */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.nb-sidebar-menu ul {
+  list-style: none; /* 去除默认列表样式 */
+  padding: 0;
+  margin: 0;
+}
+
+.nb-sidebar-menu-item {
+  padding: 0;
+}
+
+/* .nb-sidebar-menu-item li {
+  border-bottom: 1px solid #34495e; 
+} */
+
+.nb-sidebar-menu-item li {
+  position: relative; /* 设置相对定位 */
+}
+
+.nb-sidebar-menu-item li::after {
+  content: "";
+  display: block;
+  width: 70%; /* 下划线宽度 */
+  height: 1px; /* 下划线高度 */
+  background-color: #34495e; /* 下划线颜色 */
+  position: absolute;
+  bottom: 0; /* 位置在底部 */
+  left: 15%; /* 居中，10% 的左边距 */
+}
+
+.nb-active {
+  background-color: #34495e; /* 高亮背景色 */
+  color: #fff !important; /* 高亮文字颜色 */
+}
+
+.nb-sidebar-menu-a {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  text-decoration: none;
+  color: #979898; /* 菜单项文字颜色 */
+  transition: background 0.3s ease;
+  justify-content: space-between; /* 在菜单项的两端对齐内容 */
+  align-items: center;
+  padding: 10px 40px 10px 40px;
+}
+
+/* 用于没有子菜单的占位符 */
+.nb-sidebar-menu-a.no-sub  {
+  display: block;
+  
+}
+
+.nb-sidebar-menu-a:hover,
+.nb-sidebar-submenu-a:hover {
+  background-color: #34495e; /* 悬停时背景色 */
+  cursor: pointer;
+}
+
+.nb-sidebar-menu-icon {
+  margin-right: 10px; /* 图标与文字的间距 */
+  font-size: 0.78em;
+}
+
+
+.nb-sidebar-menu-title {
+  font-size: 0.78em; /* 菜单项文字大小 */
+}
+
+
+/* 子菜单项 */
+.nb-sidebar-submenu-a {
+  display: flex;
+  /* justify-content: space-between;  */
+  align-items: center;
+  padding: 10px 40px 10px 40px;
+  padding-left: 54px;
+}
+
+
+.triangle-icon {
+  margin-left: auto; /* 自动将三角形图标推到右侧 */
+}
+
+.nb-submenu {
+  display: none; 
+}
+
+.nb-card-main {
+  margin-left: 250px; /* 根据侧边栏宽度设置左边距 */
+  padding: 20px;
+  flex: 1; /* 占满剩余空间 */
+  background-color: #ecf0f1; /* 主内容区背景色 */
+  min-height: 100vh; /* 保证主内容区至少与视口高度相同 */
+  display: flex; /* 使用 flex 布局 */
+  flex-wrap: wrap; /* 自动换行 */
+  gap: 20px; /* 卡片之间的间距 */
+}
+
+
+/* 卡片主区域 */
+.nb-card-maodian {
+  /* background-color: red; */
+  width: 100%;
+}
+
+.nb-card-maodian::before {
+  content: "";
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  margin-right: 10px;
+  background-image: url(/img/webstack/tag-icon.png);
+  background-size: contain; /* 保持图像比例 */
+  background-repeat: no-repeat; /* 不重复图像 */
+  vertical-align: -2px;
+}
+
+.nb-card {
+  height: 86px;
+  width: 220px;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex; 
+  align-items: center;
+}
+
+.nb-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.nb-card-icon {
+  font-size: 40px; 
+  margin-right: 15px;
+}
+
+.nb-card-header {
+  font-size: 14px;
+  font-weight: bold;
+  /* margin-bottom: 10px; */
+}
+
+.nb-card-body {
+  font-size: 12px;
+  color: #333;
+}

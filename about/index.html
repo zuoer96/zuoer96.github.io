@@ -1,0 +1,452 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>  | 蹒跚学步的架构师</title><meta name="author" content="左耳"><meta name="copyright" content="左耳"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="我是谁？                       我从哪来？                       我要做什么？             .water-container {   border: 1px solid #eff0f4;   &#x2F;* background-color: #eff0f4; *&#x2F;   background: url(&#x2F;img&#x2F;sit">
+<meta property="og:type" content="website">
+<meta property="og:title" content=" ">
+<meta property="og:url" content="https://nbchen.com/about/index.html">
+<meta property="og:site_name" content="蹒跚学步的架构师">
+<meta property="og:description" content="我是谁？                       我从哪来？                       我要做什么？             .water-container {   border: 1px solid #eff0f4;   &#x2F;* background-color: #eff0f4; *&#x2F;   background: url(&#x2F;img&#x2F;sit">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbchen.com/img/cover/post_cover_1.png">
+<meta property="article:published_time" content="2024-10-17T00:30:34.000Z">
+<meta property="article:modified_time" content="2024-11-09T02:39:19.070Z">
+<meta property="article:author" content="左耳">
+<meta property="article:tag" content="Java开发程序员, Java编程, 高质量解决方案, 创新的编码技巧, 可靠应用程序, 数据库设计, 性能优化, 技术挑战解决, 软件工程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbchen.com/img/cover/post_cover_1.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://nbchen.com/about/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lWO9QTcbfhCMrpHW2Iz8w1cT6iVDffApIJepQIhimJU"/><meta name="baidu-site-verification" content="17911f388d35a0ab926c0cfff1ca6ea7"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?17911f388d35a0ab926c0cfff1ca6ea7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-3FC1C6JTVL"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-3FC1C6JTVL')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-3FC1C6JTVL', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":100,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: ' ',
+  isPost: false,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2024-11-09 10:39:19'
+}</script><link rel="stylesheet" href="/css/equipment.css?1"><link rel="stylesheet" href="/css/movies.css?1"><link rel="stylesheet" href="/css/webstack.css?1"><link rel="stylesheet" href="/css/flag.css?1"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/logo/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">1</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="page type-about" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">蹒跚学步的架构师</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><h1 class="title-seo"> </h1></header><main class="layout hide-aside" id="content-inner"><div id="page"><div class="page-title"> </div><div id="article-container"><!-- 哲学三问 -->
+
+<div class="water-container">
+  <div class="drop" style="color: #ff0f5b">
+    <div class="content">
+      <p>我是谁？</p>
+    </div>
+  </div>
+  <div class="drop" style="color: #ff0f5b">
+    <div class="content">
+      <p>我从哪来？</p>
+    </div>
+  </div>
+  <div class="drop" style="color: #ff0f5b">
+    <div class="content">
+      <p>我要做什么？</p>
+    </div>
+  </div>
+</div>
+
+
+<style>
+.water-container {
+  border: 1px solid #eff0f4;
+  /* background-color: #eff0f4; */
+  background: url(/img/site/qm_grey.png) no-repeat right bottom;
+  /* background-position: 10px; */
+  border-radius: 8px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-flow: row wrap;
+  padding: 50px 0;
+  gap: 40px;
+}
+.water-container .drop {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  box-shadow: inset 20px 20px 20px rgba(0, 0, 0, 0.05), 25px 25px 20px rgba(0, 0, 0, 0.05),25px 30px 30px rgba(0, 0, 0, 0.05), inset -20px -20px 25px rgba(255, 255, 255, 0.9);
+  transition: 0.5s ease-in-out;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
+}
+.water-container .drop:nth-child(1),
+.water-container .drop:nth-child(2),
+.water-container .drop:nth-child(3) {
+  font-family: '楷体';
+  font-size: 16px;
+  font-weight: bolder;
+}
+.water-container .drop:nth-child(1) {
+  border-radius: 33% 67% 54% 46% / 30% 32% 68% 70%;
+}
+.water-container .drop:nth-child(2) {
+  border-radius: 33% 67% 70% 59% / 30% 49% 90% 84%
+}
+.water-container .drop:nth-child(3) {
+  border-radius: 42% 66% 38% 75% / 41% 32% 68% 70%
+}
+.water-container .drop:hover {
+  border-radius: 50%;
+}
+.water-container .drop::before {
+  content: "";
+  position: absolute;
+  top: 25px;
+  left: 42px;
+  width: 17px;
+  height: 17px;
+  background-color: #fff;
+  border-radius: 50%;
+  opacity: 0.8;
+}
+.water-container .drop::after {
+  content: "";
+  position: absolute;
+  top: 45px;
+  left: 55px;
+  width: 7px;
+  height: 7px;
+  background-color: #fff;
+  border-radius: 50%;
+  opacity: 0.6;
+}
+</style>
+
+
+<!-- 技能区域 -->
+
+<img width="100%" src="/about/index/about-me-header.svg" alt="头部图">
+<p align="center">
+  <a href="https://nbchen.com/" target="_blank" style="display: inline-block;">
+    <img alt="个人主页" src="https://img.shields.io/badge/知识库-Corder-lightblue?logo=blogger&logoColor=lightblue">
+  </a>&nbsp;
+    <a href="https://github.com/zuoer96" target="_blank" style="display: inline-block;">
+        <img alt="GitHub个人主页" src="https://img.shields.io/badge/GitHub-zuoer96-lightblue?logo=github">
+    </a>&nbsp;
+    <a href="https://gitee.com/NBchen" target="_blank" style="display: inline-block;">
+        <img alt="码云个人主页" src="https://img.shields.io/badge/码云-NBchen-C71D23?logo=gitee&logoColor=C71D23">
+    </a>&nbsp;
+    <a href="https://blog.csdn.net/m0_37769704" target="_blank" style="display: inline-block;">
+        <img alt="CSDN个人主页" src="https://img.shields.io/badge/CSDN-我最皮-FC5531?logo=C&logoColor=FC5531">
+    </a>&nbsp;
+    <a href="https://juejin.cn/user/1521379825163079" target="_blank" style="display: inline-block;">
+        <img alt="掘金个人主页" src="https://img.shields.io/badge/掘金-十指弹奏-1E80FF">
+    </a>&nbsp;
+    <a href="https://www.yuque.com/yigongxin" target="_blank" style="display: inline-block;">
+        <img alt="语雀个人主页" src="https://img.shields.io/badge/语雀-一廾心-38D27D">
+    </a>&nbsp;
+</p>
+
+<hr>
+<ul>
+<li>👋 Hi, I’m Coder</li>
+<li>🔭 I’m currently working on backend development</li>
+<li>📫 How to reach me: <a href="mailto:1745233303@qq.com">1745233303@qq.com</a></li>
+<li>📖 My motto: “喜欢最重要。”</li>
+</ul>
+<hr>
+<h3 id="后端技术栈"><a href="#后端技术栈" class="headerlink" title="后端技术栈"></a>后端技术栈</h3><p>
+  <img src="https://img.shields.io/badge/-Spring-6DB33F?logo=Spring&logoColor=FFF" alt="Spring" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Spring%20Boot-6DB33F?logo=Spring-Boot&logoColor=FFF" alt="Spring Boot" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-MySQL-4479A1?logo=MySQL&logoColor=FFF" alt="MySQL" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-MariaDB-A9A9A9?logo=MariaDB&logoColor=003545" alt="MariaDB" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-PostgreSQL-C0C0C0?logo=PostgreSQL&logoColor=4169E1" alt="PostgreSQL" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Oracle-C0C0C0?logo=Oracle&logoColor=F80000" alt="Oracle" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Microsoft%20SQL%20Server-D3D3D3?logo=Microsoft-SQL-Server&logoColor=CC2927" alt="Microsoft SQL Server" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Redis-DC382D?logo=Redis&logoColor=FFF" alt="Redis" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-MongoDB-47A248?logo=MongoDB&logoColor=FFF" alt="MongoDB" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-RabbitMQ-FF6600?logo=RabbitMQ&logoColor=FFF" alt="RabbitMQ" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Solr-D9411E?logo=Apache-Solr&logoColor=FFF" alt="Solr" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-ElasticSearch-005571?logo=ElasticSearch&logoColor=FFF" alt="ElasticSearch" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Logstash-A9A9A9?logo=Logstash&logoColor=005571" alt="Logstash" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Kibana-A9A9A9?logo=Kibana&logoColor=005571" alt="Kibana" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Kafka-C0C0C0?logo=Apache-Kafka&logoColor=231F20" alt="Kafka" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Consul-F24C53?logo=Consul&logoColor=FFF" alt="Consul" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Tomcat-F8DC75?logo=Apache-Tomcat&logoColor=000" alt="Tomcat" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-JUnit5-25A162?logo=JUnit5&logoColor=FFF" alt="JUnit5" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Liquibase-2962FF?logo=Liquibase&logoColor=FFF" alt="Liquibase" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Maven-C71A36?logo=Apache-Maven&logoColor=FFF" alt="Maven" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Gradle-D3D3D3?logo=Gradle&logoColor=02303A" alt="Gradle" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Spring%20Security-6DB33F?logo=Spring-Security&logoColor=FFF" alt="Spring Security" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Hibernate-59666C?logo=Hibernate&logoColor=FFF" alt="Hibernate" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-JSON-000?logo=JSON&logoColor=FFF" alt="JSON" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-JWT-000?logo=JSON-Web-Tokens&logoColor=FFF" alt="JWT" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Java-F78C40?logo=OpenJDK&logoColor=FFF" alt="Java" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Python-A9A9A9?logo=Python&logoColor=3776AB" alt="Python" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Android-C0C0C0?logo=Android&logoColor=3DDC84" alt="Android" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Go-DCDCDC?logo=Go&logoColor=00ADD8" alt="Go" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-GraphQL-FFF?logo=GraphQL&logoColor=E10098" alt="GraphQL" style="display: inline-block;">&nbsp;
+</p>
+
+<h3 id="前端技术栈"><a href="#前端技术栈" class="headerlink" title="前端技术栈"></a>前端技术栈</h3><p>
+  <img src="https://img.shields.io/badge/-Vue3-C0C0C0?logo=Vue.js&logoColor=4FC08D" alt="Vue3" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-TypeScript-C0C0C0?logo=TypeScript&logoColor=3178C6" alt="TypeScript" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Ant%20Design-C0C0C0?logo=Ant-Design&logoColor=0170FE" alt="Ant Design" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Node.js-D3D3D3?logo=Node.js&logoColor=339933" alt="Node.js" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Vite-D3D3D3?logo=Vite&logoColor=646CFF" alt="Vite" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Webpack-D3D3D3?logo=Webpack&logoColor=8DD6F9" alt="Webpack" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-NPM-C0C0C0?logo=npm&logoColor=CB3837" alt="NPM" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Axios-C0C0C0?logo=Axios&logoColor=5A29E4" alt="Axios" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-ESLint-C0C0C0?logo=ESLint&logoColor=4B32C3" alt="ESLint" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-jQuery-0769AD?logo=jQuery&logoColor=FFF" alt="jQuery" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Bootstrap-7952B3?logo=Bootstrap&logoColor=FFF" alt="BootStrap" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-ECharts-C0C0C0?logo=Apache-ECharts&logoColor=AA344D" alt="ECharts" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-JavaScript-A9A9A9?logo=JavaScript&logoColor=F7DF1E" alt="JavaScript" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-HTML5-A9A9A9?logo=HTML5&logoColor=E34F26" alt="HTML5" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-CSS3-A9A9A9?logo=CSS3&logoColor=1572B6" alt="CSS3" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Tailwind%20CSS-FFF?logo=Tailwind-CSS&logoColor=06B6D4" alt="Tailwind CSS" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Less-D3D3D3?logo=Less&logoColor=1D365D" alt="Less" style="display: inline-block;">&nbsp;
+</p>
+
+<h3 id="DevOps"><a href="#DevOps" class="headerlink" title="DevOps"></a>DevOps</h3><p>
+  <img src="https://img.shields.io/badge/-Git-F05032?logo=Git&logoColor=FFF" alt="Git" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-GitHub-181717?logo=GitHub&logoColor=FFF" alt="GitHub" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Gitee-C71D23?logo=Gitee&logoColor=FFF" alt="Gitee" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-GitLab-FC6D26?logo=GitLab&logoColor=FFF" alt="gitlab" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-GitHub%20Actions-2088FF?logo=GitHub-Actions&logoColor=FFF" alt="GitHub Actions" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Jenkins-D24939?logo=Jenkins&logoColor=000" alt="Jenkins" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-SonarQube-A9A9A9?logo=SonarQube&logoColor=4E9BCD" alt="SonarQube" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Docker-2496ED?logo=Docker&logoColor=FFF" alt="Docker" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Harbor-FFF?logo=Harbor&logoColor=60B932" alt="Harbor" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Kubernetes-326CE5?logo=Kubernetes&logoColor=FFF" alt="Kubernetes" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-CentOS-262577?logo=CentOS&logoColor=FFF" alt="CentOS" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Ubuntu-E95420?logo=Ubuntu&logoColor=FFF" alt="Ubuntu" style="display: inline-block;">&nbsp;
+</p>
+
+<h3 id="运维技术栈"><a href="#运维技术栈" class="headerlink" title="运维技术栈"></a>运维技术栈</h3><p>
+  <img src="https://img.shields.io/badge/-阿里云-FF6A00?logo=Alibaba-Cloud&logoColor=FFF" alt="阿里云" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Nginx-009639?logo=Nginx&logoColor=FFF" alt="Nginx" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-VMware-607078?logo=VMware&logoColor=FFF" alt="VMware" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Prometheus-C0C0C0?logo=Prometheus&logoColor=E6522C" alt="Prometheus" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Grafana-DCDCDC?logo=Grafana&logoColor=F46800" alt="Grafana" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Ansible-FFF?logo=Ansible&logoColor=EE0000" alt="Ansible" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Lua-FFF?&logo=Lua&logoColor=2C2D72" alt="Lua" style="display: inline-block;">&nbsp;
+</p>
+
+<h3 id="测试技术栈"><a href="#测试技术栈" class="headerlink" title="测试技术栈"></a>测试技术栈</h3><p>
+  <img src="https://img.shields.io/badge/-Postman-FF6C37?logo=Postman&logoColor=FFF" alt="Postman" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-JMeter-D3D3D3?logo=Apache-JMeter&logoColor=D22128" alt="JMeter" style="display: inline-block;">&nbsp;
+</p>
+
+<h3 id="开发工具"><a href="#开发工具" class="headerlink" title="开发工具"></a>开发工具</h3><p>
+  <img src="https://img.shields.io/badge/-Intellij%20IDEA-000?logo=Intellij-IDEA&logoColor=FFF" alt="Intellij IDEA" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Eclipse-2C2255?logo=Eclipse&logoColor=FFF" alt="Eclipse" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-WebStorm-000?logo=WebStorm&logoColor=FFF" alt="WebStorm" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-PyCharm-C0C0C0?logo=PyCharm&logoColor=000" alt="PyCharm" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Android%20Studio-C0C0C0?logo=Android-Studio&logoColor=3DDC84" alt="Android Studio" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-VSCode-C0C0C0?logo=Visual-Studio-Code&logoColor=007ACC" alt="VSCode" style="display: inline-block;">&nbsp;
+</p>
+
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><p>
+  <img src="https://img.shields.io/badge/-Markdown-000?logo=Markdown&logoColor=FFF" alt="Markdown" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-WordPress-21759B?logo=WordPress&logoColor=FFF" alt="WordPress" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-GitHub%20Pages-222?logo=GitHub-Pages&logoColor=FFF" alt="GitHub Pages" style="display: inline-block;">&nbsp;
+  <img src="https://img.shields.io/badge/-Adobe%20Photoshop-A9A9A9?logo=Adobe-Photoshop&logoColor=31A8FF" alt="Adobe Photoshop" style="display: inline-block;">&nbsp;
+</p>
+<img width="100%" src="/about/index/about-me-footer.svg" alt="尾部图"></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 By 左耳</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/#/Integrated/index"><span>备案号：闽ICP备2022007849号-1</span></a> <a target="_blank" rel="noopener" href="https://beian.mps.gov.cn/#/query/webSearch"><img class="icp-icon" src="/img/site/icp.png"><span>闽ICP备2022007849号</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script src="/js/webstack.js?1"></script><script src="/js/movie.js?1"></script><script src="/js/echarts.min.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: true,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><script src="/js/markmap.js"></script></body></html>
