@@ -1,0 +1,701 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>【微服务从入门到入土】验证码识别 | 蹒跚学步的架构师</title><meta name="author" content="左耳"><meta name="copyright" content="左耳"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="我们抓取，我们采集，我们分析，我们挖掘">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【微服务从入门到入土】验证码识别">
+<meta property="og:url" content="https://nbchen.com/posts/ms-spider-code.html">
+<meta property="og:site_name" content="蹒跚学步的架构师">
+<meta property="og:description" content="我们抓取，我们采集，我们分析，我们挖掘">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbchen.com/img/cover/post_cover_1.png">
+<meta property="article:published_time" content="2024-11-12T07:19:38.000Z">
+<meta property="article:modified_time" content="2024-11-12T08:48:50.998Z">
+<meta property="article:author" content="左耳">
+<meta property="article:tag" content="微服务">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="爬虫">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbchen.com/img/cover/post_cover_1.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://nbchen.com/posts/ms-spider-code.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lWO9QTcbfhCMrpHW2Iz8w1cT6iVDffApIJepQIhimJU"/><meta name="baidu-site-verification" content="17911f388d35a0ab926c0cfff1ca6ea7"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?17911f388d35a0ab926c0cfff1ca6ea7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-3FC1C6JTVL"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-3FC1C6JTVL')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-3FC1C6JTVL', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":100,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【微服务从入门到入土】验证码识别',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-11-12 16:48:50'
+}</script><link rel="stylesheet" href="/css/equipment.css?1"><link rel="stylesheet" href="/css/movies.css?1"><link rel="stylesheet" href="/css/webstack.css?1"><link rel="stylesheet" href="/css/flag.css?1"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/logo/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">99</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">91</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover/post_cover_1.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">蹒跚学步的架构师</span></a><a class="nav-page-title" href="/"><span class="site-name">【微服务从入门到入土】验证码识别</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">【微服务从入门到入土】验证码识别</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-11-12T07:19:38.000Z" title="发表于 2024-11-12 15:19:38">2024-11-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-12T08:48:50.998Z" title="更新于 2024-11-12 16:48:50">2024-11-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">11.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>39分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>我们抓取，我们采集，我们分析，我们挖掘</p>
+<span id="more"></span>
+
+<h1 id="验证码"><a href="#验证码" class="headerlink" title="验证码"></a>验证码</h1><p>各类网站采用了各种各样的措施来反爬虫，其中一个措施便是使用验证码。随着技术的发展，验证码的花样越来越多。验证码最初是几个数字组合的简单的图形，后来加入了英文字母和混淆曲线。还有一些网站使用了中文字符验证码，这使得识别愈发困难。</p>
+<p>12306 验证码的出现使得行为验证码开始发展起来，用过 12306 的用户肯定多少为它的验证码头疼过，我们需要识别文字，点击与文字描述相符的图片，验证码完全正确，验证才能通过。随着技术的发展，现在这种交互式验证码越来越多，如滑动验证码需要将对应的滑块拖动到指定位置才能完成验证，点选验证码则需要点击正确的图形或文字才能通过验证。</p>
+<p>验证码变得越来越复杂，爬虫的工作也变得越发艰难，有时候我们必须通过验证码的验证才可以访问页面。</p>
+<p>本章就针对验证码的识别进行统一讲解，涉及的验证码有普通图形验证码、滑动验证码、点选验证码、手机验证码等，这些验证码识别的方式和思路各有不同，有直接使用图像处理库完成的，有的则是借助于深度学习技术完成的，有的则是借助于一些工具和平台完成的。虽然说技术各有不同，但了解这些验证码的识别方式之后，我们可以举一反三，用类似的方法识别其他类型验证码。</p>
+<h2 id="使用-OCR-技术识别图形验证码"><a href="#使用-OCR-技术识别图形验证码" class="headerlink" title="使用 OCR 技术识别图形验证码"></a>使用 OCR 技术识别图形验证码</h2><p>我们首先来看最简单的一种验证码，即图形验证码，这种验证码最早出现，现在依然也很常见，一般由 4 位左右字母或者数字组成。</p>
+<p>例如这个案例网站 <a target="_blank" rel="noopener" href="https://captcha7.scrape.center/">https://captcha7.scrape.center/</a> 就可以看到类似的验证码，如图所示：</p>
+<p><img src="/posts/ms-spider-code/image-20230306212224791.png" alt="image-20230306212224791"></p>
+<p>这类验证码整体上比较规整，没有过多干扰线和干扰点，且文字没有大幅度的变形和旋转。</p>
+<p>对于这一类的验证码我们就可以使用 OCR 技术来进行识别</p>
+<h3 id="OCR-技术"><a href="#OCR-技术" class="headerlink" title="OCR 技术"></a>OCR 技术</h3><p>OCR，即 Optical Character Recognition，中文翻译叫做光学字符识别。它是指电子设备（例如扫描仪或数码相机）检查纸上打印的字符，通过检测暗、亮的模式确定其形状，然后用字符识别方法将形状翻译成计算机文字的过程。OCR 现在已经广泛应用于生产生活中，如文档识别、证件识别、字幕识别、文档检索等等。当然对于本节所述的图形验证码的识别也没有问题。</p>
+<p>本节我们会以当前示例网站的验证码为例来讲解利用 OCR 来识别图形验证码的流程，输入上是一上图验证码的图片，输出就是验证码识别结果。</p>
+<h3 id="Tesserocr-技术"><a href="#Tesserocr-技术" class="headerlink" title="Tesserocr 技术"></a>Tesserocr 技术</h3><h4 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h4><p>Tesserocr 是 Python 的一个 OCR 识别库，但其实是对 Tesseract 做的一层 Python API 封装，所以它的核心是 Tesseract，所以在安装 Tesserocr 之前我们需要先安装 Tesseract，本节我们来了解下它们的安装方式。</p>
+<ul>
+<li><p>下载：<a target="_blank" rel="noopener" href="https://digi.bib.uni-mannheim.de/tesseract/">https://digi.bib.uni-mannheim.de/tesseract/</a> （文件名中带有 dev 的为开发版本，不带 dev 的为稳定版本）</p>
+</li>
+<li><p>点击安装，勾选Additional language data(download）可以识别多国语言</p>
+</li>
+<li><p>配置安装路径(<code>D:\tools\Tesseract-OCR</code>)到环境变量<code>PATH</code></p>
+</li>
+<li><p>添加<code>TESSDATA_PREFIX</code>，置为语言库安装路径(<code>D:\tools\Tesseract-OCR\tessdata</code>)</p>
+</li>
+</ul>
+<p>测试图片：<code>tesseract test.png result -l chi_sim</code></p>
+<p><img src="/posts/ms-spider-code/image-20230306214415849.png" alt="image-20230306214415849"></p>
+<ul>
+<li>从whl(<a target="_blank" rel="noopener" href="https://github.com/simonflueckiger/tesserocr-windows_build/releases)%E4%B8%8B%E8%BD%BD%E5%92%8Cpython%E7%89%88%E6%9C%AC%E5%8C%B9%E9%85%8D%E7%9A%84%E5%8C%85">https://github.com/simonflueckiger/tesserocr-windows_build/releases)下载和python版本匹配的包</a></li>
+<li>安装镜像文件：<code>pip3 install D:\tesserocr-2.5.2-cp310-cp310-win_amd64.whl</code></li>
+<li>无效路径(invalid tessdata path)，将语言库复制到python目录:<code>D:\tools\Python\Python310\tessdata</code></li>
+</ul>
+<h4 id="python测试代码"><a href="#python测试代码" class="headerlink" title="python测试代码"></a>python测试代码</h4><p>测试图片：</p>
+<p><img src="/posts/ms-spider-code/image-20231003073145666.png" alt="image-20231003073145666"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tesserocr</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将图片对象转为文字</span></span><br><span class="line">image = Image.<span class="built_in">open</span>(<span class="string">&#x27;./test.png&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(tesserocr.image_to_text(image))  <span class="comment"># 输出d241，和test.png图片中的文字一致</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 直接将图片文件转为文字</span></span><br><span class="line"><span class="built_in">print</span>(tesserocr.file_to_text(<span class="string">&#x27;./test.png&#x27;</span>))</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装依赖库"><a href="#安装依赖库" class="headerlink" title="安装依赖库"></a>安装依赖库</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install selenium pillow numpy retrying</span><br></pre></td></tr></table></figure>
+
+<h3 id="验证码处理"><a href="#验证码处理" class="headerlink" title="验证码处理"></a>验证码处理</h3><p><img src="/posts/ms-spider-code/image-20231003073154621.png" alt="image-20231003073154621"></p>
+<p>图片里面其实有一些杂乱的点，而这些点的颜色大都比文本更浅一点，因此我们可以做一些预处理，将干扰的点通过颜色来排除掉。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">image = Image.<span class="built_in">open</span>(<span class="string">&#x27;./test2.png&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(np.array(image).shape) <span class="comment"># (38, 112, 4)</span></span><br><span class="line"><span class="built_in">print</span>(image.mode) <span class="comment"># RGBA</span></span><br></pre></td></tr></table></figure>
+
+<p>这个图片其实是一个三维数组，前两维 38 和 112 代表其高和宽，最后一维 4 则是每个像素点的表示向量。为什么是 4 呢，因为最后一维是一个长度为 4 的数组，分别代表 R（红色）、G（绿色）、B（蓝色）、A（透明度），即一个像素点有四个数字表示。那为什么是 RGBA 四个数字而不是 RGB 或其他呢？这是因为 image 的模式 mode 是 RGBA，即有透明通道的真彩色，我们看到第二行输出也印证了这一点。</p>
+<p>模式 mode 定义了图像的类型和像素的位宽，一共有 9 种类型：</p>
+<ul>
+<li>1：像素用 1 位表示，Python 中表示为 True 或 False，即二值化。</li>
+<li>L：像素用 8 位表示，取值 0-255，表示灰度图像，数字越小，颜色越黑。</li>
+<li>P：像素用 8 位表示，即调色板数据。</li>
+<li>RGB：像素用 3x8 位表示，即真彩色。</li>
+<li>RGBA：像素用 4x8 位表示，即有透明通道的真彩色。</li>
+<li>CMYK：像素用 4x8 位表示，即印刷四色模式。</li>
+<li>YCbCr：像素用 3x8 位表示，即彩色视频格式。</li>
+<li>I：像素用 32 位整型表示。</li>
+<li>F：像素用 32 位浮点型表示。</li>
+</ul>
+<p>为了方便处理，我们可以将 RGBA 模式转为更简单的 L 模式，即灰度图像。</p>
+<p>可以利用 Image 对象的 convert 方法参数传入 L，即可将图片转化为灰度图像，根据阈值筛选掉图片中的干扰点</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">image = Image.<span class="built_in">open</span>(<span class="string">&#x27;./test2.png&#x27;</span>)</span><br><span class="line">image = image.convert(<span class="string">&#x27;L&#x27;</span>) <span class="comment"># 转换为灰度图片</span></span><br><span class="line">threshold = <span class="number">50</span></span><br><span class="line">array = np.array(image)</span><br><span class="line">array = np.where(array &gt; threshold,<span class="number">255</span>,<span class="number">0</span>)</span><br><span class="line">image = Image.fromarray(array.astype(<span class="string">&#x27;uint8&#x27;</span>))</span><br><span class="line"><span class="comment"># image.show() # 打开图片</span></span><br><span class="line"><span class="comment"># 识别图片</span></span><br><span class="line"><span class="built_in">print</span>(tesserocr.image_to_text(image)) <span class="comment"># b32d</span></span><br></pre></td></tr></table></figure>
+
+<p>处理的效果：</p>
+<p><img src="/posts/ms-spider-code/image-20230306220347382.png" alt="image-20230306220347382"></p>
+<blockquote>
+<p>针对一些有干扰的图片，我们可以做一些去噪处理，这会提高图片识别的正确率。</p>
+</blockquote>
+<h3 id="OCR识别实战"><a href="#OCR识别实战" class="headerlink" title="OCR识别实战"></a>OCR识别实战</h3><p><img src="/posts/ms-spider-code/image-20230306223313904.png" alt="image-20230306223313904"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> io <span class="keyword">import</span> BytesIO</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> tesserocr</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">from</span> retrying <span class="keyword">import</span> retry</span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.common.by <span class="keyword">import</span> By</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.support.wait <span class="keyword">import</span> WebDriverWait</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.support <span class="keyword">import</span> expected_conditions <span class="keyword">as</span> EC</span><br><span class="line"><span class="keyword">from</span> selenium.common <span class="keyword">import</span> TimeoutException</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">preprocess</span>(<span class="params">image</span>):</span><br><span class="line">    image = image.convert(<span class="string">&#x27;L&#x27;</span>)  <span class="comment"># 转换为灰度图片</span></span><br><span class="line">    threshold = <span class="number">100</span> <span class="comment"># 如果识别不出来，调整这个值</span></span><br><span class="line">    array = np.array(image)</span><br><span class="line">    array = np.where(array &gt; threshold, <span class="number">255</span>, <span class="number">0</span>)</span><br><span class="line">    image = Image.fromarray(array.astype(<span class="string">&#x27;uint8&#x27;</span>))</span><br><span class="line">    <span class="comment"># image.show() # 测试图片处理后是否过于模糊，或者是点还有很多</span></span><br><span class="line">    <span class="comment"># print(tesserocr.image_to_text(image)) # 识别的验证码</span></span><br><span class="line">    <span class="keyword">return</span> image</span><br><span class="line"></span><br><span class="line"><span class="meta">@retry(<span class="params">stop_max_attempt_number=<span class="number">10</span>,retry_on_result=<span class="keyword">lambda</span> x: x <span class="keyword">is</span> <span class="literal">False</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">login</span>():</span><br><span class="line">    browser.get(<span class="string">&#x27;https://captcha7.scrape.center/&#x27;</span>)</span><br><span class="line">    browser.find_element(By.CSS_SELECTOR,<span class="string">&#x27;.username input[type=&quot;text&quot;]&#x27;</span>).send_keys(<span class="string">&#x27;admin&#x27;</span>)</span><br><span class="line">    browser.find_element(By.CSS_SELECTOR,<span class="string">&#x27;.password input[type=&quot;password&quot;]&#x27;</span>).send_keys(<span class="string">&#x27;admin&#x27;</span>)</span><br><span class="line">    captcha = browser.find_element(By.CSS_SELECTOR,<span class="string">&#x27;#captcha&#x27;</span>)</span><br><span class="line">    image = Image.<span class="built_in">open</span>(BytesIO(captcha.screenshot_as_png))</span><br><span class="line">    image = preprocess(image) <span class="comment"># 处理图片</span></span><br><span class="line">    captcha = tesserocr.image_to_text(image) <span class="comment"># 得到验证码</span></span><br><span class="line">    captcha = re.sub(<span class="string">&#x27;[^A-Za-z0-9]&#x27;</span>,<span class="string">&#x27;&#x27;</span>,captcha)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;验证码：&quot;</span>,captcha)</span><br><span class="line">    browser.find_element(By.CSS_SELECTOR,<span class="string">&#x27;.captcha input[type=&quot;text&quot;]&#x27;</span>).send_keys(captcha)</span><br><span class="line">    browser.find_element(By.CSS_SELECTOR,<span class="string">&#x27;.login&#x27;</span>).click()</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        WebDriverWait(browser,<span class="number">10</span>).until(EC.presence_of_element_located((By.XPATH, <span class="string">&#x27;//h2[contains(., &quot;登录成功&quot;)]&#x27;</span>)))</span><br><span class="line">        time.sleep(<span class="number">10</span>)</span><br><span class="line">        browser.close()</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">except</span> TimeoutException:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    browser = webdriver.Chrome()</span><br><span class="line">    login()</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>阈值建议重置的时候设置动态调整，有时候识别不出来。</p>
+</blockquote>
+<h2 id="使用-OpenCV-识别滑动验证码的缺口"><a href="#使用-OpenCV-识别滑动验证码的缺口" class="headerlink" title="使用 OpenCV 识别滑动验证码的缺口"></a>使用 OpenCV 识别滑动验证码的缺口</h2><p>上一节我们学习了利用 OCR 技术对图形验证码进行识别的方法，但随着互联网技术的发展，各种新型验证码层出不穷，最具有代表性的便是滑动验证码了。</p>
+<p><img src="/posts/ms-spider-code/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/%E7%88%AC%E8%99%AB/07_%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/image-20230306224309234.png" alt="image-20230306224309234"></p>
+<p>想要用爬虫来自动化完成这一流程的话，关键步骤有：</p>
+<ul>
+<li><strong>识别出目标缺口的位置</strong></li>
+<li><strong>将缺口滑动到对应位置</strong></li>
+</ul>
+<p>第二步的实现有多种方式，比如我们可以用 Selenium 等自动化工具模拟完成这个流程，验证并登录成功之后获取对应的 Cookies 或 Token 等信息再进行后续的操作，但这种方法运行效率会比较低。</p>
+<p>另一种方法便是直接逆向验证码背后的 JavaScript 逻辑，将缺口信息直接传给 JavaScript 代码执行获取一些类似 “密钥” 的信息，再利用这些 “密钥” 进行下一步的操作。</p>
+<p>第一步利用 OpenCV 进行基本的图像处理来实现的，主要步骤包括：</p>
+<ul>
+<li>对验证码图片进行高斯模糊滤波处理，消除部分噪声干扰</li>
+<li>对验证码图片应用边缘检测算法，通过调整相应阈值识别出滑块边缘</li>
+<li>对上一步得到的各个边缘轮廓信息，通过对比面积、位置、周长等特征筛选出最可能的轮廓位置，得到缺口位置。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 安装库</span><br><span class="line">pip3 install opencv-python</span><br></pre></td></tr></table></figure>
+
+<h3 id="高斯滤波"><a href="#高斯滤波" class="headerlink" title="高斯滤波"></a>高斯滤波</h3><p>高斯滤波是用来去除图像中的一些噪声的，基本效果其实就是把一张图像变得模糊化，减少一些图像噪声干扰，从而为下一步的边缘检测做好铺垫。</p>
+<p>OpenCV 提供了一个用于实现高斯模糊的方法，叫做 GaussianBlur，方法声明如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">GaussianBlur</span>(<span class="params">src, ksize, sigmaX, dst=<span class="literal">None</span>, sigmaY=<span class="literal">None</span>, borderType=<span class="literal">None</span></span>)</span><br></pre></td></tr></table></figure>
+
+<p>比较重要的参数介绍如下：</p>
+<ul>
+<li>src：即需要被处理的图像。</li>
+<li>ksize：进行高斯滤波处理所用的高斯内核大小，它需要是一个元组，包含 x 和 y 两个维度。</li>
+<li>sigmaX：表示高斯核函数在 X 方向的的标准偏差。</li>
+<li>sigmaY：表示高斯核函数在 Y 方向的的标准偏差，若 sigmaY 为 0，就将它设为 sigmaX，如果 sigmaX 和 sigmaY 都是 0，那么 sigmaX 和 sigmaY 就通过 ksize 计算得出。</li>
+</ul>
+<p>这里 ksize 和 sigmaX 是必传参数，对本节样例图片，ksize 我们可以取 <code>(5, 5)</code>，sigmaX 可以取 0。</p>
+<p>经过高斯滤波处理后，图像会变得模糊，效果如下：</p>
+<p><img src="/posts/ms-spider-code/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/%E7%88%AC%E8%99%AB/07_%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/image-20230306224314838.png" alt="image-20230306224314838"></p>
+<h3 id="边缘检测"><a href="#边缘检测" class="headerlink" title="边缘检测"></a>边缘检测</h3><p>由于验证码目标缺口通常具有比较明显的边缘，所以借助于一些边缘检测算法并通过调整阈值是可以找出它的位置的。目前应用比较广泛的边缘检测算法是 Canny，它是 John F. Canny 于 1986 年开发出来的一个多级边缘检测算法，效果还是不错的，OpenCV 也对此算法进行了实现，方法名称就叫做 Canny，声明如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">Canny</span>(<span class="params">image, threshold1, threshold2, edges=<span class="literal">None</span>, apertureSize=<span class="literal">None</span>, L2gradient=<span class="literal">None</span></span>)</span><br></pre></td></tr></table></figure>
+
+<p>比较重要的参数介绍如下：</p>
+<ul>
+<li>image：即需要被处理的图像。</li>
+<li>threshold1、threshold2：两个阈值，分别为最小和最大判定临界点。</li>
+<li>apertureSize：用于查找图像渐变的 Sobel 内核的大小。</li>
+<li>L2gradient：指定用于查找梯度幅度的等式。</li>
+</ul>
+<p>通常来说，我们只需要设定 threshold1 和 threshold2 即可，其数值大小需要视不同图像而定，比如本节样例图片可以分别取 200 和 450。</p>
+<p>经过边缘检测算法处理后，一些比较明显的边缘信息会被保留下来，效果如下：</p>
+<p><img src="/posts/ms-spider-code/image-20231003073248197.png" alt="image-20231003073248197"></p>
+<h3 id="轮廓提取"><a href="#轮廓提取" class="headerlink" title="轮廓提取"></a>轮廓提取</h3><p>进行边缘检测处理后，我们可以看到图像中会保留有比较明显的边缘信息，下一步我们可以用 OpenCV 将边缘轮廓提取出来，这里需要用到 findContours 方法，方法声明如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">findContours</span>(<span class="params">image, mode, method, contours=<span class="literal">None</span>, hierarchy=<span class="literal">None</span>, offset=<span class="literal">None</span></span>)</span><br></pre></td></tr></table></figure>
+
+<p>比较重要的参数介绍如下：</p>
+<ul>
+<li>image：即需要被处理的图像。</li>
+<li>mode：定义轮廓的检索模式，详情见 OpenCV 的 RetrievalModes 的介绍。</li>
+<li>method：定义轮廓的近似方法，详情见 OpenCV 的 ContourApproximationModes 的介绍。</li>
+</ul>
+<p>在这里，我们选取 mode 为 RETR_CCOMP，method 为 CHAIN_APPROX_SIMPLE，具体的选型标准可以参考 OpenCV 的文档介绍，这里不再展开讲解。</p>
+<h3 id="外接矩形"><a href="#外接矩形" class="headerlink" title="外接矩形"></a>外接矩形</h3><p>提取到轮廓之后，为了方便进行判定，我们可以将轮廓的外界矩形计算出来，这样方便我们根据面积、位置、周长等参数进行判定，以得出该轮廓是不是目标滑块的轮廓。</p>
+<p>计算外接矩形使用的方法是 boundingRect，方法声明如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">boundingRect</span>(<span class="params">array</span>)</span><br></pre></td></tr></table></figure>
+
+<p>只有一个参数：</p>
+<ul>
+<li>array：可以是一个灰度图或者 2D 点集，这里可以传入轮廓信息。</li>
+</ul>
+<p>经过轮廓信息和外接矩形判定之后，我们可以得到类似如下结果：</p>
+<p><img src="/posts/ms-spider-code/image-20231003073229374.png" alt="image-20231003073229374"></p>
+<p>可以看到这样就能成功获取各个轮廓的外接矩形，接下来我们根据外接矩形的面积、和位置就能筛选出缺口对应的位置了。</p>
+<h3 id="轮廓面积"><a href="#轮廓面积" class="headerlink" title="轮廓面积"></a>轮廓面积</h3><p>现在已经得到了各个外接矩形，但是很明显有些矩形不是我们想要的，我们可以根据面积、周长等来进行筛选，这里就需要用到计算面积的方法，叫做 contourArea，方法定义如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">contourArea</span>(<span class="params">contour, oriented=<span class="literal">None</span></span>)</span><br></pre></td></tr></table></figure>
+
+<p>参数介绍如下：</p>
+<ul>
+<li>contour：轮廓信息。</li>
+<li>oriented：面向区域标识符。有默认值 False。若为 True，该函数返回一个带符号的面积值，正负取决于轮廓的方向（顺时针还是逆时针）。若为 False，表示以绝对值返回。</li>
+</ul>
+<p>返回结果就是轮廓的面积。</p>
+<h3 id="轮廓周长"><a href="#轮廓周长" class="headerlink" title="轮廓周长"></a>轮廓周长</h3><p>同样，周长的计算也有对应的方法，叫做 arcLength，方法定义如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">arcLength</span>(<span class="params">curve, closed</span>)</span><br></pre></td></tr></table></figure>
+
+<p>参数介绍如下：</p>
+<ul>
+<li>curve：轮廓信息。</li>
+<li>closed：表示轮廓是否封闭。</li>
+</ul>
+<p>返回结果就是轮廓的周长。</p>
+<p>以上内容介绍了一些 OpenCV 内置方法，了解了这些方法的用法，我们可以对下文的具体实现有更透彻的理解。</p>
+<h3 id="缺口识别"><a href="#缺口识别" class="headerlink" title="缺口识别"></a>缺口识别</h3><p>接下来我们就开始真正实现一下缺口识别算法了。</p>
+<p>首先我们定义高斯滤波、边缘检测、轮廓提取的三个方法，实现如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"></span><br><span class="line">GAUSSIAN_BLUR_KERNEL_SIZE = (<span class="number">5</span>, <span class="number">5</span>)</span><br><span class="line">GAUSSIAN_BLUR_SIGMA_X = <span class="number">0</span></span><br><span class="line">CANNY_THRESHOLD1 = <span class="number">200</span></span><br><span class="line">CANNY_THRESHOLD2 = <span class="number">450</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_gaussian_blur_image</span>(<span class="params">image</span>):</span><br><span class="line">    <span class="keyword">return</span> cv2.GaussianBlur(image, GAUSSIAN_BLUR_KERNEL_SIZE, GAUSSIAN_BLUR_SIGMA_X)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_canny_image</span>(<span class="params">image</span>):</span><br><span class="line">    <span class="keyword">return</span> cv2.Canny(image, CANNY_THRESHOLD1, CANNY_THRESHOLD2)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_contours</span>(<span class="params">image</span>):</span><br><span class="line">    contours, _ = cv2.findContours(image, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)</span><br><span class="line">    <span class="keyword">return</span> contours</span><br></pre></td></tr></table></figure>
+
+<p>三个方法介绍如下：</p>
+<ul>
+<li>get_gaussian_blur_image：传入待处理图像信息，返回高斯滤波处理后的图像，ksize 定义为 <code>(5, 5)</code>，sigmaX 定义为 0。</li>
+<li>get_canny_image：传入待处理图像信息，返回边缘检测处理后的图像，threshold1 和 threshold2 分别定义为 200 和 450。</li>
+<li>get_contours：传入待处理图像信息，返回检测到的轮廓信息，这里 mode 设定为 RETR_CCOMP，method 设定为 CHAIN_APPROX_SIMPLE。</li>
+</ul>
+<p>原始待识别验证码命名为 captcha.png，接下来我们分别调用以上方法对验证码进行处理：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">image_raw = cv2.imread(<span class="string">&#x27;captcha.png&#x27;</span>)</span><br><span class="line">image_height, image_width, _ = image_raw.shape</span><br><span class="line">image_gaussian_blur = get_gaussian_blur_image(image_raw)</span><br><span class="line">image_canny = get_canny_image(image_gaussian_blur)</span><br><span class="line">contours = get_contours(image_canny)</span><br></pre></td></tr></table></figure>
+
+<p>原始图片我们命名为 image_raw 变量，读取图片之后获取其宽高像素信息，接着调用了 get_gaussian_blur_image 方法进行高斯滤波处理，返回结果命名为 image_gaussian_blur，接着将 image_gaussian_blur 传给 get_canny_image 方法进行边缘检测处理，返回结果命名为 image_canny，接着调用 get_contours 方法得到各个边缘的轮廓信息，赋值为 contours 变量。</p>
+<p>好，得到各个轮廓信息之后，我们便需要根据各个轮廓的外接矩形的面积、周长、位置来筛选我们想要结果了。</p>
+<p>所以，我们需要先确定怎么来筛选，比如面积我们可以设定一个范围，周长设定一个范围，缺口位置设定一个范围，通过实际测量，我们可以得出目标缺口的外接矩形的高度大约是验证码高度的 0.25 倍，宽度大约是验证码宽度的 0.15 倍。在允许误差 20% 的情况下，根据验证码的宽高信息我们大约可以计算出面积、周长的范围，同时缺口位置（缺口左侧）也有一个最小偏移值，比如最小偏移是验证码宽度的 0.2 倍，最大偏移是验证码宽度的 0.85 倍。综合这些内容，我们可以定义三个阈值方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">get_contour_area_threshold</span>(<span class="params">image_width, image_height</span>):</span><br><span class="line">    contour_area_min = (image_width * <span class="number">0.15</span>) * (image_height * <span class="number">0.25</span>) * <span class="number">0.8</span></span><br><span class="line">    contour_area_max = (image_width * <span class="number">0.15</span>) * (image_height * <span class="number">0.25</span>) * <span class="number">1.2</span></span><br><span class="line">    <span class="keyword">return</span> contour_area_min, contour_area_max</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_arc_length_threshold</span>(<span class="params">image_width, image_height</span>):</span><br><span class="line">    arc_length_min = ((image_width * <span class="number">0.15</span>) + (image_height * <span class="number">0.25</span>)) * <span class="number">2</span> * <span class="number">0.8</span></span><br><span class="line">    arc_length_max = ((image_width * <span class="number">0.15</span>) + (image_height * <span class="number">0.25</span>)) * <span class="number">2</span> * <span class="number">1.2</span></span><br><span class="line">    <span class="keyword">return</span> arc_length_min, arc_length_max</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_offset_threshold</span>(<span class="params">image_width</span>):</span><br><span class="line">    offset_min = <span class="number">0.2</span> * image_width</span><br><span class="line">    offset_max = <span class="number">0.85</span> * image_width</span><br><span class="line">    <span class="keyword">return</span> offset_min, offset_max</span><br></pre></td></tr></table></figure>
+
+<p>三个方法介绍如下：</p>
+<ul>
+<li>get_contour_area_threshold：定义目标轮廓的下限和上限面积，分别为 contour_area_min 和 contour_area_max。</li>
+<li>get_arc_length_threshold：定义目标轮廓的下限和上限周长，分别为 arc_length_min 和 arc_length_max。</li>
+<li>get_offset_threshold：定义目标轮廓左侧的下限和上限偏移量，分别为 offset_min 和 offset_max。</li>
+</ul>
+<p>最后我们只需要遍历各个轮廓信息，根据上述限定条件进行筛选，最后得出目标轮廓信息即可，实现如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">contour_area_min, contour_area_max = get_contour_area_threshold(image_width, image_height)</span><br><span class="line">arc_length_min, arc_length_max = get_arc_length_threshold(image_width, image_height)</span><br><span class="line">offset_min, offset_max = get_offset_threshold(image_width)</span><br><span class="line">offset = <span class="literal">None</span></span><br><span class="line"><span class="keyword">for</span> contour <span class="keyword">in</span> contours:</span><br><span class="line">    x, y, w, h = cv2.boundingRect(contour)</span><br><span class="line">    <span class="keyword">if</span> contour_area_min &lt; cv2.contourArea(contour) &lt; contour_area_max <span class="keyword">and</span> \</span><br><span class="line">            arc_length_min &lt; cv2.arcLength(contour, <span class="literal">True</span>) &lt; arc_length_max <span class="keyword">and</span> \</span><br><span class="line">            offset_min &lt; x &lt; offset_max:</span><br><span class="line">        cv2.rectangle(image_raw, (x, y), (x + w, y + h), (<span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>), <span class="number">2</span>)</span><br><span class="line">        offset = x</span><br><span class="line">cv2.imwrite(<span class="string">&#x27;image_label.png&#x27;</span>, image_raw)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;offset&#x27;</span>, offset)</span><br></pre></td></tr></table></figure>
+
+<p>这里我们首先调用了 get_contour_area_threshold、get_arc_length_threshold、get_offset_threshold 方法获取了轮廓的判定阈值，然后遍历了 contours 根据这些阈值进行了筛选，最终得到的外接矩形的 x 值就是目标缺口的偏移量。</p>
+<p>同时目标缺口的外接矩形我们也调用了 rectangle 方法进行了标注，最终将其保存为 image_label.png 图像。</p>
+<p>最终运行结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">offset 163</span><br></pre></td></tr></table></figure>
+
+<p>同时得到输出的 image_label.png 文件如下：</p>
+<p><img src="/posts/ms-spider-code/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/%E7%88%AC%E8%99%AB/07_%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/image-20230306225139286.png" alt="image-20230306225139286"></p>
+<p>这样我们就成功提取出来了目标滑块的位置了，本节的问题得以解决。</p>
+<blockquote>
+<p>注意：出于安全考虑，本书只针对于第一步 - 识别验证码缺口位置的的技术问题进行讲解，关于怎样去模拟滑动或者绕过验证码，本书不再进行介绍，可以自行搜索相关资料探索。</p>
+</blockquote>
+<p>本节我们介绍了利用 OpenCV 来识别滑动验证码缺口的方法，其中涉及到了一些关键的图像处理和识别技术，如高斯模糊、边缘检测、轮廓提取等算法。了解了基本的图像识别技术后，我们可以举一反三，将其应用到其他类型的工作上，也会很有帮助。</p>
+<h2 id="使用-深度学习-识别图片验证码"><a href="#使用-深度学习-识别图片验证码" class="headerlink" title="使用 深度学习 识别图片验证码"></a>使用 深度学习 识别图片验证码</h2><p>我们验证了OpenCV 识别了图形验证码，深度学习不是对图像识别很准吗？那深度学习可以用在识别滑动验证码缺口位置吗？当然也是可以的 </p>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>同样地，本节还是主要侧重于完成利用深度学习模型来识别验证码缺口的过程，所以不会侧重于讲解深度学习模型的算法，另外由于整个模型实现较为复杂，本节也不会从零开始编写代码，而是倾向于把代码提前下载下来进行实操练习。</p>
+<p>所以在最后，请提前代码下载下来，仓库地址为：<a target="_blank" rel="noopener" href="https://github.com/Python3WebSpider/DeepLearningSlideCaptcha2%EF%BC%8C%E5%88%A9%E7%94%A8">https://github.com/Python3WebSpider/DeepLearningSlideCaptcha2，利用</a> Git 把它克隆下来：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/Python3WebSpider/DeepLearningSlideCaptcha2.git</span><br></pre></td></tr></table></figure>
+
+<p>安装必要的依赖库：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install numpy torch&gt;=1.0 torchvision matplotlib tensorflow==2.8.0 tensorboard terminaltables pillow tqdm</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>推荐一个方便的日志模块：pip3 install loguru</p>
+</blockquote>
+<h3 id="目标检测"><a href="#目标检测" class="headerlink" title="目标检测"></a>目标检测</h3><p>识别滑动验证码缺口的这个问题，其实可以归结为目标检测问题。那什么叫目标检测呢？在这里简单作下介绍。</p>
+<p>目标检测，顾名思义，就是把我们想找的东西找出来。比如给一张「狗」的图片，如图所示：</p>
+<p><img src="/posts/ms-spider-code/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/%E7%88%AC%E8%99%AB/07_%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/image-20231003073208876.png" alt="image-20231003073208876"></p>
+<p>我们想知道这只狗在哪，它的舌头在哪，找到了就把它们框选出来，这就是目标检测。</p>
+<p>经过目标检测算法处理之后，我们期望得到的图片是这样的：</p>
+<p><img src="/posts/ms-spider-code/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/%E7%88%AC%E8%99%AB/07_%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/image-20231003073213544.png" alt="image-20231003073213544"></p>
+<p>可以看到这只狗和它的舌头就被框选出来了，这就完成了一个不错的目标检测。</p>
+<p>现在比较流行的目标检测算法有 R-CNN、Fast R-CNN、Faster R-CNN、SSD、YOLO 等，感兴趣可以了解一下，当然不太了解对本节要完成的目标也没有什么影响。</p>
+<p>当前做目标检测的算法主要有两种方法，有一阶段式和两阶段式，英文叫做 One stage 和 Two stage，简述如下：</p>
+<ul>
+<li>Two Stage：算法首先生成一系列目标所在位置的候选框，然后再对这些框选出来的结果进行样本分类，即先找出来在哪，然后再分出来是啥，俗话说叫「看两眼」，这种算法有 R-CNN、Fast R-CNN、Faster R-CNN 等，这些算法架构相对复杂，但准确率上有优势。</li>
+<li>One Stage：不需要产生候选框，直接将目标定位和分类的问题转化为回归问题，俗话说叫「看一眼」，这种算法有 YOLO、SSD，这些算法虽然准确率上不及 Two stage，但架构相对简单，检测速度更快。</li>
+</ul>
+<p>所以这次我们选用 One Stage 的有代表性的目标检测算法 YOLO 来实现滑动验证码缺口的识别。</p>
+<p>YOLO，英文全称叫做 You Only Look Once，取了它们的首字母就构成了算法名，</p>
+<p>目前 YOLO 算法最新的版本是 V5 版本，应用比较广泛的是 V3 版本，这里算法的具体流程我们就不过多介绍了，感兴趣的可以搜一下相关资料了解下，另外也可以了解下 YOLO V1-V3 版本的不同和改进之处，这里列几个参考链接：</p>
+<ul>
+<li>YOLO V3 论文：<a target="_blank" rel="noopener" href="https://pjreddie.com/media/files/papers/YOLOv3.pdf">https://pjreddie.com/media/files/papers/YOLOv3.pdf</a></li>
+<li>YOLO V3 介绍：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/34997279">https://zhuanlan.zhihu.com/p/34997279</a></li>
+<li>YOLO V1-V3 对比介绍：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/makefile/p/yolov3.html">https://www.cnblogs.com/makefile/p/yolov3.html</a></li>
+</ul>
+<h3 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h3><p>像上一节介绍的一样，要训练深度学习模型也需要准备训练数据，数据也是分为两部分，一部分是验证码图像，另一部分是数据标注，即缺口的位置。但和上一节不一样的是，这次标注不再是单纯的验证码文本了，因为这次我们需要表示的是缺口的位置，缺口对应的是一个矩形框，要表示一个矩形框，至少需要四个数据，如左上角点的横纵坐标 x、y，矩形的宽高 w、h，所以标注数据就变成了四个数字。</p>
+<p>所以，接下来我们就需要准备一些验证码图片和对应的四位数字的标注了，比如下图的滑动验证码：</p>
+<p><img src="/posts/ms-spider-code/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/%E7%88%AC%E8%99%AB/07_%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/image-20231003073218364.png" alt="image-20231003073218364"></p>
+<p>好，那接下来我们就完成这两步吧，第一步就是收集验证码图片，第二步就是标注缺口的位置并转为我们想要的四位数字。</p>
+<p>在这里我们的示例网站是 <a target="_blank" rel="noopener" href="https://captcha1.scrape.center/%EF%BC%8C%E6%89%93%E5%BC%80%E4%B9%8B%E5%90%8E%E7%82%B9%E5%87%BB%E7%99%BB%E5%BD%95%E6%8C%89%E9%92%AE%E4%BE%BF%E4%BC%9A%E5%BC%B9%E5%87%BA%E4%B8%80%E4%B8%AA%E6%BB%91%E5%8A%A8%E9%AA%8C%E8%AF%81%E7%A0%81%EF%BC%8C%E5%A6%82%E5%9B%BE%E6%89%80%E7%A4%BA%EF%BC%9A">https://captcha1.scrape.center/，打开之后点击登录按钮便会弹出一个滑动验证码，如图所示：</a></p>
+<p><img src="/posts/ms-spider-code/image-20230306225758889.png" alt="image-20230306225758889"></p>
+<p>我们需要做的就是单独将滑动验证码的图像保存下来，也就是这个区域：</p>
+<p><img src="/posts/ms-spider-code/image-20230306225829051.png" alt="image-20230306225829051"></p>
+<p>怎么做呢？靠手工截图肯定不太可靠，费时费力，而且不好准确定位边界，会导致存下来的图片有大有小。为了解决这个问题，我们可以简单写一个脚本来实现下自动化裁切和保存，就是仓库中的 collect.py 文件，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.common.by <span class="keyword">import</span> By</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.support.ui <span class="keyword">import</span> WebDriverWait</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.support <span class="keyword">import</span> expected_conditions <span class="keyword">as</span> EC</span><br><span class="line"><span class="keyword">from</span> selenium.common.exceptions <span class="keyword">import</span> WebDriverException</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">from</span> loguru <span class="keyword">import</span> logger</span><br><span class="line"></span><br><span class="line">COUNT = <span class="number">1000</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, COUNT + <span class="number">1</span>):</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        browser = webdriver.Chrome()</span><br><span class="line">        wait = WebDriverWait(browser, <span class="number">10</span>)</span><br><span class="line">        browser.get(<span class="string">&#x27;https://captcha1.scrape.center/&#x27;</span>)</span><br><span class="line">        button = wait.until(EC.element_to_be_clickable(</span><br><span class="line">            (By.CSS_SELECTOR, <span class="string">&#x27;.el-button&#x27;</span>)))</span><br><span class="line">        button.click()</span><br><span class="line">        captcha = wait.until(</span><br><span class="line">            EC.presence_of_element_located((By.CSS_SELECTOR, <span class="string">&#x27;.geetest_slicebg.geetest_absolute&#x27;</span>)))</span><br><span class="line">        time.sleep(<span class="number">5</span>)</span><br><span class="line">        captcha.screenshot(<span class="string">f&#x27;data/captcha/images/captcha_<span class="subst">&#123;i&#125;</span>.png&#x27;</span>)</span><br><span class="line">    <span class="keyword">except</span> WebDriverException <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&#x27;webdriver error occurred <span class="subst">&#123;e.msg&#125;</span>&#x27;</span>)</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        browser.close()</span><br></pre></td></tr></table></figure>
+
+<p>在这里我们先定义了一个循环，循环次数为 COUNT 次，每次循环都使用 Selenium 启动一个浏览器，然后打开目标网站，模拟点击登录按钮触发验证码弹出，然后截取验证码对应的节点，再用 screenshot 方法将其保存下来。</p>
+<p>我们将其运行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 collect.py</span><br></pre></td></tr></table></figure>
+
+<p>运行完了之后我们就可以在 <code>data/captcha/images/</code> 目录获得很多验证码图片了，样例如图所示：</p>
+<p><img src="/posts/ms-spider-code/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/%E7%88%AC%E8%99%AB/07_%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/image-20231003073029631.png" alt="image-20231003073029631"></p>
+<p>获得验证码图片之后，我们就需要进行数据标注了，这里推荐的工具是 labelImg，GitHub 地址为 <a target="_blank" rel="noopener" href="https://github.com/tzutalin/labelImg%EF%BC%8C%E4%BD%BF%E7%94%A8">https://github.com/tzutalin/labelImg，使用</a> pip3 安装即可：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install labelImg</span><br></pre></td></tr></table></figure>
+
+<p>安装完成之后可以直接命令行运行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">labelImg</span><br></pre></td></tr></table></figure>
+
+<p>这样就成功启动了 labelImg：</p>
+<p><img src="/posts/ms-spider-code/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/%E7%88%AC%E8%99%AB/07_%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/image-20231003073025573.png" alt="image-20231003073025573"></p>
+<p>点击 <code>Open Dir</code> 打开 <code>data/captcha/images/</code> 目录，然后点击左下角的 <code>Create RectBox</code> 创建一个标注框，我们可以将缺口所在的矩形框框选出来，框选完毕之后 labelImg 就会提示保存一个名称，我们将其命名为 target，然后点击 OK，如图所示：</p>
+<p><img src="/posts/ms-spider-code/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/%E7%88%AC%E8%99%AB/07_%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/image-20231003073021237.png" alt="image-20231003073021237"></p>
+<p>这时候我们可以发现其保存了一个 xml 文件，内容如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">annotation</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">folder</span>&gt;</span>images<span class="tag">&lt;/<span class="name">folder</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">filename</span>&gt;</span>captcha_0.png<span class="tag">&lt;/<span class="name">filename</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">path</span>&gt;</span>data/captcha/images/captcha_0.png<span class="tag">&lt;/<span class="name">path</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">source</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">database</span>&gt;</span>Unknown<span class="tag">&lt;/<span class="name">database</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">source</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">size</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">width</span>&gt;</span>520<span class="tag">&lt;/<span class="name">width</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">height</span>&gt;</span>320<span class="tag">&lt;/<span class="name">height</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">depth</span>&gt;</span>3<span class="tag">&lt;/<span class="name">depth</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">size</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">segmented</span>&gt;</span>0<span class="tag">&lt;/<span class="name">segmented</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">object</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>target<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">pose</span>&gt;</span>Unspecified<span class="tag">&lt;/<span class="name">pose</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">truncated</span>&gt;</span>0<span class="tag">&lt;/<span class="name">truncated</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">difficult</span>&gt;</span>0<span class="tag">&lt;/<span class="name">difficult</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">bndbox</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">xmin</span>&gt;</span>321<span class="tag">&lt;/<span class="name">xmin</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">ymin</span>&gt;</span>87<span class="tag">&lt;/<span class="name">ymin</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">xmax</span>&gt;</span>407<span class="tag">&lt;/<span class="name">xmax</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">ymax</span>&gt;</span>167<span class="tag">&lt;/<span class="name">ymax</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">bndbox</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">object</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">annotation</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>其中可以看到 size 节点里有三个节点，分别是 width、height、depth，分别代表原验证码图片的宽度、高度、通道数。另外 object 节点下的 bndbox 节点就包含了标注缺口的位置，通过观察对比可以知道 xmin、ymin 指的就是左上角的坐标，xmax、ymax 指的就是右下角的坐标。</p>
+<p>我们可以用下面的方法简单进行下数据处理：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> xmltodict</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">parse_xml</span>(<span class="params">file</span>):</span><br><span class="line">    xml_str = <span class="built_in">open</span>(file, encoding=<span class="string">&#x27;utf-8&#x27;</span>).read()</span><br><span class="line">    data = xmltodict.parse(xml_str)</span><br><span class="line">    data = json.loads(json.dumps(data))</span><br><span class="line">    annoatation = data.get(<span class="string">&#x27;annotation&#x27;</span>)</span><br><span class="line">    width = <span class="built_in">int</span>(annoatation.get(<span class="string">&#x27;size&#x27;</span>).get(<span class="string">&#x27;width&#x27;</span>))</span><br><span class="line">    height = <span class="built_in">int</span>(annoatation.get(<span class="string">&#x27;size&#x27;</span>).get(<span class="string">&#x27;height&#x27;</span>))</span><br><span class="line">    bndbox = annoatation.get(<span class="string">&#x27;object&#x27;</span>).get(<span class="string">&#x27;bndbox&#x27;</span>)</span><br><span class="line">    box_xmin = <span class="built_in">int</span>(bndbox.get(<span class="string">&#x27;xmin&#x27;</span>))</span><br><span class="line">    box_xmax = <span class="built_in">int</span>(bndbox.get(<span class="string">&#x27;xmax&#x27;</span>))</span><br><span class="line">    box_ymin = <span class="built_in">int</span>(bndbox.get(<span class="string">&#x27;ymin&#x27;</span>))</span><br><span class="line">    box_ymax = <span class="built_in">int</span>(bndbox.get(<span class="string">&#x27;ymax&#x27;</span>))</span><br><span class="line">    box_width = (box_xmax - box_xmin) / width</span><br><span class="line">    box_height = (box_ymax - box_ymin) / height</span><br><span class="line">    <span class="keyword">return</span> box_xmin / width, box_ymin / height, box_width / width, box_height / height</span><br></pre></td></tr></table></figure>
+
+<p>这里我们定义了一个 parse_xml 方法，这个方法首先读取了 xml 文件，然后使用 xmltodict 库就可以将 XML 字符串转为 JSON，然后依次读取出验证码的宽高信息，缺口的位置信息，最后返回了想要的数据格式 —— 缺口左上角的坐标和宽高相对值，以元组的形式返回。</p>
+<p>都标注完成之后，对每个 xml 文件调用此方法便可以生成想要的标注结果了。</p>
+<p>在这里，我已经将对应的标注结果都处理好了，可以直接使用，路径为 <code>data/captcha/labels</code>，如图所示：</p>
+<p><img src="/posts/ms-spider-code/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/%E7%88%AC%E8%99%AB/07_%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/image-20231003073038716.png" alt="image-20231003073038716"></p>
+<p>每个 txt 文件对应一张验证码图的标注结果，内容类似如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0 0.6153846153846154 0.275 0.16596774 0.24170968</span><br></pre></td></tr></table></figure>
+
+<p>第一位 0 代表标注目标的索引，由于我们只需要检测一个缺口，所以索引就是 0；第 2、3 位代表缺口的左上角的位置，比如 0.615 则代表缺口左上角的横坐标在相对验证码的 61.5% 处，乘以验证码的宽度 520，结果大约就是 320，即左上角偏移值是 320 像素；第 4、5 代表缺口的宽高相对验证码图片的占比，比如第 5 位 0.24 乘以验证码的高度 320，结果大约是 77，即缺口的高度大约为 77 像素。</p>
+<p>好了，到此为止数据准备阶段就完成了。</p>
+<h3 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h3><p>为了更好的训练效果，我们还需要下载一些预训练模型。预训练的意思就是已经有一个提前训练过的基础模型了，我们可以直接使用提前训练好的模型里面的权重文件，我们就不用从零开始训练了，只需要基于之前的模型进行微调就好了，这样既可以节省训练时间，又可以有比较好的效果。</p>
+<p>YOLOV3 的训练要加载预训练模型才能有不错的训练效果，预训练模型下载命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash prepare.sh</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：在 Windows 下请使用 Bash 命令行工具如 Git Bash 来运行此命令。</p>
+</blockquote>
+<p>执行这个脚本，就能下载 YOLO V3 模型的一些权重文件，包括 yolov3 和 weights 还有 darknet 的 weights，在训练之前我们需要用这些权重文件初始化 YOLO V3 模型。</p>
+<p>接下来就可以开始训练了，执行如下脚本：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash train.sh</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：在 Windows 下请同样使用 Bash 命令行工具如 Git Bash 来运行此命令。</p>
+</blockquote>
+<p>同样推荐使用 GPU 进行训练，训练过程中我们可以使用 TensorBoard 来看看 loss 和 mAP 的变化，运行 TensorBoard：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensorboard --logdir=&#x27;logs&#x27; --port=6006 --host 0.0.0.0</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：请确保已经正确安装了本项目的所有依赖库，其中就包括 TensorBoard，安装成功之后便可以使用 tensorboard 命令。</p>
+</blockquote>
+<p>运行此命令后可以在 <a target="_blank" rel="noopener" href="http://localhost:6006/">http://localhost:6006</a> 观察到训练过程中的 loss 变化。</p>
+<p>loss_1 变化类似如下：</p>
+<p><img src="/posts/ms-spider-code/image-20231003073044193.png" alt="image-20231003073044193"></p>
+<p>val_mAP 变化类似如下：</p>
+<p><img src="/posts/ms-spider-code/image-20231003073047173.png" alt="image-20231003073047173"></p>
+<p>可以看到 loss 从最初的非常高下降到了很低，准确率也逐渐接近 100%。</p>
+<p>这是训练过程中的命令行的一些输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">---- [Epoch 99/100, Batch 27/29] ----</span><br><span class="line">+------------+--------------+--------------+--------------+</span><br><span class="line">| Metrics    | YOLO Layer 0 | YOLO Layer 1 | YOLO Layer 2 |</span><br><span class="line">+------------+--------------+--------------+--------------+</span><br><span class="line">| grid_size  | 14           | 28           | 56           |</span><br><span class="line">| loss       | 0.028268     | 0.046053     | 0.043745     |</span><br><span class="line">| x          | 0.002108     | 0.005267     | 0.008111     |</span><br><span class="line">| y          | 0.004561     | 0.002016     | 0.009047     |</span><br><span class="line">| w          | 0.001284     | 0.004618     | 0.000207     |</span><br><span class="line">| h          | 0.000594     | 0.000528     | 0.000946     |</span><br><span class="line">| conf       | 0.019700     | 0.033624     | 0.025432     |</span><br><span class="line">| cls        | 0.000022     | 0.000001     | 0.000002     |</span><br><span class="line">| cls_acc    | 100.00%      | 100.00%      | 100.00%      |</span><br><span class="line">| recall50   | 1.000000     | 1.000000     | 1.000000     |</span><br><span class="line">| recall75   | 1.000000     | 1.000000     | 1.000000     |</span><br><span class="line">| precision  | 1.000000     | 0.800000     | 0.666667     |</span><br><span class="line">| conf_obj   | 0.994271     | 0.999249     | 0.997762     |</span><br><span class="line">| conf_noobj | 0.000126     | 0.000158     | 0.000140     |</span><br><span class="line">+------------+--------------+--------------+--------------+</span><br><span class="line">Total loss 0.11806630343198776</span><br></pre></td></tr></table></figure>
+
+<p>这里显示了训练过程中各个指标的变化情况，如 loss、recall、precision、confidence 等，分别代表训练过程的损失（越小越好）、召回率（能识别出的结果占应该识别出结果的比例，越高越好）、精确率（识别出的结果中正确的比率，越高越好）、置信度（模型有把握识别对的概率，越高越好），可以作为参考。</p>
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><p>训练完毕之后会在 checkpoints 文件夹生成 pth 文件，这就是一些模型文件，和上一节的 best_model.pkl 是一样的原理，只不过表示形式略有不同，我们可直接使用这些模型来预测生成标注结果。</p>
+<p>要运行测试，我们可以先在测试文件夹 <code>data/captcha/test</code> 放入一些验证码图片：</p>
+<p>样例验证码如下：</p>
+<p><img src="/posts/ms-spider-code/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/%E7%88%AC%E8%99%AB/07_%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/image-20231003073051750.png" alt="image-20231003073051750"></p>
+<p>要运行测试，执行如下脚本：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash detect.sh</span><br></pre></td></tr></table></figure>
+
+<p>该脚本会读取测试文件夹所有图片，并将处理后的结果输出到 <code>data/captcha/result</code> 文件夹，控制台输出了一些验证码的识别结果。</p>
+<p>同时在 <code>data/captcha/result</code> 生成了标注的结果，样例如下：</p>
+<p><img src="/posts/ms-spider-code/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/%E7%88%AC%E8%99%AB/07_%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/image-20231003073055050.png" alt="image-20231003073055050"></p>
+<p>可以看到，缺口就被准确识别出来了。</p>
+<p>实际上，detect.sh 是执行了 detect.py 文件，在代码中有一个关键的输出结果如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bbox = patches.Rectangle((x1 + box_w / <span class="number">2</span>, y1 + box_h / <span class="number">2</span>), box_w, box_h, linewidth=<span class="number">2</span>, edgecolor=color, facecolor=<span class="string">&quot;none&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;bbox&#x27;</span>, (x1, y1, box_w, box_h), <span class="string">&#x27;offset&#x27;</span>, x1)</span><br></pre></td></tr></table></figure>
+
+<p>这里 bbox 指的就是最终缺口的轮廓位置，同时 x1 就是指的轮廓最左侧距离整个验证码最左侧的横向偏移量，即 offset。通过这两个信息，我们就能得到缺口的关键位置了。</p>
+<p>有了目标滑块位置之后，我们便可以进行一些模拟滑动操作从而实现通过验证码的检测了。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本节主要介绍了训练深度学习模型来识别滑动验证码缺口的整体流程，最终我们成功实现了模型训练过程，并得到了一个深度学习模型文件。</p>
+<p>利用这个模型，我们可以输入一张滑动验证码，模型便会预测出其中的缺口的位置，包括偏移量、宽度等，最后可以通过缺口的信息绘制出对应的位置。</p>
+<p>当然本节介绍的内容也可以进一步优化：</p>
+<ul>
+<li>当前模型的预测过程是通过命令行执行的，但在实际使用的时候可能并不太方便，可以考虑将预测过程对接 API 服务器暴露出来，比如对接 Flask、Django、FastAPI 等把预测过程实现为一个支持 POST 请求的接口，接口可以接收一张验证码图片，返回验证码的文本信息，这样会使得模型更加方便易用。</li>
+</ul>
+<h2 id="使用-打码平台-识别验证码"><a href="#使用-打码平台-识别验证码" class="headerlink" title="使用 打码平台 识别验证码"></a>使用 打码平台 识别验证码</h2><p>前面ORC、OpenCV 是识别率不高，深度学习效果不错，但是训练维护模型流程相对复杂。</p>
+<p>更简单的：用打码平台，轻松识别各种各样的验证码、图形验证码、滑动验证码、点选验证码和逻辑推理验证码等。</p>
+<p>平台用起来方便，给接口传图片，返回结果直接用就行。（背后是算法模型，甚至人工打码在支持）</p>
+<h3 id="超级鹰"><a href="#超级鹰" class="headerlink" title="超级鹰"></a>超级鹰</h3><p><a target="_blank" rel="noopener" href="https://www.chaojiying.com/">https://www.chaojiying.com/</a></p>
+<p>从这里下载demo，<a target="_blank" rel="noopener" href="https://www.chaojiying.com/api-14.html">https://www.chaojiying.com/api-14.html</a></p>
+<p>价格体系可以看识别类型和价格：<a target="_blank" rel="noopener" href="https://www.chaojiying.com/price.html">https://www.chaojiying.com/price.html</a></p>
+<h2 id="手机验证码-自动化处理"><a href="#手机验证码-自动化处理" class="headerlink" title="手机验证码 自动化处理"></a>手机验证码 自动化处理</h2><p>前面的基本是PC上出现图形，然后要求输入验证码，如果是要求输入手机验证码，又该怎么办？</p>
+<h3 id="验证码收发"><a href="#验证码收发" class="headerlink" title="验证码收发"></a>验证码收发</h3><p>通常来说，我们的自动化脚本会运行在 PC 上，比如打开一个网页，然后模拟输入手机号，然后点击获取验证码，接下来就需要输入验证码了。打开页面，输入手机号、点击获取验证码等流程我们可以非常容易地实现自动化，但是验证码被发送到手机上了，我们怎么能把它转到 PC 上呢？</p>
+<p>为了自动化整个验证码收发的流程，这时候我们想要完成的就是 —— 当手机收到一条短信的时候，它能够自动将短信转发到某处，比如一台远程服务器上或者直接发到 PC 上，在 PC 上我们可以通过一些方法再把短信获取下来并提取验证码的内容，然后自动化填充验证码即可。</p>
+<p>那这里关键的部分其实就是怎样完成这两个步骤：</p>
+<ul>
+<li>如何监听手机收到了短信</li>
+<li>如何将手机短信转发到想要的位置</li>
+</ul>
+<p>这两个步骤缺一不可，而且都需要在手机上完成。</p>
+<p>解决思路自然很简单了，我们以 Android 手机为例，如果有 Android 开发经验的话，其实这两个功能实现起来还是蛮简单的。</p>
+<blockquote>
+<p>注意：这里我们仅仅简单介绍基本的思路，不会完全详细展开介绍具体的代码实现，感兴趣的话可以自行尝试。</p>
+</blockquote>
+<p>首先如何监听手机收到了短信呢？</p>
+<p>在 Android 开发中，整体就分为三个必要环节：</p>
+<ul>
+<li>注册读取短信的权限：在一个 Android App 中，读取短信是需要特定的权限的，所以我们需要在 Andriod App 的 AndroidManifest.xml 中将读取短信的权限配置好，比如接收短信的权限配置如下：</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">&quot;android.permission.RECEIVE_SMS&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">uses-permission</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>注册广播事件：Android 有一个基本组件叫做 BroadcastReceiver，也就是广播接收者的意思，我们可以用它来监听来自系统的各种事件广播，比如系统电量不足的广播、系统来电的广播，当然系统收到短信的广播也就不在话下了。所以这就类似我们注册一个监听器，用来监听系统收到短信的事件。<br>比如这里我们可以同样在 AndroidManifest.xml 里面注册一个 BroadcastReceiver，叫做 SmsReciver：</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">receiver</span> <span class="attr">android:name</span>=<span class="string">&quot;.receive.SmsReciver&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">intent-filter</span> <span class="attr">android:priority</span>=<span class="string">&quot;999&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">&quot;android.provider.Telephony.SMS_RECEIVED&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">receiver</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>实现短信广播接收：这里就需要我们真正实现短信接收的逻辑了，这里只需要实现一个 SmsReceiver 类来继承一个 BroadcastReceiver 然后实现其 onReceive 方法即可，其中 intent 参数里面便包含了我们想要的短信息内容，实现如下：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SmsReciver</span> <span class="keyword">extends</span> <span class="title class_">BroadcastReceiver</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onReceive</span><span class="params">(Context context, Intent intent)</span> &#123;</span><br><span class="line">        <span class="type">Bundle</span> <span class="variable">bundle</span> <span class="operator">=</span> intent.getExtras();</span><br><span class="line">        <span class="type">SmsMessage</span> <span class="variable">msg</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (<span class="literal">null</span> != bundle) &#123;</span><br><span class="line">            Object[] smsObj = (Object[]) bundle.get(<span class="string">&quot;pdus&quot;</span>);</span><br><span class="line">            <span class="keyword">for</span> (Object object : smsObj) &#123;</span><br><span class="line">                msg = SmsMessage.createFromPdu((<span class="type">byte</span>[]) object);</span><br><span class="line">                Log.e(<span class="string">&quot;短信号码&quot;</span>, <span class="string">&quot;&quot;</span> + msg.getOriginatingAddress());</span><br><span class="line">                Log.e(<span class="string">&quot;短信内容&quot;</span>, <span class="string">&quot;&quot;</span> + msg.getDisplayMessageBody());</span><br><span class="line">                Log.e(<span class="string">&quot;短信时间&quot;</span>, <span class="string">&quot;&quot;</span> + msg.getTimestampMillis());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>如此一来，我们便实现了短信的接收。</p>
+<p>短信收到之后，发送自然也就很简单了，比如服务器提供一个 API，我们通过请求该 API 即可实现数据的发送，这个通过 Android 的一些 HTTP 请求库就可以实现，比如 OkHttp 等构造一个 HTTP 请求即可，这里就不再赘述了。</p>
+<p>不过总的来说，整个流程下来其实还需要花费一些开发成本的，对于如此常用的功能，有没有现成的解决方案呢？自然是有的。我们可以借助于于一些开源实现，我们就没必要重复造轮子了。</p>
+<p>这里我们就介绍一个开源软件，叫做 SmsForwarder，中文翻译过来叫做短信转发器，其 GitHub 仓库地址为：<a target="_blank" rel="noopener" href="https://github.com/pppscn/SmsForwarder%E3%80%82">https://github.com/pppscn/SmsForwarder。</a></p>
+<p>它的基本流程架构图如下：</p>
+<p><img src="/posts/ms-spider-code/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/%E7%88%AC%E8%99%AB/07_%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/image-20231003073116066.png" alt="image-20231003073116066"></p>
+<p>架构图非常清晰，SmsForwarder 可以监听监听收到短信的事件，获取到短信的来源号码、接受卡槽、短信内容、接收时间等内容，然后将其通过一定的规则转发出去，支持转发到邮箱、微信群机器人、企业微信、Telegram 机器人、Webhook 等。</p>
+<p>比如我们可以配置类似这样的规则，如图所示：</p>
+<p><img src="/posts/ms-spider-code/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/%E7%88%AC%E8%99%AB/07_%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/image-20230306234952795.png" alt="image-20230306234952795"></p>
+<p>比如当手机号符合一定的规则就转发到 QQ 邮箱，比如内容包含 “报警” 就转发到阿里企业邮箱，比如内容开头是 “测试” 就发动给叫做 TSMS 的 Webhook。</p>
+<p>其中 QQ 邮箱、阿里企业邮箱都是我们已经配置好的发送方，都属于邮箱类型，TSMS 也是一种发送方，属于 Webhook 类型，如图所示：</p>
+<p><img src="/posts/ms-spider-code/image-20230306234843983.png" alt="image-20230306234843983"></p>
+<p>我们也可以点击添加发送方按钮来添加对应的发送方，比如添加邮箱的发送方，我们可以设置 SMTP 配置下发件邮箱、SMTP 服务器、SMTP 端口、授权密码等内容：</p>
+<p><img src="/posts/ms-spider-code/image-20230306234901012.png" alt="image-20230306234901012"></p>
+<p>设置 Webhook 我们可以选择是 GET 还是 POST 请求，然后填入对应的 URL、密钥等内容：</p>
+<p><img src="/posts/ms-spider-code/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/%E7%88%AC%E8%99%AB/07_%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/image-20230306234918919.png" alt="image-20230306234918919"></p>
+<p>设置转发规则页面如图所示：</p>
+<p><img src="/posts/ms-spider-code/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/%E7%88%AC%E8%99%AB/07_%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/image-20230306234934035.png" alt="image-20230306234934035"></p>
+<p>比如这里我们可以选择匹配卡槽、匹配的字段、匹配的模式，还可以配置正则来设置匹配的值，这里就配置了尾号是 4566 的手机号来执行一定的发送操作，收到的短信会发送到钉钉这个发送方。</p>
+<h3 id="实战演示"><a href="#实战演示" class="headerlink" title="实战演示"></a>实战演示</h3><p>比如这里我们来尝试下，这里我们用 Flask 写一个 API，实现如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request, jsonify</span><br><span class="line"><span class="keyword">from</span> loguru <span class="keyword">import</span> logger</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/sms&#x27;</span>, methods=[<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">receive</span>():</span><br><span class="line">    sms_content = request.form.get(<span class="string">&#x27;content&#x27;</span>)</span><br><span class="line">    logger.debug(<span class="string">f&#x27;received <span class="subst">&#123;sms_content&#125;</span>&#x27;</span>)</span><br><span class="line">    <span class="comment"># parse content and save to db or mq</span></span><br><span class="line">    <span class="keyword">return</span> jsonify(status=<span class="string">&#x27;success&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run(debug=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<p>代码很简单，这里设置了一个路由，接收 POST 请求，然后读取了 Request 表单的内容，其中 content 就是短信的详情内容，然后将其打印出来。</p>
+<p>我们将代码保存为 server.py，然后将其运行起来：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 server.py</span><br></pre></td></tr></table></figure>
+
+<p>运行结果输出如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">* Debug mode: on</span><br><span class="line">* Running on http://<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">5000</span>/ (Press CTRL+C to quit)</span><br><span class="line">* Restarting <span class="keyword">with</span> stat</span><br><span class="line">* Debugger <span class="keyword">is</span> active!</span><br><span class="line">* Debugger PIN: <span class="number">269</span>-<span class="number">657</span>-055</span><br></pre></td></tr></table></figure>
+
+<p>为了方便测试，我们可以用 Ngrok 将该服务暴露到公网：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ngrok http 5000</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：Ngrok 可以方便地将任何非公网的服务暴露到公网访问，并配置特定的临时二级域名，但一个域名有时长限制，所以通常仅供测试使用。试用前请先安装 Ngrok，具体可以参考 <a target="_blank" rel="noopener" href="https://ngrok.com/%E3%80%82">https://ngrok.com/。</a></p>
+</blockquote>
+<p>运行之后，可以看到输入结果如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Session Status                online                                                                                                   </span><br><span class="line">Session Expires               <span class="number">1</span> hour, <span class="number">59</span> minutes                                                                                       </span><br><span class="line">Update                        update available (version <span class="number">2.3</span><span class="number">.40</span>, Ctrl-U to update)                                                      </span><br><span class="line">Version                       <span class="number">2.3</span><span class="number">.35</span>                                                                                                   </span><br><span class="line">Region                        United States (us)                                                                                       </span><br><span class="line">Web Interface                 http://<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">4040</span>                                                                                    </span><br><span class="line">Forwarding                    http://1259539cb974.ngrok.io -&gt; http://localhost:<span class="number">5000</span>                                                    </span><br><span class="line">Forwarding                    https://1259539cb974.ngrok.io -&gt; http://localhost:<span class="number">5000</span>                                                   </span><br><span class="line">                                                                                                                                       </span><br><span class="line">Connections                   ttl     opn     rt1     rt5     p50     p90                                                              </span><br><span class="line">                              <span class="number">9</span>       <span class="number">0</span>       <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span></span><br></pre></td></tr></table></figure>
+
+<p>这里我们可以看到 Ngrok 为我们配置了一个公网地址，比如访问 <a target="_blank" rel="noopener" href="https://1259539cb974.ngrok.io/">https://1259539cb974.ngrok.io</a> 即相当于访问了我们本地的 <a target="_blank" rel="noopener" href="http://localhost:5000/">http://localhost:5000</a> 服务，这样手机上只需要配置这个地址即可将数据发送到 PC 了。</p>
+<p>接下来我们手机上打开 SmsForder，添加一个 Webhook 类型的发送方，配置如下：</p>
+<p><img src="/posts/ms-spider-code/image-20230306235029995.png" alt="image-20230306235029995"></p>
+<p>这里 Server 的地址我们就直接设置了刚才 Ngrok 提供的公网地址了，记得 URL 路径后面加上 sms。</p>
+<p>接着我们添加一个转发规则：</p>
+<p><img src="/posts/ms-spider-code/image-20230306235043536.png" alt="image-20230306235043536"></p>
+<p>这里我们设置了内容匹配规则，比如匹配到内容开头为测试的时候，那就将短信内容转发到 Webhook 这个发送方，即发送到我们刚刚搭建的 Flask 服务器上。</p>
+<p>OK，配置完成之后，然后我们给该手机尝试发送一个验证码，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">测试验证码593722，一分钟有效。</span><br></pre></td></tr></table></figure>
+
+<p>这时候就可以发现刚才的 Flask 服务器接收结果是这样的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">received +8617xxxxxxxx</span><br><span class="line">测试验证码593722，一分钟有效。</span><br><span class="line">SIM2_China Unicom_</span><br><span class="line">2021-03-27 18:47:54</span><br><span class="line">SM-G9860</span><br></pre></td></tr></table></figure>
+
+<p>可以看到刚才验证码的内容就成功由手机发送到 PC 了，接着我们便可以对此消息进行解析和处理，然后存入数据库或者消息队列即可。爬虫一端监听消息队列或者数据库改动即可将其填写并进行一些模拟登录操作了，该步骤就不再赘述了。</p>
+<h4 id="批量收发"><a href="#批量收发" class="headerlink" title="批量收发"></a>批量收发</h4><p>当然以上只针对于一部手机的情况，如果我们有大量的手机和手机卡，我们可以实现手机的群控处理，比如统一安装短信接收软件，统一配置相同的转发规则，从而实现大量手机号验证码的接收和处理。</p>
+<p>比如一个群控系统就是这样的：</p>
+<h3 id="卡池"><a href="#卡池" class="headerlink" title="卡池"></a>卡池</h3><p>当然还有更专业的解决方案，比如有专业的手机卡池，配合以专业的软件设备实现短信的监听。</p>
+<p>比如如下的设备支持插 128 张 SIM 卡，就可以实现同时监听 128 个手机号的验证码，如图所示：</p>
+<blockquote>
+<p>图片缺失！</p>
+</blockquote>
+<p>具体的技术这里不再阐述，详细可以自行查询相关的设备供应商。</p>
+<h3 id="接码平台"><a href="#接码平台" class="headerlink" title="接码平台"></a>接码平台</h3><p>当然如上的方案成本还是比较高的，而且这些方案其实已经不限于简单接收短信验证码了，比如手机群控系统一般都会做手机群控爬虫，而卡池也可以用来做 4G&#x2F;5G 蜂窝代理，如果仅仅做短信收发是可以的，但未免有些浪费了。</p>
+<p>如果我们不想耗费过多成本想实现短信验证码的自动化，还有一种方案就是接码平台，其基本思路是这样的：</p>
+<ul>
+<li>平台会维护大量的手机号，并可能开放一些 API 或者提供网页供我们调用来获取手机号和查看短信的内容。</li>
+<li>我们调用 API 或者爬取网页获取手机号，然后在对应的站点输入该手机号来获取验证码。</li>
+<li>通过调用 API 或者爬取网页获取对应手机号短信的内容，并交由爬虫处理。</li>
+</ul>
+<p>具体的操作步骤这里就不再详细阐述了，这里简单列几个接码平台：</p>
+<ul>
+<li>番薯云：<a target="_blank" rel="noopener" href="https://guanfangdiping.com/">https://guanfangdiping.com/</a></li>
+<li>云际云短信：<a target="_blank" rel="noopener" href="https://yunjisms.xyz/">https://yunjisms.xyz/</a></li>
+<li>接码号：<a target="_blank" rel="noopener" href="https://jiemahao.com/">https://jiemahao.com/</a></li>
+<li>KaKa 接码：<a target="_blank" rel="noopener" href="http://www.kakasms.com/">http://www.kakasms.com/</a></li>
+</ul>
+<p>由于接码平台管控比较严格，所以可能随时不可用，请自行搜集对应的平台进行使用</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbchen.com">左耳</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbchen.com/posts/ms-spider-code.html">https://nbchen.com/posts/ms-spider-code.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbchen.com" target="_blank">蹒跚学步的架构师</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a><a class="post-meta__tags" href="/tags/Python/">Python</a><a class="post-meta__tags" href="/tags/%E7%88%AC%E8%99%AB/">爬虫</a></div><div class="post-share"><div class="social-share" data-image="/img/cover/post_cover_1.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赛博打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/site/wechat.png" target="_blank"><img class="post-qr-code-img" src="/img/site/wechat.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/site/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/site/alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><a class="prev-post pull-left" href="/posts/ms-spider-proxy.html" title="【微服务从入门到入土】代理使用"><img class="cover" src="/img/cover/post_cover_1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【微服务从入门到入土】代理使用</div></div></a><a class="next-post pull-right" href="/posts/ms-spider-js.html" title="【微服务从入门到入土】JavaScript动态渲染页面爬虫"><img class="cover" src="/img/cover/post_cover_1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【微服务从入门到入土】JavaScript动态渲染页面爬虫</div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a href="/posts/ms-spider-deploy.html" title="【微服务从入门到入土】爬虫管理部署"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】爬虫管理部署</div></div></a><a href="/posts/ms-spider-distributed.html" title="【微服务从入门到入土】分布式爬虫"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】分布式爬虫</div></div></a><a href="/posts/ms-spider-page.html" title="【微服务从入门到入土】页面智能解析"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】页面智能解析</div></div></a><a href="/posts/ms-spider-android.html" title="【微服务从入门到入土】Android逆向"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】Android逆向</div></div></a><a href="/posts/ms-spider-app.html" title="【微服务从入门到入土】APP数据爬取"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】APP数据爬取</div></div></a><a href="/posts/ms-spider-js-reverse.html" title="【微服务从入门到入土】JavaScript逆向爬虫"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】JavaScript逆向爬虫</div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info is-center"><div class="avatar-img"><img src="/img/logo/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">左耳</div><div class="author-info-description">学习是一被子的事，被子外只有学习两个字</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">99</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">91</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/zuoer96" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:1745233303@gmail.com" target="_blank" title="QQ邮箱"><i class="fas fa-envelope" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎光临小站，这里是我日常收集和整理的总结，希望能对你有所帮助：）<br/><br/>本站的内容经过个人加工总结而来，也参考了网友们分享的资料，如有侵权，请第一时间联系我，我将及时进行修改和删除😊</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%AA%8C%E8%AF%81%E7%A0%81"><span class="toc-number">1.</span> <span class="toc-text">验证码</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8-OCR-%E6%8A%80%E6%9C%AF%E8%AF%86%E5%88%AB%E5%9B%BE%E5%BD%A2%E9%AA%8C%E8%AF%81%E7%A0%81"><span class="toc-number">1.1.</span> <span class="toc-text">使用 OCR 技术识别图形验证码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#OCR-%E6%8A%80%E6%9C%AF"><span class="toc-number">1.1.1.</span> <span class="toc-text">OCR 技术</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tesserocr-%E6%8A%80%E6%9C%AF"><span class="toc-number">1.1.2.</span> <span class="toc-text">Tesserocr 技术</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-number">1.1.2.1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#python%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81"><span class="toc-number">1.1.2.2.</span> <span class="toc-text">python测试代码</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96%E5%BA%93"><span class="toc-number">1.1.3.</span> <span class="toc-text">安装依赖库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AA%8C%E8%AF%81%E7%A0%81%E5%A4%84%E7%90%86"><span class="toc-number">1.1.4.</span> <span class="toc-text">验证码处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OCR%E8%AF%86%E5%88%AB%E5%AE%9E%E6%88%98"><span class="toc-number">1.1.5.</span> <span class="toc-text">OCR识别实战</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8-OpenCV-%E8%AF%86%E5%88%AB%E6%BB%91%E5%8A%A8%E9%AA%8C%E8%AF%81%E7%A0%81%E7%9A%84%E7%BC%BA%E5%8F%A3"><span class="toc-number">1.2.</span> <span class="toc-text">使用 OpenCV 识别滑动验证码的缺口</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AB%98%E6%96%AF%E6%BB%A4%E6%B3%A2"><span class="toc-number">1.2.1.</span> <span class="toc-text">高斯滤波</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BE%B9%E7%BC%98%E6%A3%80%E6%B5%8B"><span class="toc-number">1.2.2.</span> <span class="toc-text">边缘检测</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%AE%E5%BB%93%E6%8F%90%E5%8F%96"><span class="toc-number">1.2.3.</span> <span class="toc-text">轮廓提取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%96%E6%8E%A5%E7%9F%A9%E5%BD%A2"><span class="toc-number">1.2.4.</span> <span class="toc-text">外接矩形</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%AE%E5%BB%93%E9%9D%A2%E7%A7%AF"><span class="toc-number">1.2.5.</span> <span class="toc-text">轮廓面积</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%AE%E5%BB%93%E5%91%A8%E9%95%BF"><span class="toc-number">1.2.6.</span> <span class="toc-text">轮廓周长</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%BA%E5%8F%A3%E8%AF%86%E5%88%AB"><span class="toc-number">1.2.7.</span> <span class="toc-text">缺口识别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0-%E8%AF%86%E5%88%AB%E5%9B%BE%E7%89%87%E9%AA%8C%E8%AF%81%E7%A0%81"><span class="toc-number">1.3.</span> <span class="toc-text">使用 深度学习 识别图片验证码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-number">1.3.1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B"><span class="toc-number">1.3.2.</span> <span class="toc-text">目标检测</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%87%86%E5%A4%87"><span class="toc-number">1.3.3.</span> <span class="toc-text">数据准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%AD%E7%BB%83"><span class="toc-number">1.3.4.</span> <span class="toc-text">训练</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-number">1.3.5.</span> <span class="toc-text">测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.3.6.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8-%E6%89%93%E7%A0%81%E5%B9%B3%E5%8F%B0-%E8%AF%86%E5%88%AB%E9%AA%8C%E8%AF%81%E7%A0%81"><span class="toc-number">1.4.</span> <span class="toc-text">使用 打码平台 识别验证码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B6%85%E7%BA%A7%E9%B9%B0"><span class="toc-number">1.4.1.</span> <span class="toc-text">超级鹰</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%8B%E6%9C%BA%E9%AA%8C%E8%AF%81%E7%A0%81-%E8%87%AA%E5%8A%A8%E5%8C%96%E5%A4%84%E7%90%86"><span class="toc-number">1.5.</span> <span class="toc-text">手机验证码 自动化处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AA%8C%E8%AF%81%E7%A0%81%E6%94%B6%E5%8F%91"><span class="toc-number">1.5.1.</span> <span class="toc-text">验证码收发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E6%88%98%E6%BC%94%E7%A4%BA"><span class="toc-number">1.5.2.</span> <span class="toc-text">实战演示</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%B9%E9%87%8F%E6%94%B6%E5%8F%91"><span class="toc-number">1.5.2.1.</span> <span class="toc-text">批量收发</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%A1%E6%B1%A0"><span class="toc-number">1.5.3.</span> <span class="toc-text">卡池</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A5%E7%A0%81%E5%B9%B3%E5%8F%B0"><span class="toc-number">1.5.4.</span> <span class="toc-text">接码平台</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/ds-search-solr.html" title="【数据存储系列】手牵手学习Solr"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【数据存储系列】手牵手学习Solr"/></a><div class="content"><a class="title" href="/posts/ds-search-solr.html" title="【数据存储系列】手牵手学习Solr">【数据存储系列】手牵手学习Solr</a><time datetime="2024-11-12T08:11:54.000Z" title="发表于 2024-11-12 16:11:54">2024-11-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/ds-search-lucene.html" title="【数据存储系列】手牵手学习Lucene"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【数据存储系列】手牵手学习Lucene"/></a><div class="content"><a class="title" href="/posts/ds-search-lucene.html" title="【数据存储系列】手牵手学习Lucene">【数据存储系列】手牵手学习Lucene</a><time datetime="2024-11-12T08:11:45.000Z" title="发表于 2024-11-12 16:11:45">2024-11-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/ds-search-es.html" title="【数据存储系列】手牵手学习Es"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【数据存储系列】手牵手学习Es"/></a><div class="content"><a class="title" href="/posts/ds-search-es.html" title="【数据存储系列】手牵手学习Es">【数据存储系列】手牵手学习Es</a><time datetime="2024-11-12T08:11:35.000Z" title="发表于 2024-11-12 16:11:35">2024-11-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/ds-mq-kafka.html" title="【数据存储系列】手牵手学习Kafka"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【数据存储系列】手牵手学习Kafka"/></a><div class="content"><a class="title" href="/posts/ds-mq-kafka.html" title="【数据存储系列】手牵手学习Kafka">【数据存储系列】手牵手学习Kafka</a><time datetime="2024-11-12T08:11:09.000Z" title="发表于 2024-11-12 16:11:09">2024-11-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/ds-mq-rocketmq.html" title="【数据存储系列】手牵手学习RocketMQ"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【数据存储系列】手牵手学习RocketMQ"/></a><div class="content"><a class="title" href="/posts/ds-mq-rocketmq.html" title="【数据存储系列】手牵手学习RocketMQ">【数据存储系列】手牵手学习RocketMQ</a><time datetime="2024-11-12T08:10:58.000Z" title="发表于 2024-11-12 16:10:58">2024-11-12</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 By 左耳</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/#/Integrated/index"><span>备案号：闽ICP备2022007849号-1</span></a> <a target="_blank" rel="noopener" href="https://beian.mps.gov.cn/#/query/webSearch"><img class="icp-icon" src="/img/site/icp.png"><span>闽ICP备2022007849号</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const initGitalk = () => {
+    const gitalk = new Gitalk(Object.assign({
+      clientID: 'f5adbf6afe0a4b1a5259',
+      clientSecret: '2aa273b1981e0841b91db860a815d252d7fce5b2',
+      repo: 'zuoer96.github.io',
+      owner: 'zuoer96',
+      admin: ['zuoer96'],
+      id: 'd51c66e840b70d5756ec44c3b6b75e4f',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  const loadGitalk = async() => {
+    if (typeof Gitalk === 'function') initGitalk()
+    else {
+      await btf.getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+      await btf.getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js')
+      initGitalk()
+    }
+  }
+  
+  const commentCount = n => {
+    const isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+    if (isCommentCount) {
+      isCommentCount.textContent= n
+    }
+  }
+
+  if ('Gitalk' === 'Gitalk' || !false) {
+    if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+    else loadGitalk()
+  } else {
+    window.loadOtherComment = loadGitalk
+  }
+})()</script></div><script src="/js/webstack.js?1"></script><script src="/js/movie.js?1"></script><script src="/js/echarts.min.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: true,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><script src="/js/markmap.js"></script></body></html>

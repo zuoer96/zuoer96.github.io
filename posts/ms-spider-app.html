@@ -1,0 +1,501 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>【微服务从入门到入土】APP数据爬取 | 蹒跚学步的架构师</title><meta name="author" content="左耳"><meta name="copyright" content="左耳"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="我们抓取，我们采集，我们分析，我们挖掘">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【微服务从入门到入土】APP数据爬取">
+<meta property="og:url" content="https://nbchen.com/posts/ms-spider-app.html">
+<meta property="og:site_name" content="蹒跚学步的架构师">
+<meta property="og:description" content="我们抓取，我们采集，我们分析，我们挖掘">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbchen.com/img/cover/post_cover_1.png">
+<meta property="article:published_time" content="2024-11-12T07:22:48.000Z">
+<meta property="article:modified_time" content="2024-11-12T07:57:08.393Z">
+<meta property="article:author" content="左耳">
+<meta property="article:tag" content="微服务">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="爬虫">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbchen.com/img/cover/post_cover_1.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://nbchen.com/posts/ms-spider-app.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lWO9QTcbfhCMrpHW2Iz8w1cT6iVDffApIJepQIhimJU"/><meta name="baidu-site-verification" content="17911f388d35a0ab926c0cfff1ca6ea7"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?17911f388d35a0ab926c0cfff1ca6ea7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-3FC1C6JTVL"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-3FC1C6JTVL')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-3FC1C6JTVL', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":100,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【微服务从入门到入土】APP数据爬取',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-11-12 15:57:08'
+}</script><link rel="stylesheet" href="/css/equipment.css?1"><link rel="stylesheet" href="/css/movies.css?1"><link rel="stylesheet" href="/css/webstack.css?1"><link rel="stylesheet" href="/css/flag.css?1"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/logo/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">99</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">91</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover/post_cover_1.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">蹒跚学步的架构师</span></a><a class="nav-page-title" href="/"><span class="site-name">【微服务从入门到入土】APP数据爬取</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">【微服务从入门到入土】APP数据爬取</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-11-12T07:22:48.000Z" title="发表于 2024-11-12 15:22:48">2024-11-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-12T07:57:08.393Z" title="更新于 2024-11-12 15:57:08">2024-11-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">6.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>20分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>我们抓取，我们采集，我们分析，我们挖掘</p>
+<span id="more"></span>
+
+
+
+<h1 id="app数据爬取"><a href="#app数据爬取" class="headerlink" title="app数据爬取"></a>app数据爬取</h1><p>移动互联网发展，很多企业不在提供PC端服务，而是直接开发了app，或者在app端有更多更全的信息。</p>
+<p>这时候怎么对app进行爬取？</p>
+<p>大部分app是使用的协议也是HTTP、https的，app内部的页面交互背后也是有相应的后台api处理的。</p>
+<p>在PC网页端，我们可以借助浏览器开发者工具观察请求和响应，app端怎么办？</p>
+<p>这时候想要拦截app 的网络请求，就要用抓包工具了。比如：Charles、fiddler、mitmproxy等。通过这些工具可以拦截app请求和响应，然后构造请求模拟api，完成数据爬取。</p>
+<p>和PC端一样，app端一般也都有加密token，如果找不到规律，即使抓到包也没办法直接构造请求完成数据爬取。这时候就需要想办法，比如直接拦截所有请求的响应内容并实时处理、使用和selenium类似工具完成“所见即所爬”、使用hook app关键防范获取数据、直接逆向app找到接口参数逻辑等等。</p>
+<h2 id="charles抓包工具的使用"><a href="#charles抓包工具的使用" class="headerlink" title="charles抓包工具的使用"></a>charles抓包工具的使用</h2><p>相比 Fiddler 来说，Charles 的功能更强大，而且跨平台支持更好。所以我们选用 Charles 作为主要的移动端抓包工具，用于分析移动 App 的数据包，辅助完成 App 数据抓取工作</p>
+<h3 id="charles大致使用步骤"><a href="#charles大致使用步骤" class="headerlink" title="charles大致使用步骤"></a>charles大致使用步骤</h3><p>Charles运行在电脑上，运行时会在该电脑8888端口开启一个代理服务。</p>
+<p>准备一部andriod手机或模拟器（系统最好&lt;7.0），并且让手机或模拟器的网络和Charles所在电脑处于同一个局域网下（可以让模拟器通过虚拟网络和电脑连接，也可以让手机真机和电脑使用同一个WiFi）</p>
+<p>设置后Charles代理和Charles CA 证书，开启SSL监听。</p>
+<h3 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h3><ul>
+<li>官方网站：<a target="_blank" rel="noopener" href="https://www.charlesproxy.com/">https://www.charlesproxy.com</a></li>
+<li>下载链接：<a target="_blank" rel="noopener" href="https://www.charlesproxy.com/download">https://www.charlesproxy.com/download</a></li>
+</ul>
+<h3 id="下载-Charles"><a href="#下载-Charles" class="headerlink" title="下载 Charles"></a>下载 Charles</h3><p>我们可以在官网下载最新的稳定版本。可以发现，它支持 Windows、Linux 和 Mac 三大平台。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074728404.png" alt="image-20231003074728404"></p>
+<p>直接点击对应的安装包下载即可，具体的安装过程这里不再赘述。</p>
+<p>Charles 是收费软件，不过可以免费试用 30 天。如果试用期过了，其实还可以试用，不过每次试用不能超过 30 分钟，启动有 10 秒的延时，但是完整的软件功能还是可以使用的，所以还算比较友好。</p>
+<h3 id="证书配置"><a href="#证书配置" class="headerlink" title="证书配置"></a>证书配置</h3><p>现在很多页面都在向 HTTPS 方向发展，HTTPS 通信协议应用得越来越广泛。如果一个 App 通信应用了 HTTPS 协议，那么它通信的数据都会是被加密的，常规的截包方法是无法识别请求内部的数据的。</p>
+<p>安装完成后，如果我们想要做 HTTPS 抓包的话，那么还需要配置一下相关 SSL 证书。接下来，我们再看看各个平台下的证书配置过程。</p>
+<p>Charles 是运行在 PC 端的，我们要抓取的是 App 端的数据，所以要在 PC 和手机端都安装证书。</p>
+<h4 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h4><p>如果你的 PC 是 Windows 系统，可以按照下面的操作进行证书配置。</p>
+<p>首先打开 Charles，点击 Help→SSL Proxying→Install Charles Root Certificate，即可进入证书的安装页面，如图 1-44 所示。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074732626.png" alt="image-20231003074732626"></p>
+<p>接下来，会弹出一个安装证书的页面。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074736351.png" alt="image-20231003074736351"></p>
+<p>点击 “安装证书” 按钮，就会打开证书导入向导。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074739870.png" alt="image-20231003074739870"></p>
+<p>直接点击 “下一步” 按钮，此时需要选择证书的存储区域，点击第二个选项 “将所有的证书放入下列存储”，然后点击 “浏览” 按钮，从中选择证书存储位置为 “受信任的根证书颁发机构”，再点击 “确定” 按钮，然后点击 “下一步” 按钮。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074743452.png" alt="image-20231003074743452"></p>
+<p>再继续点击 “下一步” 按钮完成导入。</p>
+<h4 id="Mac"><a href="#Mac" class="headerlink" title="Mac"></a>Mac</h4><p>如果你的 PC 是 Mac 系统，可以按照下面的操作进行证书配置。</p>
+<p>同样是点击 Help→SSL Proxying→Install Charles Root Certificate，即可进入证书的安装页面。</p>
+<p>接下来，找到 Charles 的证书并双击，将 “信任” 设置为 “始终信任” 即可。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074750863.png" alt="image-20231003074750863"></p>
+<p>这样就成功安装了证书。</p>
+<h4 id="iOS"><a href="#iOS" class="headerlink" title="iOS"></a>iOS</h4><p>如果你的手机是 iOS 系统，可以按照下面的操作进行证书配置。</p>
+<p>首先，查看电脑的 Charles 代理是否开启，操作是点击 Proxy→Proxy Settings，打开代理设置页面，确保当前的 HTTP 代理是开启的。这里的代理端口为 8888，也可以自行修改。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074754608.png" alt="image-20231003074754608"></p>
+<p>接下来，将手机和电脑连在同一个局域网下。例如，当前电脑的 IP 为 192.168.1.76，那么首先设置手机的代理为 192.168.1.76:8888。</p>
+<p>设置完毕后，电脑上会出现一个提示窗口，询问是否信任此设备。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074759457.png" alt="image-20231003074759457"></p>
+<p>此时点击 Allow 按钮即可。这样手机就和 PC 连在同一个局域网内了，而且设置了 Charles 的代理，即 Charles 可以抓取到流经 App 的数据包了。</p>
+<p>接下来，再安装 Charles 的 HTTPS 证书。</p>
+<p>在电脑上打开 Help→SSL Proxying→Install Charles Root Certificate on a Mobile Device or Remote Browser。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074806158.png" alt="image-20231003074806158">图 1-52 证书安装页面入口</p>
+<p>此时会看到。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074811709.png" alt="image-20231003074811709"></p>
+<p>它提示我们在手机上设置好 Charles 的代理（刚才已经设置好了），然后在手机浏览器中打开 chls.pro&#x2F;ssl 下载证书。</p>
+<p>在手机上打开 chls.pro&#x2F;ssl 后，便会弹出证书的安装页面：</p>
+<p><img src="/posts/ms-spider-app/image-20231003074815487.png" alt="image-20231003074815487"></p>
+<p>点击 “安装” 按钮，然后输入密码即可完成安装。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074821745.png" alt="image-20231003074821745"></p>
+<p>如果你的 iOS 版本是 10.3 以下的话，信任 CA 证书的流程就已经完成了。</p>
+<p>如果你的 iOS 版本是 10.3 及以上，还需要在 “设置”→“通用”→“关于本机”→“证书信任设置” 中将证书的完全信任开关打开。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074828228.png" alt="image-20231003074828228"></p>
+<h4 id="Android"><a href="#Android" class="headerlink" title="Android"></a>Android</h4><p>如果你的手机是 Android 系统，可以按照下面的操作进行证书配置。</p>
+<p>在 Android 系统中，同样需要设置代理为 Charles 的代理。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074833441.png" alt="image-20231003074833441"></p>
+<p>设置完毕后，电脑上就会出现一个提示窗口，询问是否信任此设备，如图 1-51 所示，此时直接点击 Allow 按钮即可。</p>
+<p>接下来，像 iOS 设备那样，在手机浏览器上打开 chls.pro&#x2F;ssl，这时会出现一个提示框。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074839128.png" alt="image-20231003074839128"></p>
+<p>我们为证书添加一个名称，然后点击 “确定” 按钮即可完成证书的安装。</p>
+<h3 id="抓包原理"><a href="#抓包原理" class="headerlink" title="抓包原理"></a>抓包原理</h3><p>设置手机代理为 Charles 的代理地址，这样手机访问互联网的数据包就会流经 Charles，Charles 再转发这些数据包到真实的服务器，服务器返回的数据包再由 Charles 转发回手机，Charles 就起到中间人的作用，所有流量包都可以捕捉到，因此所有 HTTP 请求和响应都可以捕获到。同时 Charles 还有权力对请求和响应进行修改。</p>
+<h3 id="抓包实战"><a href="#抓包实战" class="headerlink" title="抓包实战"></a>抓包实战</h3><h4 id="抓包"><a href="#抓包" class="headerlink" title="抓包"></a>抓包</h4><p>初始状态界面</p>
+<p><img src="/posts/ms-spider-app/image-20230309081814631.png" alt="image-20230309081814631"></p>
+<p>Charles 会一直监听 PC 和手机发生的网络数据包，捕获到的数据包就会显示在左侧，随着时间的推移，捕获的数据包越来越多，左侧列表的内容也会越来越多。</p>
+<p>可以看到，图中左侧显示了 Charles 抓取到的请求站点，我们点击任意一个条目便可以查看对应请求的详细信息，其中包括 Request、Response 等内容。</p>
+<p>接下来清空 Charles 的抓取结果，点击左侧的扫帚按钮即可清空当前捕获到的所有请求。然后点击第二个监听按钮，确保监听按钮是打开的，这表示 Charles 正在监听 App 的网络数据流。</p>
+<p><img src="/posts/ms-spider-app/image-20230309081841221.png" alt="image-20230309081841221"></p>
+<p>这时打开手机京东，注意一定要提前设置好 Charles 的代理并配置好 CA 证书，否则没有效果。</p>
+<p>打开任意一个商品，如 iPhone，然后打开它的商品评论页面</p>
+<p><img src="/posts/ms-spider-app/image-20230309081905963.png" alt="image-20230309081905963"></p>
+<p>不断上拉加载评论，可以看到 Charles 捕获到这个过程中京东 App 内发生的所有网络请求</p>
+<p><img src="/posts/ms-spider-app/image-20230309081929758.png" alt="image-20230309081929758"></p>
+<p>左侧列表中会出现一个 api.m.jd.com 链接，而且它在不停闪动，很可能就是当前 App 发出的获取评论数据的请求被 Charles 捕获到了。我们点击将其展开，继续上拉刷新评论。随着上拉的进行，此处又会出现一个个网络请求记录，这时新出现的数据包请求确定就是获取评论的请求。</p>
+<p>为了验证其正确性，我们点击查看其中一个条目的详情信息。切换到 Contents 选项卡，这时我们发现一些 JSON 数据，核对一下结果，结果有 commentData 字段，其内容和我们在 App 中看到的评论内容一致</p>
+<p><img src="/posts/ms-spider-app/image-20230309081959932.png" alt="image-20230309081959932"></p>
+<p>这时可以确定，此请求对应的接口就是获取商品评论的接口。这样我们就成功捕获到了在上拉刷新的过程中发生的请求和响应内容</p>
+<h4 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h4><p>现在分析一下这个请求和响应的详细信息。首先可以回到 Overview 选项卡，上方显示了请求的接口 URL，接着是响应状态 Status Code、请求方式 Method 等</p>
+<p><img src="/posts/ms-spider-app/image-20230309082033942.png" alt="image-20230309082033942"></p>
+<p>这个结果和原本在 Web 端用浏览器开发者工具内捕获到的结果形式是类似的。</p>
+<p>接下来点击 Contents 选项卡，查看该请求和响应的详情信息。</p>
+<p>上半部分显示的是 Request 的信息，下半部分显示的是 Response 的信息。比如针对 Reqeust，我们切换到 Headers 选项卡即可看到该 Request 的 Headers 信息，针对 Response，我们切换到 JSON TEXT 选项卡即可看到该 Response 的 Body 信息，并且该内容已经被格式化</p>
+<p><img src="/posts/ms-spider-app/image-20230309082105723.png" alt="image-20230309082105723"></p>
+<p>由于这个请求是 POST 请求，所以我们还需要关心的就是 POST 的表单信息，切换到 Form 选项卡即可查看</p>
+<p><img src="/posts/ms-spider-app/image-20230309082130737.png" alt="image-20230309082130737"></p>
+<p>这样我们就成功抓取 App 中的评论接口的请求和响应，并且可以查看 Response 返回的 JSON 数据。</p>
+<p>至于其他 App，我们同样可以使用这样的方式来分析。如果我们可以直接分析得到请求的 URL 和参数的规律，直接用程序模拟即可批量抓取</p>
+<h4 id="重发"><a href="#重发" class="headerlink" title="重发"></a>重发</h4><p>Charles 还有一个强大功能，它可以将捕获到的请求加以修改并发送修改后的请求。点击上方的修改按钮，左侧列表就多了一个以编辑图标为开头的链接，这就代表此链接对应的请求正在被我们修改</p>
+<p><img src="/posts/ms-spider-app/image-20230309082252980.png" alt="image-20230309082252980"></p>
+<p>我们可以将 Form 中的某个字段移除，比如这里将 partner 字段移除，然后点击 Remove。这时我们已经对原来请求携带的 Form Data 做了修改，然后点击下方的 Execute 按钮即可执行修改后的请求</p>
+<p><img src="/posts/ms-spider-app/image-20230309082311771.png" alt="image-20230309082311771"></p>
+<p>可以发现左侧列表再次出现了接口的请求结果，内容仍然不变</p>
+<p><img src="/posts/ms-spider-app/image-20230309082421348.png" alt="image-20230309082421348"></p>
+<p>删除 Form 表单中的 partner 字段并没有带来什么影响，所以这个字段是无关紧要的。</p>
+<p>有了这个功能，我们就可以方便地使用 Charles 来做调试，可以通过修改参数、接口等来测试不同请求的响应状态，就可以知道哪些参数是必要的哪些是不必要的，以及参数分别有什么规律，最后得到一个最简单的接口和参数形式以供程序模拟调用使用</p>
+<p>以上内容便是通过 Charles 抓包分析 App 请求的过程。通过 Charles，我们成功抓取 App 中流经的网络数据包，捕获原始的数据，还可以修改原始请求和重新发起修改后的请求进行接口测试。</p>
+<p>知道了请求和响应的具体信息，如果我们可以分析得到请求的 URL 和参数的规律，直接用程序模拟即可批量抓取，这当然最好不过了。</p>
+<p>但是随着技术的发展，App 接口往往会带有密钥，我们并不能直接找到这些规律，那么怎么办呢？接下来，我们将了解利用 Charles 和 mitmdump 直接对接 Python 脚本实时处理抓取到的 Response 的过程。</p>
+<h2 id="mitmproxy抓包工具的使用"><a href="#mitmproxy抓包工具的使用" class="headerlink" title="mitmproxy抓包工具的使用"></a>mitmproxy抓包工具的使用</h2><p>mitmproxy 是一个支持 HTTP 和 HTTPS 的抓包程序，有类似 Fiddler、Charles 的功能，只不过它是一个控制台的形式操作。</p>
+<p>mitmproxy 还有两个关联组件。一个是 mitmdump，它是 mitmproxy 的命令行接口，利用它我们可以对接 Python 脚本，用 Python 实现监听后的处理。另一个是 mitmweb，它是一个 Web 程序，通过它我们可以清楚观察 mitmproxy 捕获的请求。</p>
+<p>下面我们来了解它们的用法。</p>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>请确保已经正确安装好了 mitmproxy，并且手机和 PC 处于同一个局域网下，同时配置好了 mitmproxy 的 CA 证书</p>
+<h3 id="mitmproxy-的功能"><a href="#mitmproxy-的功能" class="headerlink" title="mitmproxy 的功能"></a>mitmproxy 的功能</h3><p>mitmproxy 有如下几项功能。</p>
+<ul>
+<li>拦截 HTTP 和 HTTPS 请求和响应</li>
+<li>保存 HTTP 会话并进行分析</li>
+<li>模拟客户端发起请求，模拟服务端返回响应</li>
+<li>利用反向代理将流量转发给指定的服务器</li>
+<li>支持 Mac 和 Linux 上的透明代理</li>
+<li>利用 Python 对 HTTP 请求和响应进行实时处理</li>
+</ul>
+<h3 id="抓包原理-1"><a href="#抓包原理-1" class="headerlink" title="抓包原理"></a>抓包原理</h3><p>和 Charles 一样，mitmproxy 运行于自己的 PC 上，mitmproxy 会在 PC 的 8080 端口运行，然后开启一个代理服务，这个服务实际上是一个 HTTP&#x2F;HTTPS 的代理。</p>
+<p>手机和 PC 在同一个局域网内，设置代理为 mitmproxy 的代理地址，这样手机在访问互联网的时候流量数据包就会流经 mitmproxy，mitmproxy 再去转发这些数据包到真实的服务器，服务器返回数据包时再由 mitmproxy 转发回手机，这样 mitmproxy 就相当于起了中间人的作用，抓取到所有 Request 和 Response，另外这个过程还可以对接 mitmdump，抓取到的 Request 和 Response 的具体内容都可以直接用 Python 来处理，比如得到 Response 之后我们可以直接进行解析，然后存入数据库，这样就完成了数据的解析和存储过程。</p>
+<h3 id="设置代理"><a href="#设置代理" class="headerlink" title="设置代理"></a>设置代理</h3><p>首先，我们需要运行 mitmproxy，命令如下所示：</p>
+<p>启动 mitmproxy 的命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mitmproxy</span><br></pre></td></tr></table></figure>
+
+
+
+<p>运行之后会在 8080 端口上运行一个代理服务，如图 11-12 所示：</p>
+<p><img src="/posts/ms-spider-app/image-20231003074923226.png" alt="image-20231003074923226"></p>
+<p>右下角会出现当前正在监听的端口。</p>
+<p>或者启动 mitmdump，它也会监听 8080 端口，命令如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mitmdump</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ms-spider-app/image-20231003074927303.png" alt="image-20231003074927303"></p>
+<p>将手机和 PC 连接在同一局域网下，设置代理为当前代理。首先看看 PC 的当前局域网 IP。</p>
+<p>Windows 上的命令如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ipconfig</span><br></pre></td></tr></table></figure>
+
+<p>Linux 和 Mac 上的命令如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ifconfig</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ms-spider-app/image-20231003074930043.png" alt="image-20231003074930043"></p>
+<p>一般类似 <code>10.*.*.*</code> 或 <code>172.16.*.</code>* 或 <code>192.168.1.*</code> 这样的 IP 就是当前 PC 的局域网 IP，例如此图中 PC 的 IP 为 <code>192.168.1.28</code>，手机代理设置类似。</p>
+<p>这样我们就配置好了 mitmproxy 的的代理。</p>
+<h3 id="mitmproxy-的使用手机和-PC-处于同一个局域网内，设置了-mitmproxy-的代理，具体的配置方法可以参考第-1-章。"><a href="#mitmproxy-的使用手机和-PC-处于同一个局域网内，设置了-mitmproxy-的代理，具体的配置方法可以参考第-1-章。" class="headerlink" title="mitmproxy 的使用手机和 PC 处于同一个局域网内，设置了 mitmproxy 的代理，具体的配置方法可以参考第 1 章。"></a>mitmproxy 的使用<img src="/posts/ms-spider-app/image-20231003074933741.png" alt="image-20231003074933741">手机和 PC 处于同一个局域网内，设置了 mitmproxy 的代理，具体的配置方法可以参考第 1 章。</h3><p>运行 mitmproxy，命令如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mitmproxy</span><br></pre></td></tr></table></figure>
+
+<p>设置成功之后，我们只需要在手机浏览器上访问任意的网页或浏览任意的 App 即可。例如在手机上打开百度，mitmproxy 页面便会呈现出手机上的所有请求。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074938982.png" alt="image-20231003074938982"></p>
+<p>这就相当于之前我们在浏览器开发者工具监听到的浏览器请求，在这里我们借助于 mitmproxy 完成。Charles 完全也可以做到。</p>
+<p>这里是刚才手机打开百度页面时的所有请求列表，左下角显示的 2&#x2F;38 代表一共发生了 38 个请求，当前箭头所指的是第二个请求。</p>
+<p>每个请求开头都有一个 GET 或 POST，这是各个请求的请求方式。紧接的是请求的 URL。第二行开头的数字就是请求对应的响应状态码，后面是响应内容的类型，如 text&#x2F;html 代表网页文档、image&#x2F;gif 代表图片。再往后是响应体的大小和响应的时间。</p>
+<p>当前呈现了所有请求和响应的概览，我们可以通过这个页面观察到所有的请求。</p>
+<p>如果想查看某个请求的详情，我们可以敲击回车，进入请求的详情页面。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074942482.png" alt="image-20231003074942482"></p>
+<p>可以看到 Headers 的详细信息，如 Host、Cookies、User-Agent 等。</p>
+<p>最上方是一个 Request、Response、Detail 的列表，当前处在 Request 这个选项上。这时我们再点击 TAB 键，即可查看这个请求对应的响应详情。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074945846.png" alt="image-20231003074945846"></p>
+<p>最上面是响应头的信息，下拉之后我们可以看到响应体的信息。针对当前请求，响应体就是网页的源代码。</p>
+<p>这时再敲击 TAB 键，切换到最后一个选项卡 Detail，即可看到当前请求的详细信息，如服务器的 IP 和端口、HTTP 协议版本、客户端的 IP 和端口等。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074949358.png" alt="image-20231003074949358"></p>
+<p>mitmproxy 还提供了命令行式的编辑功能，我们可以在此页面中重新编辑请求。敲击 e 键即可进入编辑功能，这时它会询问你要编辑哪部分内容，如 Cookies、Query、URL 等，每个选项的第一个字母会高亮显示。敲击要编辑内容名称的首字母即可进入该内容的编辑页面，如敲击 m 即可编辑请求的方式，敲击 q 即可修改 GET 请求参数 Query。</p>
+<p>这时我们敲击 q，进入到编辑 Query 的页面。由于没有任何参数，我们可以敲击 a 来增加一行，然后就可以输入参数对应的 Key 和 Value。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074952594.png" alt="image-20231003074952594"></p>
+<p>这里我们输入 Key 为 wd，Value 为 NBA。</p>
+<p>然后再敲击 esc 键和 q 键，返回之前的页面，再敲击 e 和 p 键修改 Path。和上面一样，敲击 a 增加 Path 的内容，这时我们将 Path 修改为 s。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074955513.png" alt="image-20231003074955513"></p>
+<p>再敲击 esc 和 q 键返回，这时我们可以看到最上面的请求链接变成了 <a target="_blank" rel="noopener" href="https://www.baidu.com/s?wd=NBA%EF%BC%8C%E8%AE%BF%E9%97%AE%E8%BF%99%E4%B8%AA%E9%A1%B5%E9%9D%A2%EF%BC%8C%E5%8F%AF%E4%BB%A5%E7%9C%8B%E5%88%B0%E7%99%BE%E5%BA%A6%E6%90%9C%E7%B4%A2">https://www.baidu.com/s?wd=NBA，访问这个页面，可以看到百度搜索</a> NBA 关键词的搜索结果。</p>
+<p><img src="/posts/ms-spider-app/image-20231003074958479.png" alt="image-20231003074958479"></p>
+<p>敲击 a 保存修改，敲击 r 重新发起修改后的请求，即可看到上方请求方式前面多了一个回旋箭头，这说明重新执行了修改后的请求。这时我们再观察响应体内容，即可看到搜索 NBA 的页面结果的源代码。</p>
+<p><img src="/posts/ms-spider-app/image-20231003075001287.png" alt="image-20231003075001287"></p>
+<p>以上内容便是 mitmproxy 的简单用法。利用 mitmproxy，我们可以观察到手机上的所有请求，还可以对请求进行修改并重新发起。</p>
+<p>Fiddler、Charles 也有这个功能，而且它们的图形界面操作更加方便。那么 mitmproxy 的优势何在？</p>
+<p><strong>mitmproxy 的强大之处体现在它的另一个工具 mitmdump，有了它我们可以直接对接 Python 对请求进行处理</strong>。下面我们来看看 mitmdump 的用法。</p>
+<h2 id="mitmdump实时抓包处理"><a href="#mitmdump实时抓包处理" class="headerlink" title="mitmdump实时抓包处理"></a>mitmdump实时抓包处理</h2><p>mitmdump 是 mitmproxy 的命令行接口，同时还可以对接 Python 对请求进行处理，这是相比 Fiddler、Charles 等工具更加方便的地方。有了它我们可以不用手动截获和分析 HTTP 请求和响应，只需写好请求和响应的处理逻辑即可。它还可以实现数据的解析、存储等工作，这些过程都可以通过 Python 实现。</p>
+<h3 id="实例引入"><a href="#实例引入" class="headerlink" title="实例引入"></a>实例引入</h3><p>我们可以使用命令启动 mitmproxy，并把截获的数据保存到文件中，命令如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mitmdump -w outfile</span><br></pre></td></tr></table></figure>
+
+
+
+<p>其中 outfile 的名称任意，截获的数据都会被保存到此文件中。</p>
+<p>还可以指定一个脚本来处理截获的数据，使用 - s 参数即可：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mitmdump -s script.py</span><br></pre></td></tr></table></figure>
+
+
+
+<p>这里指定了当前处理脚本为 script.py，它需要放置在当前命令执行的目录下。</p>
+<p>我们可以在脚本里写入如下的代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">request</span>(<span class="params">flow</span>):</span><br><span class="line">	flow.request.headers[<span class="string">&#x27;User-Agent&#x27;</span>] = <span class="string">&#x27;MitmProxy&#x27;</span></span><br><span class="line">  	<span class="built_in">print</span>(flow.request.headers)</span><br></pre></td></tr></table></figure>
+
+<p>我们定义了一个 request() 方法，参数为 flow，它其实是一个 HTTPFlow 对象，通过 request 属性即可获取到当前请求对象。然后打印输出了请求的请求头，将请求头的 User-Agent 修改成了 MitmProxy。</p>
+<p>运行之后我们在手机端访问 <a target="_blank" rel="noopener" href="http://httpbin.org/get%EF%BC%8C%E5%B0%B1%E5%8F%AF%E4%BB%A5%E7%9C%8B%E5%88%B0%E6%9C%89%E5%A6%82%E4%B8%8B%E6%83%85%E5%86%B5%E5%8F%91%E7%94%9F%E3%80%82">http://httpbin.org/get，就可以看到有如下情况发生。</a></p>
+<p>手机端的页面</p>
+<p><img src="/posts/ms-spider-app/image-20230309101647619.png" alt="image-20230309101647619"></p>
+<p>PC 端控制台输出。</p>
+<p><img src="/posts/ms-spider-app/image-20231003075008829.png" alt="image-20231003075008829"></p>
+<p>手机端返回结果的 Headers 实际上就是请求的 Headers，User-Agent 被修改成了 mitmproxy。PC 端控制台输出了修改后的 Headers 内容，其 User-Agent 的内容正是 mitmproxy。</p>
+<p>所以，通过这三行代码我们就可以完成对请求的改写。print() 方法输出结果可以呈现在 PC 端控制台上，可以方便地进行调试。</p>
+<h3 id="日志输出"><a href="#日志输出" class="headerlink" title="日志输出"></a>日志输出</h3><p>mitmdump 提供了专门的日志输出功能，可以设定不同级别以不同颜色输出结果。我们把脚本修改成如下内容：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> mitmproxy <span class="keyword">import</span> ctx</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">request</span>(<span class="params">flow</span>):</span><br><span class="line">    flow.request.headers[<span class="string">&#x27;User-Agent&#x27;</span>] = <span class="string">&#x27;MitmProxy&#x27;</span></span><br><span class="line">    ctx.log.info(<span class="built_in">str</span>(flow.request.headers))</span><br><span class="line">    ctx.log.warn(<span class="built_in">str</span>(flow.request.headers))</span><br><span class="line">    ctx.log.error(<span class="built_in">str</span>(flow.request.headers))</span><br></pre></td></tr></table></figure>
+
+
+
+<p>这里调用了 ctx 模块，它有一个 log 功能，调用不同的输出方法就可以输出不同颜色的结果，以方便我们做调试。例如，info() 方法输出的内容是白色的，warn() 方法输出的内容是黄色的，error() 方法输出的内容是红色的。运行结果。</p>
+<p>不同的颜色对应不同级别的输出<img src="/posts/ms-spider-app/image-20231003075012438.png" alt="image-20231003075012438">，我们可以将不同的结果合理划分级别输出，以更直观方便地查看调试信息。</p>
+<h3 id="Request"><a href="#Request" class="headerlink" title="Request"></a>Request</h3><p>最开始我们实现了 request() 方法并且对 Headers 进行了修改。下面我们来看看 Request 还有哪些常用的功能。我们先用一个实例来感受一下。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> mitmproxy <span class="keyword">import</span> ctx</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">request</span>(<span class="params">flow</span>):</span><br><span class="line">    request = flow.request</span><br><span class="line">    info = ctx.log.info</span><br><span class="line">    info(request.url)</span><br><span class="line">    info(<span class="built_in">str</span>(request.headers))</span><br><span class="line">    info(<span class="built_in">str</span>(request.cookies))</span><br><span class="line">    info(request.host)</span><br><span class="line">    info(request.method)</span><br><span class="line">    info(<span class="built_in">str</span>(request.port))</span><br><span class="line">    info(request.scheme)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>我们修改脚本，然后在手机上打开百度，即可看到 PC 端控制台输出了一系列的请求，在这里我们找到第一个请求。控制台打印输出了 Request 的一些常见属性，如 URL、Headers、Cookies、Host、Method、Scheme 等。</p>
+<p><img src="/posts/ms-spider-app/image-20231003075016761.png" alt="image-20231003075016761"></p>
+<p>结果中分别输出了请求链接、请求头、请求 Cookies、请求 Host、请求方法、请求端口、请求协议这些内容。</p>
+<p>同时我们还可以对任意属性进行修改，就像最初修改 Headers 一样，直接赋值即可。例如，这里将请求的 URL 修改一下，脚本修改如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">request</span>(<span class="params">flow</span>):</span><br><span class="line">    url = <span class="string">&#x27;https://httpbin.org/get&#x27;</span></span><br><span class="line">    flow.request.url = url</span><br></pre></td></tr></table></figure>
+
+<p>手机端得到如下结果。</p>
+<p><img src="/posts/ms-spider-app/image-20230309103454969.png" alt="image-20230309103454969"></p>
+<p>比较有意思的是，浏览器最上方还是呈现百度的 URL，但是页面已经变成了 httpbin.org 的页面了。另外，Cookies 明显还是百度的 Cookies。我们只是用简单的脚本就成功把请求修改为其他的站点。通过这种方式修改和伪造请求就变得轻而易举。</p>
+<p>通过这个实例我们知道，有时候 URL 虽然是正确的，但是内容并非是正确的。我们需要进一步提高自己的安全防范意识。</p>
+<p>Request 还有很多属性，在此不再一一列举。更多属性可以参考：<a target="_blank" rel="noopener" href="http://docs.mitmproxy.org/en/latest/scripting/api.html%E3%80%82">http://docs.mitmproxy.org/en/latest/scripting/api.html。</a></p>
+<p>只要我们了解了基本用法，会很容易地获取和修改 Reqeust 的任意内容，比如可以用修改 Cookies、添加代理等方式来规避反爬。</p>
+<h3 id="Response"><a href="#Response" class="headerlink" title="Response"></a>Response</h3><p>对于爬虫来说，我们更加关心的其实是响应的内容，因为 Response Body 才是爬取的结果。对于响应来说，mitmdump 也提供了对应的处理接口，就是 response() 方法。下面我们用一个实例感受一下。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> mitmproxy <span class="keyword">import</span> ctx</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">response</span>(<span class="params">flow</span>):</span><br><span class="line">    response = flow.response</span><br><span class="line">    info = ctx.log.info</span><br><span class="line">    info(<span class="built_in">str</span>(response.status_code))</span><br><span class="line">    info(<span class="built_in">str</span>(response.headers))</span><br><span class="line">    info(<span class="built_in">str</span>(response.cookies))</span><br><span class="line">    info(<span class="built_in">str</span>(response.text))</span><br></pre></td></tr></table></figure>
+
+<p>将脚本修改为如上内容，然后手机访问：<a target="_blank" rel="noopener" href="http://httpbin.org/get%E3%80%82">http://httpbin.org/get。</a></p>
+<p>这里打印输出了响应的 status_code、headers、cookies、text 这几个属性，其中最主要的 text 属性就是网页的源代码。</p>
+<p>PC 端控制台输出。</p>
+<p><img src="/posts/ms-spider-app/image-20230309103532913.png" alt="image-20230309103532913"></p>
+<p>控制台输出了响应的状态码、响应头、Cookies、响应体这几部分内容。</p>
+<p>我们可以通过 response() 方法获取每个请求的响应内容。接下来再进行响应的信息提取和存储，我们就可以成功完成爬取了。</p>
+<h2 id="appium的使用"><a href="#appium的使用" class="headerlink" title="appium的使用"></a>appium的使用</h2><h2 id="airtest的使用"><a href="#airtest的使用" class="headerlink" title="airtest的使用"></a>airtest的使用</h2><h2 id="手机群控爬取"><a href="#手机群控爬取" class="headerlink" title="手机群控爬取"></a>手机群控爬取</h2><h2 id="云手机使用"><a href="#云手机使用" class="headerlink" title="云手机使用"></a>云手机使用</h2><p>使用抓包工具还是停留在表面，某些情况下需要对app进行逆向找到核心逻辑以及数据请求究竟是怎么实现的，就涉及到app的逆向、脱壳、模拟执行so文件等技术。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbchen.com">左耳</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbchen.com/posts/ms-spider-app.html">https://nbchen.com/posts/ms-spider-app.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbchen.com" target="_blank">蹒跚学步的架构师</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a><a class="post-meta__tags" href="/tags/Python/">Python</a><a class="post-meta__tags" href="/tags/%E7%88%AC%E8%99%AB/">爬虫</a></div><div class="post-share"><div class="social-share" data-image="/img/cover/post_cover_1.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赛博打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/site/wechat.png" target="_blank"><img class="post-qr-code-img" src="/img/site/wechat.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/site/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/site/alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><a class="prev-post pull-left" href="/posts/ms-spider-android.html" title="【微服务从入门到入土】Android逆向"><img class="cover" src="/img/cover/post_cover_1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【微服务从入门到入土】Android逆向</div></div></a><a class="next-post pull-right" href="/posts/ms-spider-js-reverse.html" title="【微服务从入门到入土】JavaScript逆向爬虫"><img class="cover" src="/img/cover/post_cover_2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【微服务从入门到入土】JavaScript逆向爬虫</div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a href="/posts/ms-spider-deploy.html" title="【微服务从入门到入土】爬虫管理部署"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】爬虫管理部署</div></div></a><a href="/posts/ms-spider-distributed.html" title="【微服务从入门到入土】分布式爬虫"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】分布式爬虫</div></div></a><a href="/posts/ms-spider-page.html" title="【微服务从入门到入土】页面智能解析"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】页面智能解析</div></div></a><a href="/posts/ms-spider-android.html" title="【微服务从入门到入土】Android逆向"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】Android逆向</div></div></a><a href="/posts/ms-spider-js-reverse.html" title="【微服务从入门到入土】JavaScript逆向爬虫"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】JavaScript逆向爬虫</div></div></a><a href="/posts/ms-spider-moni.html" title="【微服务从入门到入土】模拟登录"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】模拟登录</div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info is-center"><div class="avatar-img"><img src="/img/logo/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">左耳</div><div class="author-info-description">学习是一被子的事，被子外只有学习两个字</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">99</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">91</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/zuoer96" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:1745233303@gmail.com" target="_blank" title="QQ邮箱"><i class="fas fa-envelope" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎光临小站，这里是我日常收集和整理的总结，希望能对你有所帮助：）<br/><br/>本站的内容经过个人加工总结而来，也参考了网友们分享的资料，如有侵权，请第一时间联系我，我将及时进行修改和删除😊</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#app%E6%95%B0%E6%8D%AE%E7%88%AC%E5%8F%96"><span class="toc-number">1.</span> <span class="toc-text">app数据爬取</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#charles%E6%8A%93%E5%8C%85%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">1.1.</span> <span class="toc-text">charles抓包工具的使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#charles%E5%A4%A7%E8%87%B4%E4%BD%BF%E7%94%A8%E6%AD%A5%E9%AA%A4"><span class="toc-number">1.1.1.</span> <span class="toc-text">charles大致使用步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E9%93%BE%E6%8E%A5"><span class="toc-number">1.1.2.</span> <span class="toc-text">相关链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BD-Charles"><span class="toc-number">1.1.3.</span> <span class="toc-text">下载 Charles</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%81%E4%B9%A6%E9%85%8D%E7%BD%AE"><span class="toc-number">1.1.4.</span> <span class="toc-text">证书配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Windows"><span class="toc-number">1.1.4.1.</span> <span class="toc-text">Windows</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Mac"><span class="toc-number">1.1.4.2.</span> <span class="toc-text">Mac</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#iOS"><span class="toc-number">1.1.4.3.</span> <span class="toc-text">iOS</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Android"><span class="toc-number">1.1.4.4.</span> <span class="toc-text">Android</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8A%93%E5%8C%85%E5%8E%9F%E7%90%86"><span class="toc-number">1.1.5.</span> <span class="toc-text">抓包原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8A%93%E5%8C%85%E5%AE%9E%E6%88%98"><span class="toc-number">1.1.6.</span> <span class="toc-text">抓包实战</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8A%93%E5%8C%85"><span class="toc-number">1.1.6.1.</span> <span class="toc-text">抓包</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-number">1.1.6.2.</span> <span class="toc-text">分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%87%8D%E5%8F%91"><span class="toc-number">1.1.6.3.</span> <span class="toc-text">重发</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mitmproxy%E6%8A%93%E5%8C%85%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">1.2.</span> <span class="toc-text">mitmproxy抓包工具的使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-number">1.2.1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mitmproxy-%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="toc-number">1.2.2.</span> <span class="toc-text">mitmproxy 的功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8A%93%E5%8C%85%E5%8E%9F%E7%90%86-1"><span class="toc-number">1.2.3.</span> <span class="toc-text">抓包原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E4%BB%A3%E7%90%86"><span class="toc-number">1.2.4.</span> <span class="toc-text">设置代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mitmproxy-%E7%9A%84%E4%BD%BF%E7%94%A8%E6%89%8B%E6%9C%BA%E5%92%8C-PC-%E5%A4%84%E4%BA%8E%E5%90%8C%E4%B8%80%E4%B8%AA%E5%B1%80%E5%9F%9F%E7%BD%91%E5%86%85%EF%BC%8C%E8%AE%BE%E7%BD%AE%E4%BA%86-mitmproxy-%E7%9A%84%E4%BB%A3%E7%90%86%EF%BC%8C%E5%85%B7%E4%BD%93%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95%E5%8F%AF%E4%BB%A5%E5%8F%82%E8%80%83%E7%AC%AC-1-%E7%AB%A0%E3%80%82"><span class="toc-number">1.2.5.</span> <span class="toc-text">mitmproxy 的使用手机和 PC 处于同一个局域网内，设置了 mitmproxy 的代理，具体的配置方法可以参考第 1 章。</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mitmdump%E5%AE%9E%E6%97%B6%E6%8A%93%E5%8C%85%E5%A4%84%E7%90%86"><span class="toc-number">1.3.</span> <span class="toc-text">mitmdump实时抓包处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E4%BE%8B%E5%BC%95%E5%85%A5"><span class="toc-number">1.3.1.</span> <span class="toc-text">实例引入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E8%BE%93%E5%87%BA"><span class="toc-number">1.3.2.</span> <span class="toc-text">日志输出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Request"><span class="toc-number">1.3.3.</span> <span class="toc-text">Request</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Response"><span class="toc-number">1.3.4.</span> <span class="toc-text">Response</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#appium%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">1.4.</span> <span class="toc-text">appium的使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#airtest%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">1.5.</span> <span class="toc-text">airtest的使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%8B%E6%9C%BA%E7%BE%A4%E6%8E%A7%E7%88%AC%E5%8F%96"><span class="toc-number">1.6.</span> <span class="toc-text">手机群控爬取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%91%E6%89%8B%E6%9C%BA%E4%BD%BF%E7%94%A8"><span class="toc-number">1.7.</span> <span class="toc-text">云手机使用</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/ds-search-solr.html" title="【数据存储系列】手牵手学习Solr"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【数据存储系列】手牵手学习Solr"/></a><div class="content"><a class="title" href="/posts/ds-search-solr.html" title="【数据存储系列】手牵手学习Solr">【数据存储系列】手牵手学习Solr</a><time datetime="2024-11-12T08:11:54.000Z" title="发表于 2024-11-12 16:11:54">2024-11-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/ds-search-lucene.html" title="【数据存储系列】手牵手学习Lucene"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【数据存储系列】手牵手学习Lucene"/></a><div class="content"><a class="title" href="/posts/ds-search-lucene.html" title="【数据存储系列】手牵手学习Lucene">【数据存储系列】手牵手学习Lucene</a><time datetime="2024-11-12T08:11:45.000Z" title="发表于 2024-11-12 16:11:45">2024-11-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/ds-search-es.html" title="【数据存储系列】手牵手学习Es"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【数据存储系列】手牵手学习Es"/></a><div class="content"><a class="title" href="/posts/ds-search-es.html" title="【数据存储系列】手牵手学习Es">【数据存储系列】手牵手学习Es</a><time datetime="2024-11-12T08:11:35.000Z" title="发表于 2024-11-12 16:11:35">2024-11-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/ds-mq-kafka.html" title="【数据存储系列】手牵手学习Kafka"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【数据存储系列】手牵手学习Kafka"/></a><div class="content"><a class="title" href="/posts/ds-mq-kafka.html" title="【数据存储系列】手牵手学习Kafka">【数据存储系列】手牵手学习Kafka</a><time datetime="2024-11-12T08:11:09.000Z" title="发表于 2024-11-12 16:11:09">2024-11-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/ds-mq-rocketmq.html" title="【数据存储系列】手牵手学习RocketMQ"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【数据存储系列】手牵手学习RocketMQ"/></a><div class="content"><a class="title" href="/posts/ds-mq-rocketmq.html" title="【数据存储系列】手牵手学习RocketMQ">【数据存储系列】手牵手学习RocketMQ</a><time datetime="2024-11-12T08:10:58.000Z" title="发表于 2024-11-12 16:10:58">2024-11-12</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 By 左耳</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/#/Integrated/index"><span>备案号：闽ICP备2022007849号-1</span></a> <a target="_blank" rel="noopener" href="https://beian.mps.gov.cn/#/query/webSearch"><img class="icp-icon" src="/img/site/icp.png"><span>闽ICP备2022007849号</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const initGitalk = () => {
+    const gitalk = new Gitalk(Object.assign({
+      clientID: 'f5adbf6afe0a4b1a5259',
+      clientSecret: '2aa273b1981e0841b91db860a815d252d7fce5b2',
+      repo: 'zuoer96.github.io',
+      owner: 'zuoer96',
+      admin: ['zuoer96'],
+      id: 'e0e7d65bd2e7be05dc9c06a19a4326db',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  const loadGitalk = async() => {
+    if (typeof Gitalk === 'function') initGitalk()
+    else {
+      await btf.getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+      await btf.getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js')
+      initGitalk()
+    }
+  }
+  
+  const commentCount = n => {
+    const isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+    if (isCommentCount) {
+      isCommentCount.textContent= n
+    }
+  }
+
+  if ('Gitalk' === 'Gitalk' || !false) {
+    if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+    else loadGitalk()
+  } else {
+    window.loadOtherComment = loadGitalk
+  }
+})()</script></div><script src="/js/webstack.js?1"></script><script src="/js/movie.js?1"></script><script src="/js/echarts.min.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: true,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><script src="/js/markmap.js"></script></body></html>
