@@ -1,0 +1,843 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>【大数据系列】Presto | 左耳</title><meta name="author" content="左耳"><meta name="copyright" content="左耳"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="大数据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【大数据系列】Presto">
+<meta property="og:url" content="https://nbchen.com/posts/bd-presto.html">
+<meta property="og:site_name" content="左耳">
+<meta property="og:description" content="大数据">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbchen.com/img/cover/post_cover_2.png">
+<meta property="article:published_time" content="2024-11-13T12:18:02.000Z">
+<meta property="article:modified_time" content="2024-11-13T12:28:27.073Z">
+<meta property="article:author" content="左耳">
+<meta property="article:tag" content="大数据">
+<meta property="article:tag" content="Presto">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbchen.com/img/cover/post_cover_2.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://nbchen.com/posts/bd-presto.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lWO9QTcbfhCMrpHW2Iz8w1cT6iVDffApIJepQIhimJU"/><meta name="baidu-site-verification" content="17911f388d35a0ab926c0cfff1ca6ea7"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?17911f388d35a0ab926c0cfff1ca6ea7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-3FC1C6JTVL"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-3FC1C6JTVL')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-3FC1C6JTVL', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":100,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【大数据系列】Presto',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-11-13 20:28:27'
+}</script><link rel="stylesheet" href="/css/equipment.css?1"><link rel="stylesheet" href="/css/movies.css?1"><link rel="stylesheet" href="/css/webstack.css?1"><link rel="stylesheet" href="/css/flag.css?1"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/logo/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">241</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">191</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover/post_cover_2.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">左耳</span></a><a class="nav-page-title" href="/"><span class="site-name">【大数据系列】Presto</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">【大数据系列】Presto</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-11-13T12:18:02.000Z" title="发表于 2024-11-13 20:18:02">2024-11-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-13T12:28:27.073Z" title="更新于 2024-11-13 20:28:27">2024-11-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">10.9k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>40分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Preso框架"><a href="#Preso框架" class="headerlink" title="Preso框架"></a>Preso框架</h1><blockquote>
+<p>在经过原生Hive+MR,将大数据量大的，聚合聚合，到了数据量小的层次，这时候去做分析，可以借助Hive+Presto(或者Hive+Impala)基于内存去跑。速度会快10倍以上。</p>
+<p>当然，数据量大的时候，如果hive MR都跑不出来，用Presto更跑不出来，所以这个工具一般是对聚合到一定程度（中后期）的hive里的数据进行分析查询。</p>
+</blockquote>
+<h2 id="Presto基础介绍"><a href="#Presto基础介绍" class="headerlink" title="Presto基础介绍"></a><strong>Presto基础介绍</strong></h2><h3 id="Presto背景"><a href="#Presto背景" class="headerlink" title="Presto背景"></a><strong>Presto背景</strong></h3><p>2011年，FaceBook的数据仓库存储在少量大型hadoop&#x2F;hdfs集群，在这之前，FaceBook的科学家和分析师一直靠hive进行数据分析，但hive使用MR作为底层计算框架，是专为批处理设计的，但是随着数据的不断增多，使用hive进行一个简单的数据查询可能要花费几分钟或者几个小时，显然不能满足查询需求，Facebook也调研了其他比hive更快的工具，但是他们需要在功能有限的条件下做简单操作，以至于无法操作Facebook庞大的数据要求。</p>
+<p>2012年 开始研究自己的框架–presto， 每日可以超过1pb查 询 ， 而且速度比较快 ，faceBook声称Presto的性能比hive要好上10倍或者100倍，presto和hive都是facebook开发的。2013年Facebook正式宣布开源Presto。</p>
+<p>2018年，Facebook管理层希望对该项目及其未来进行更严格的控制，最终他们决定授予Facebook开发者在没有任何Presto经验的情况下参与该项目的权利。部分核心开发成员认为这个决定与拥有一个健康、开放的社区不相容，于是离开成立PrestoSQL，Presto自此划分为PrestoDB和PrestoSql两个阵营，两者互相发力互相抄袭，支持的数据源越来越多，性能也越来越快。两者相似度较高，PrestoSql后来被迫改名为Trino。</p>
+<h3 id="Presto介绍"><a href="#Presto介绍" class="headerlink" title="Presto介绍"></a>Presto介绍</h3><ul>
+<li>PrestoDB官方网站：<a target="_blank" rel="noopener" href="https://prestodb.io/">https://prestodb.io/</a></li>
+<li>Trino(PrestoSql)官方网站：<a target="_blank" rel="noopener" href="https://trino.io/">https://trino.io/</a></li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>、Presto是FaceBook研发，和Hive是同一个母公司</span><br><span class="line"><span class="number">2</span>、Presto是一个基于内存的计算引擎</span><br><span class="line"><span class="number">3</span>、Presto等价于: Hive <span class="operator">+</span> MR <span class="operator">+</span> Yarn</span><br><span class="line"><span class="number">4</span>、Presto可以跨数据源</span><br><span class="line"> <span class="keyword">insert</span> <span class="keyword">into</span> mysql.demo.table1</span><br><span class="line"> <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> hive.yp_prt.order_count;</span><br><span class="line"> </span><br><span class="line"><span class="number">5</span>、Presto不擅长进行大量的<span class="keyword">join</span>操作，所以一般用在大数据分析的中后期</span><br></pre></td></tr></table></figure>
+
+<h3 id="Presto特点"><a href="#Presto特点" class="headerlink" title="Presto特点"></a>Presto特点</h3><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">Presto支持在线数据查询，包括Hive、kafka、Cassandra、关系数据库以及专门数据存储;</span></span><br><span class="line">=<span class="attr">一条Presto查询可以将多个数据源进行合并，可以跨越整个组织进行分析;</span></span><br><span class="line"><span class="attr">Presto以分析师的需求作为目标，他们期望相应速度小于1秒到几分钟;</span></span><br><span class="line"><span class="attr">Presto终结了数据分析的两难选择，要么使用速度快的昂贵的商业方案，要么使用消耗大量硬件的慢速的“免费”方案。</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>免费：Presto和Trino都是开源的。</li>
+<li>速度：Presto&#x2F;Trino是一个高度并行的分布式查询引擎，适用于高效、低延迟的交互式查询，能够解决Facebook这样大规模的商业数据仓库交互式分析和处理的速度问题。</li>
+<li>规模：数据量支持EB级的数仓和数据湖；</li>
+<li>简单：它支持标准的ANSI SQL，包括复杂查询、聚合（Aggregation）、连接（Join）和窗口</li>
+<li>函数（Window Functions)，安装配置简单；</li>
+<li>多才多艺：快速的交互式即席分析、数小时的大规模批处理查询，以及执行亚秒级查询的大容量应用；</li>
+<li>广泛兼容：Presto本身并不存储数据，但是可以接入多种数据源：不仅支持Hive，还支持mysql、oracle等关系型数据库，也支持kafka、redis、MongoDB等非关系型数据库，对于实时数据库ClickHouse也能够完美支持。</li>
+<li>就地分析：通过Presto，可以在Hadoop、Mysql等数据库本地查询数据，而无需进行复杂、缓慢且容易出错的数据复制过程；</li>
+<li>联合查询：Presto支持跨数据源的联合查询，一个Presto查询可以跨越多个系统进行分析。例如将Hive中的学生表与Mysql中的班级表进行关联。也可以将mysql库中的表数据直接读取插入到hive中。</li>
+</ul>
+<p><img src="/posts/bd-presto/image-20230531232025115.png" alt="image-20230531232025115"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> mysql.A表 <span class="keyword">join</span> hive.B表 <span class="keyword">join</span> ES.C表</span><br><span class="line"><span class="comment">-- ---------------------------------------------</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">table</span> mysql.A表</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> hive.B表 <span class="keyword">where</span> 条件</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Presto终结了数据分析的两难选择：要么使用速度快的昂贵的商业方案，要么使用消耗大量硬件的慢速的“免费”方案。</p>
+</blockquote>
+<h3 id="presto优缺点"><a href="#presto优缺点" class="headerlink" title="presto优缺点"></a>presto优缺点</h3><ul>
+<li>优点</li>
+</ul>
+<p>1）Presto与Hive对比，都能够处理PB级别的海量数据分析，但Presto是基于内存运算，减少没必要的硬盘IO，所以更快。</p>
+<p>2）能够连接多个数据源，跨数据源连表查，如从Hive查询大量网站访问记录，然后从Mysql中匹配出设备信息。</p>
+<p>3）部署也比Hive简单，因为Hive是基于HDFS的，需要先部署HDFS。</p>
+<ul>
+<li>缺点</li>
+</ul>
+<p>1）虽然能够处理PB级别的海量数据分析，但不是代表Presto把PB级别都放在内存中计算的。而是根据场景，如count，avg等聚合运算，是边读数据边计算，再清内存，再读数据再计算，这种耗的内存并不高。但是连表查，就可能产生大量的临时数据，因此速度会变慢，反而Hive此时会更擅长。</p>
+<p>2）为了达到实时查询，可能会想到用它直连MySql来操作查询，这效率并不会提升，瓶颈依然在MySql，此时还引入网络瓶颈，所以会比原本直接操作数据库要慢。</p>
+<p><img src="/posts/bd-presto/image-20230531232128170.png" alt="image-20230531232128170"></p>
+<h3 id="Presto架构"><a href="#Presto架构" class="headerlink" title="Presto架构"></a>Presto架构</h3><p><img src="/posts/bd-presto/image-20230531223848835.png" alt="image-20230531223848835"></p>
+<p>Presto是一个运行在多台服务器上的分布式系统。完整安装包括一个coordinator和多个worker。 由客户端提交查询，从Presto命令行CLI提交到coordinator。coordinator进行解析，分析并执行查询计划，然后分发处理队列到worker</p>
+<p><img src="/posts/bd-presto/image-20230531223905957.png" alt="image-20230531223905957"></p>
+<p>Presto查询引擎是一个M-S的架构，由一个coordinator节点，一个Discovery Server节点，多个Worker节点组成，Discovery Server通常内嵌在Coordinator节点中。Coordinator负责SQL的解析，生成执行计划，分发给Worker节点进行执行，Worker节点负责实时查询执行任务。Worker节点启动后向discovery Server服务注册，Coordinator 从discovery server获取可以工作的Worker节点。如果配置了hive connector，需要配置hive MetaSote服务为Presto提供元信息，worker节点和HDFS进行交互数据</p>
+<p><img src="/posts/bd-presto/image-20230531223928109.png" alt="image-20230531223928109"></p>
+<h3 id="Presto术语"><a href="#Presto术语" class="headerlink" title="Presto术语"></a><strong>Presto术语</strong></h3><p><strong>Connector 连接器</strong></p>
+<p>Presto通过Connector连接器来适应数据源，例如Hive或关系数据库。功能类似于数据库的驱动程序。允许Presto使用标准API与资源进行交互。</p>
+<p>Presto包含几个内置连接器：JMX连接器，可访问内置系统表的System连接器，Hive连接器和旨在提供TPC-H基准数据的TPCH连接器。许多第三方开发人员都贡献了连接器，因此Presto可以访问各种数据源中的数据，比如：ES、Kafka、MongoDB、Redis、Postgre、Druid、Cassandra等。</p>
+<p>每个Catalog都与一个特定的连接器关联。如果检查Catalog配置文件，将会看到每个都包含一个强制性属性connector.name，Catalog Manager使用此属性指定Catalog的连接器。可能有多个Catalog使用同一连接器来访问相似数据库的两个不同实例。比如，有两个Hive群集，则可以在单个Presto群集中配置两个都使用Hive连接器的Catalog，从而允许从两个不同的Hive集群中查询数据（可以在同一SQL中查询）。</p>
+<p><strong>Catalog 连接目录</strong></p>
+<p>Presto Catalog是数据源schema的上一级，并通过连接器访问数据源。例如，可以配置HiveCatalog以通过Hive Connector连接器提供对Hive信息的访问。</p>
+<p>在Presto中使用表时，标准表名始终是被支持的。例如，hive.test_data.test的标准表名将引用hive catalog中test_data schema中的test table。</p>
+<p>Catalog需要在Presto的配置文件中进行配置。</p>
+<p><strong>Schema</strong></p>
+<p>Schema是组织表的一种方式。Catalog和Schema共同定义了一组可以查询的表。当使用Presto访问Hive或关系数据库（例如MySQL）时，Schema会转换为目标数据库中的对应Schema。</p>
+<p><strong>Table</strong></p>
+<p>Table表是一组无序的行，它们被组织成具有类型的命名列。与关系数据库中的含义相同</p>
+<h2 id="Presto单机安装"><a href="#Presto单机安装" class="headerlink" title="Presto单机安装"></a>Presto单机安装</h2><h3 id="Presto-Server安装"><a href="#Presto-Server安装" class="headerlink" title="Presto-Server安装"></a><strong>Presto-Server安装</strong></h3><h4 id="环境要求"><a href="#环境要求" class="headerlink" title="环境要求"></a><strong>环境要求</strong></h4><p>linux或者MacOS</p>
+<p>Java8 64位（Trino需要Java11）</p>
+<p>Python 2.4+</p>
+<h4 id="Java8安装"><a href="#Java8安装" class="headerlink" title="Java8安装"></a><strong>Java8安装</strong></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum install java-1.8.0-openjdk* -y</span><br><span class="line">安装完成后，查看jdk版本：</span><br><span class="line">java -version </span><br></pre></td></tr></table></figure>
+
+<h4 id="下载解压"><a href="#下载解压" class="headerlink" title="下载解压"></a><strong>下载解压</strong></h4><p>1、下载安装包</p>
+<p><a target="_blank" rel="noopener" href="https://prestodb.io/download.html">https://prestodb.io/download.html</a></p>
+<p>在资料目录中已经下载好。</p>
+<p>2、上传presto-server-0.245.1.tar到 hadoop01 的&#x2F;export&#x2F;server目录</p>
+<p>3、解压</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tar -xzvf presto-server-0.245.1.tar.gz</span><br><span class="line">mv presto-server-0.245.1 presto</span><br></pre></td></tr></table></figure>
+
+<p>4、查&#x2F;看目录结构</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd /export/server/presto</span><br></pre></td></tr></table></figure>
+
+<p>bin—可执行文件</p>
+<p>lib—对应的jar包</p>
+<p>plugin—第三方库插件</p>
+<p>5、Presto需要一个用于存储日志等的data目录。建议在安装目录之外创建一个data目录，以便在升级Presto时可以保留此目录。</p>
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a><strong>配置</strong></h3><p>在安装目录中创建一个etc目录，此目录下将会包含以下配置文件：</p>
+<p>node.properties: 每个节点的环境配置</p>
+<p>jvm.config: JVM的命令行选项</p>
+<p>config.properties: Presto Server的配置项</p>
+<p>catalog&#x2F;hive.properties: 数据源连接器的配置，此课程将使用hive数据源北京市昌平区建材城西路金燕龙办公楼一层 </p>
+<p>电话：400-618-9090</p>
+<h4 id="节点环境配置"><a href="#节点环境配置" class="headerlink" title="节点环境配置"></a><strong>节点环境配置</strong></h4><p>etc&#x2F;node.properties，每个节点的特定配置。</p>
+<p>一个节点指的是服务器上Presto的单个已安装实例。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">node.environment=production</span><br><span class="line">node.id=f7c4bf3c-dbb4-4807-baae-9b7e41807bc8</span><br><span class="line">node.data-dir=/export/server/data</span><br></pre></td></tr></table></figure>
+
+<p>node.environment：环境的名称。群集中的所有Presto节点必须具有相同的环境名称。</p>
+<p>node.id：此Presto安装的唯一标识符。这对于每个节点都必须是唯一的。在重新启动或升级Presto时，此标识符应保持一致。如果在一台计算机上运行多个Presto安装（即同一台计算机上有多个节点），则每个安装必须具有唯一的标识符。</p>
+<p>node.data-dir：数据目录的位置（文件系统路径）。Presto将在此处存储日志和其他数据。</p>
+<h4 id="JVM虚拟机配置"><a href="#JVM虚拟机配置" class="headerlink" title="JVM虚拟机配置"></a><strong>JVM虚拟机配置</strong></h4><p>etc&#x2F;jvm.config，包含用于启动Java虚拟机的命令行选项列表。文件的格式是选项列表，每行一个。不能使用空格或其他特殊字符。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-server </span><br><span class="line">-Xmx5G</span><br><span class="line">-XX:+UseG1GC</span><br><span class="line">-XX:G1HeapRegionSize=32M</span><br><span class="line">-XX:+UseGCOverheadLimit </span><br><span class="line">-XX:+ExplicitGCInvokesConcurrent </span><br><span class="line">-XX:+HeapDumpOnOutOfMemoryError </span><br><span class="line">-XX:+ExitOnOutOfMemoryError</span><br></pre></td></tr></table></figure>
+
+<p>由于OutOfMemoryError将会导致JVM处于不一致状态，所以遇到这种错误的时候我们一般的处理措施就是记录下dump heap中的信息（用于debugging），然后强制终止进程。</p>
+<h4 id="Presto服务配置"><a href="#Presto服务配置" class="headerlink" title="Presto服务配置"></a><strong>Presto服务配置</strong></h4><p>etc&#x2F;config.properties，包含Presto服务器的配置。</p>
+<p>Presto服务氛围三种角色：coordinator、worker、coordinator&amp;worker。每个Presto服务都可以充当coordinator和worker，但是独立出一台服务器专用于coordinator协调工作将在较大的群集上提供最佳性能。</p>
+<h5 id="coordinator配置"><a href="#coordinator配置" class="headerlink" title="coordinator配置"></a><strong>coordinator配置</strong></h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">coordinator=true</span><br><span class="line">node-scheduler.include-coordinator=false</span><br><span class="line">http-server.http.port=8090</span><br><span class="line">query.max-memory=4GB</span><br><span class="line">query.max-memory-per-node=1GB</span><br><span class="line">query.max-total-memory-per-node=2GB</span><br><span class="line">discovery-server.enabled=true</span><br><span class="line">discovery.uri=http://example.net:8090</span><br></pre></td></tr></table></figure>
+
+<h5 id="worker配置"><a href="#worker配置" class="headerlink" title="worker配置"></a><strong>worker配置</strong></h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">coordinator=false</span><br><span class="line">http-server.http.port=8090</span><br><span class="line">query.max-memory=4GB</span><br><span class="line">query.max-memory-per-node=1GB</span><br><span class="line">query.max-total-memory-per-node=2GB</span><br><span class="line">discovery.uri=http://example.net:8090</span><br></pre></td></tr></table></figure>
+
+<h5 id="coordinator-worker配置"><a href="#coordinator-worker配置" class="headerlink" title="coordinator&amp;worker配置"></a><strong>coordinator&amp;worker配置</strong></h5><p>单机版使用此配置进行测试。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">coordinator=true</span><br><span class="line">node-scheduler.include-coordinator=true</span><br><span class="line">http-server.http.port=8090</span><br><span class="line">query.max-memory=4GB</span><br><span class="line">query.max-memory-per-node=1GB</span><br><span class="line">query.max-total-memory-per-node=2GB</span><br><span class="line">discovery-server.enabled=true</span><br><span class="line">discovery.uri=http://192.168.88.80:8090</span><br></pre></td></tr></table></figure>
+
+<h5 id="配置项含义"><a href="#配置项含义" class="headerlink" title="配置项含义"></a><strong>配置项含义</strong></h5><p>coordinator：允许此Presto实例充当coordinator协调器角色（接受来自客户端的查询并管理查询执行）。</p>
+<p>node-scheduler.include-coordinator：允许此Presto实例充当coordinator&amp;worker角色。对于较大的群集，coordinator上的worker工作可能会影响查询性能，因为两者互相争抢计算机的资源会导致调度的关键任务受到影响。</p>
+<p>http-server.http.port：指定HTTP服务器的端口。Presto使用HTTP进行内部和外部所有通信。</p>
+<p>query.max-memory：单个query操作可以使用的最大集群内存量。</p>
+<p>query.max-memory-per-node：单个query操作在单个节点上用户内存能用的最大值。</p>
+<p>query.max-total-memory-per-node：单个query操作可在单个节点上使用的最大用户内存量和系统内存量，其中系统内存是读取器、写入器和网络缓冲区等在执行期间使用的内存。</p>
+<p>discovery-server.enabled：Presto使用发现服务Discovery service来查找群集中的所有节点。</p>
+<p>每个Presto实例在启动时都会向Discovery服务注册。为了简化部署并避免运行其他服务，Presto协调器coordinator可以运行Discovery服务的嵌入式版本。它与Presto共享HTTP服务器，因此使用相同的端口。</p>
+<p>discovery.uri：Discovery服务的URI地址。由于启用了Presto coordinator内嵌的Discovery 服务，因此这个uri就是Presto coordinator的uri。修改example.net:8090，根据你的实际环境设置该URI。此URI不得以“&#x2F;“结尾。</p>
+<h4 id="日志级别"><a href="#日志级别" class="headerlink" title="日志级别"></a><strong>日志级别</strong></h4><p>etc&#x2F;log.properties</p>
+<p>在这个配置文件中允许你根据不同的日志结构设置不同的日志级别。</p>
+<p>Loggers通过名字中的“.“来表示层级和集成关系(像java里面的包)。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">com.facebook.presto=INFO</span><br></pre></td></tr></table></figure>
+
+<p>这会将com.facebook.presto.server和com.facebook.presto.hive的日志级别都设置为INFO。</p>
+<p>共有四个级别：DEBUG，INFO，WARN和ERROR。</p>
+<p>trino这里配置不同</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">io.trino=INFO</span><br></pre></td></tr></table></figure>
+
+<h4 id="连接器配置"><a href="#连接器配置" class="headerlink" title="连接器配置"></a><strong>连接器配置</strong></h4><p>Presto通过catalogs中的连接器connectors访问数据。connector提供了对应catalog中的所有schema和table。比如，如果在catalog中配置了Hive connector，并且此Hive的’web’数据库中有一个’clicks’表，该表在Presto中就可以通过hive.web.clicks来访问。</p>
+<p>通过在etc&#x2F;catalog目录中创建配置文件来注册connector。比如，通过创建etc&#x2F;catalog&#x2F;hive.properties，即可用来注册hive的connector：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">connector.name=hive-hadoop2</span><br><span class="line">hive.metastore.uri=thrift://192.168.88.80:9083</span><br></pre></td></tr></table></figure>
+
+<p>Presto连接器支持以下版本hive：</p>
+<p>1．Apache Hive 1.x</p>
+<p>2．Apache Hive 2.x</p>
+<p>3．Cloudera CHD 4</p>
+<p>4．Cloudera CHD 5</p>
+<p>Presto的Hive连接器支持的文件类型：</p>
+<p>1．ORC</p>
+<p>2．Parquet</p>
+<p>3．Avro</p>
+<p>4．RCFile</p>
+<p>5．SequenceFile</p>
+<p>6．JSON</p>
+<p>7．Text</p>
+<h4 id="运行Presto"><a href="#运行Presto" class="headerlink" title="运行Presto"></a><strong>运行Presto</strong></h4><p>在安装目录的bin&#x2F;launcher文件，就是启动脚本。Presto可以使用如下命令作为一个后台进程启动：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/launcher start</span><br></pre></td></tr></table></figure>
+
+<p>另外，也可以在前台运行，日志和相关输出将会写入stdout&#x2F;stderr（可以使用类似daemontools的工具捕捉这两个数据流）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/launcher run</span><br></pre></td></tr></table></figure>
+
+<p>运行bin&#x2F;launcher –help，Presto将会列出支持的命令和命令行选项。另外可以通过运行时使用–verbose参数，来调试安装是否正确。</p>
+<p>访问web：<a target="_blank" rel="noopener" href="http://192.168.88.80:8090/ui/">http://192.168.88.80:8090/ui/</a></p>
+<p>启动完之后，日志将会写在node.data-dir 配置目录的子目录var&#x2F;log下，该目录下有如下三个文件：</p>
+<ol>
+<li><p>launcher.log：这个日志文件由launcher创建，并且server的stdout和stderr都被重定向到了这个日志文件中。这份日志文件中只会有很少的信息，包括：在server日志系统初始化的时候产生的日志和JVM产生的诊断和测试信息。</p>
+</li>
+<li><p>server.log：这个是Presto使用的主要日志文件。一般情况下，该文件中将会包括server初始化失败时产生的相关信息。这份文件会被自动轮转和压缩。</p>
+</li>
+<li><p>http-request.log：这是HTTP请求的日志文件，包括server收到的每个HTTP请求信息，这份文件会被自动轮转和压缩。</p>
+</li>
+</ol>
+<h3 id="Presto-Cli安装"><a href="#Presto-Cli安装" class="headerlink" title="Presto-Cli安装"></a><strong>Presto-Cli安装</strong></h3><p>Presto CLI提供了基于终端的交互式命令程序，用于运行查询。Presto CLI是一个可执行的JAR文件，这意味着它的行为类似于普通的UNIX可执行文件。</p>
+<p>下载presto-cli-0.245.1-executable.jar（<a target="_blank" rel="noopener" href="https://repo1.maven.org/maven2/com/facebook/presto/presto-cli/0.245.1/presto-cli-0.245.1-executable.jar%EF%BC%89%EF%BC%8C%E5%B0%86%E5%85%B6%E9%87%8D%E5%91%BD%E5%90%8D%E4%B8%BApresto%EF%BC%8C%E4%BD%BF%E7%94%A8chmod">https://repo1.maven.org/maven2/com/facebook/presto/presto-cli/0.245.1/presto-cli-0.245.1-executable.jar），将其重命名为presto，使用chmod</a> +x分配执行权限后，运行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#上传presto-cli-0.245.1-executable.jar到/export/server/presto/bin</span><br><span class="line">mv presto-cli-0.245.1-executable.jar presto</span><br><span class="line">chmod +x presto</span><br><span class="line">./presto --server localhost:8090 --catalog hive --schema default</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/bd-presto/image-20230531225022307.png" alt="image-20230531225022307"></p>
+<h3 id="Presto验证"><a href="#Presto验证" class="headerlink" title="Presto验证"></a><strong>Presto验证</strong></h3><p><strong>创建数据库(Hive)</strong></p>
+<p>create database myhive;</p>
+<p><strong>查看数据库(Hive)</strong></p>
+<p>show databases; </p>
+<p><strong>数据准备(Hive)</strong></p>
+<p>vim employees.txt</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1201 Gopal 45000 Technical manager</span><br><span class="line">1202 Manisha 45000 Proof reader</span><br><span class="line">1203 Masthanvali 40000 Technical writer</span><br><span class="line">1204 Krian 40000 Hr Admin</span><br><span class="line">1205 Kranthi 30000 Op Admin</span><br></pre></td></tr></table></figure>
+
+<p>通过Hue将employees.txt文件上传至HDFS的&#x2F;root&#x2F;目录下。</p>
+<p><strong>创建表(Hive)</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">use myhive;</span><br><span class="line">create table myhive.employee (eud int,name String,salary String,destination String) COMMENT</span><br><span class="line">&#x27;Employee table&#x27; ROW FORMAT DELIMITED FIELDS TERMINATED BY &#x27;\t&#x27; LINES TERMINATED BY &#x27;\n&#x27; STORED</span><br><span class="line">AS TEXTFILE;</span><br></pre></td></tr></table></figure>
+
+<p><strong>加载数据(Hive)</strong></p>
+<p>load data local inpath ‘&#x2F;root&#x2F;employees.txt’ into table employee; </p>
+<p><strong>查询表(Hive)</strong></p>
+<p>select * from employee; </p>
+<p><strong>Presto测试数据(Presto)</strong></p>
+<p>use myhive;</p>
+<p>select * from employee;</p>
+<h3 id="Presto启动"><a href="#Presto启动" class="headerlink" title="Presto启动"></a>Presto启动</h3><ul>
+<li>命令行启动</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">hadoop01启动</span></span><br><span class="line">/export/server/presto/bin/launcher start</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">hadoop02启动</span></span><br><span class="line">/export/server/presto/bin/launcher start</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>脚本启动</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line"></span><br><span class="line">PRESTO_DIR=/export/server/presto/bin</span><br><span class="line"></span><br><span class="line">for n in 1 2</span><br><span class="line">do</span><br><span class="line">        ssh root@hadoop0$n &quot;source /etc/profile;$&#123;PRESTO_DIR&#125;/launcher $1&quot;</span><br><span class="line">done</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">测试</span></span><br><span class="line">chmod +x one_key.</span><br><span class="line">./one_key.sh start</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Presto集群搭建（旧）"><a href="#Presto集群搭建（旧）" class="headerlink" title="Presto集群搭建（旧）"></a><strong>Presto集群搭建</strong>（旧）</h2><h3 id="集群规划"><a href="#集群规划" class="headerlink" title="集群规划"></a>集群规划</h3><p><img src="/posts/bd-presto/image-20230531230416848.png" alt="image-20230531230416848"></p>
+<h3 id="分发配置文件"><a href="#分发配置文件" class="headerlink" title="分发配置文件"></a><strong>分发配置文件</strong></h3><p>先在第二台和第三台服务器上创建对应的目录：</p>
+<p>mkdir -p &#x2F;export&#x2F;server </p>
+<p>在第一台执行复制命令：</p>
+<p>scp -r presto root@hadoop02:&#x2F;export&#x2F;server</p>
+<p>scp -r presto root@hadoop03:&#x2F;export&#x2F;server </p>
+<h3 id="配置-1"><a href="#配置-1" class="headerlink" title="配置"></a><strong>配置</strong></h3><p>hadoop01节点作为coordinator节点，其余两个节点为Worker节点。</p>
+<h3 id="hadoop01-coordinator配置"><a href="#hadoop01-coordinator配置" class="headerlink" title="hadoop01-coordinator配置"></a><strong>hadoop01-coordinator配置</strong></h3><ul>
+<li><strong>etc&#x2F;config.properties</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">coordinator=true</span><br><span class="line">node-scheduler.include-coordinator=true</span><br><span class="line">http-server.http.port=8090</span><br><span class="line">query.max-memory=4GB</span><br><span class="line">query.max-memory-per-node=1GB</span><br><span class="line">discovery-server.enabled=true</span><br><span class="line">discovery.uri=http://192.168.88.80:8090</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>etc&#x2F;jvm.config</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-server </span><br><span class="line">-Xmx8G</span><br><span class="line">-XX:+UseG1GC</span><br><span class="line">-XX:G1HeapRegionSize=32M</span><br><span class="line">-XX:+UseGCOverheadLimit </span><br><span class="line">-XX:+ExplicitGCInvokesConcurrent </span><br><span class="line">-XX:+HeapDumpOnOutOfMemoryError </span><br><span class="line">-XX:+ExitOnOutOfMemoryErro</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>etc&#x2F;node.properties</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">node.environment=cdhpresto</span><br><span class="line">node.id=presto-cdh01</span><br><span class="line">node.data-dir=/export/server/data</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><strong>etc&#x2F;catalog&#x2F;hive.properties</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">connector.name=hive-hadoop2</span><br><span class="line">hive.metastore.uri=thrift://192.168.88.80:9083</span><br></pre></td></tr></table></figure>
+
+<p><strong>hadoop02&#x2F;03-worker配置</strong></p>
+<ul>
+<li><strong>etc&#x2F;config.properties</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">coordinator=false</span><br><span class="line">http-server.http.port=8090</span><br><span class="line">query.max-memory=4GB</span><br><span class="line">query.max-memory-per-node=1GB</span><br><span class="line">discovery.uri=http://192.168.88.80:8090</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>etc&#x2F;jvm.config</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">-server -Xmx8G</span><br><span class="line">-XX:+UseG1GC</span><br><span class="line">-XX:G1HeapRegionSize=32M</span><br><span class="line">-XX:+UseGCOverheadLimit </span><br><span class="line">-XX:+ExplicitGCInvokesConcurrent </span><br><span class="line">-XX:+HeapDumpOnOutOfMemoryError </span><br><span class="line">-XX:+ExitOnOutOfMemoryError</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>etc&#x2F;node.properties</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">node.environment=cdhpresto</span><br><span class="line">node.id=presto-cdh02</span><br><span class="line">node.data-dir=/export/server/data</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><strong>etc&#x2F;catalog&#x2F;hive.properties</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">connector.name=hive-hadoop2</span><br><span class="line">hive.metastore.uri=thrift://192.168.88.80:9083</span><br></pre></td></tr></table></figure>
+
+<h3 id="运行"><a href="#运行" class="headerlink" title="运行"></a><strong>运行</strong></h3><p><strong>创建快捷启动脚本</strong></p>
+<p>在用户根目录创建脚本文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd ~</span><br><span class="line">vim start_presto.sh</span><br></pre></td></tr></table></figure>
+
+<p>在文件中写入：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/export/server/presto/bin/launcher start</span><br></pre></td></tr></table></figure>
+
+<p>分配执行权限：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod +x start_presto.sh</span><br></pre></td></tr></table></figure>
+
+<p>启动三台presto：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./start_presto.sh</span><br></pre></td></tr></table></figure>
+
+<p>查看是否启动成功：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps -ef|grep presto</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/bd-presto/image-20230531230924766.png" alt="image-20230531230924766"></p>
+<p><strong>启动Presto客户端</strong></p>
+<p>启动三台presto，然后通过CLI分别登录三台server进行测试。</p>
+<p>设置presto环境变量：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/profile </span><br></pre></td></tr></table></figure>
+
+<p>在文件末尾写入：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">export PRESTO_HOME=/export/server/presto</span><br><span class="line"></span><br><span class="line">export PATH=$PATH:$PRESTO_HOME/bin </span><br></pre></td></tr></table></figure>
+
+<p>执行生效：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
+
+<p>启动presto-cli：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">presto --server 192.168.88.80:8090 --catalog hive --schema default</span><br></pre></td></tr></table></figure>
+
+<p>测试SQL：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">use myhive;</span><br><span class="line">select * from employee;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/bd-presto/image-20230531230950984.png" alt="image-20230531230950984"></p>
+<h3 id="集群管理页面介绍"><a href="#集群管理页面介绍" class="headerlink" title="集群管理页面介绍"></a><strong>集群管理页面介绍</strong></h3><p><img src="/posts/bd-presto/image-20230531231002789.png" alt="image-20230531231002789"></p>
+<p><a target="_blank" rel="noopener" href="http://192.168.88.80:8090/ui/">http://192.168.88.80:8090/ui/</a></p>
+<p>主页面显示了正在执行的查询数，正常活动的Worker数，排队的查询数，阻塞的查询数，并行度等等；以及每个查询的列表区域（包括查询的ID，查询语句，查询状态，用户名，数据源等等）。</p>
+<p>正在查询的排在最上面，紧接着依次为最近完成的查询，失败的查询等。</p>
+<p>查询的状态有以下几种：</p>
+<ul>
+<li>QUEUED-查询以及被接受，正等待执行</li>
+<li>PLANNING-查询在计划中</li>
+<li>STARTING-查询已经开始执行</li>
+<li>RUNNING-查询已经运行，至少有一个task开始执行</li>
+<li>BLOCKED-查询被阻塞，并且在等待资源（缓存空间，内存，切片）</li>
+<li>FINISHING-查询正完成（比如commit forautocommit queries）</li>
+<li>FINISHED-查询已经完成（比如数据已输出）</li>
+<li>FAILED-查询执行失败</li>
+</ul>
+<h2 id="分布式SQL查询引擎性能对比"><a href="#分布式SQL查询引擎性能对比" class="headerlink" title="分布式SQL查询引擎性能对比"></a>分布式SQL查询引擎性能对比</h2><blockquote>
+<p>大数据分析类软件发展历程。</p>
+</blockquote>
+<ul>
+<li>Apache Hadoop MapReduce <ul>
+<li>优点：统一、通用、简单的编程模型，分而治之思想处理海量数据。</li>
+<li>缺点：java学习成本、MR执行慢、内部过程繁琐</li>
+</ul>
+</li>
+<li>Apache Hive<ul>
+<li>优点：SQL on Hadoop。sql语言上手方便。学习成本低。</li>
+<li>缺点：底层默认还是MapReduce引擎、慢、延迟高</li>
+</ul>
+</li>
+<li>各种SQL类计算引擎开始出现，主要追求的就是一个问题：&#x3D;&#x3D;怎么能计算的更快，延迟低&#x3D;&#x3D;。<ul>
+<li>Spark On Hive、Spark SQL</li>
+<li>Impala</li>
+<li>Presto</li>
+<li>ClickHouse</li>
+<li>……..</li>
+</ul>
+</li>
+</ul>
+<h3 id="hive"><a href="#hive" class="headerlink" title="hive"></a>hive</h3><p>Hive是基于Hadoop的一个数据仓库工具，可以将结构化的数据文件映射为一张数据库表，并提供完整的sql查询功能，可以将SQL语句转换为MapReduce任务进行运行。其优点是学习成本低，可以通过类SQL语句快速实现简单的MapReduce统计，不必开发专门的MapReduce应用，十分适合数据仓库的统计分析。</p>
+<p>Hive是建立在 Hadoop 上的数据仓库基础构架。它提供了一系列的工具，可以用来进行数据提取转化加载（ETL），这是一种可以存储、查询和分析存储在 Hadoop 中的大规模数据的机制。</p>
+<p>Hive 定义了简单的类 SQL 查询语言，称为 HQL，它允许熟悉 SQL 的用户查询数据。同时，这个语言也允许熟悉 MapReduce 开发者的开发自定义的 Mapper 和 Reducer 来处理内建的Mapper 和 Reducer 无法完成的复杂的分析工作。</p>
+<p><strong>性能：</strong></p>
+<p>Hive相对于其他查询引擎来说性能一般，主要的优势体现在系统负载低、稳定性高、数据格式支持面广、社区活跃度高，可以为其他多款查询引擎提供底层元数据，SparkSql、Presto、Impala、HAWQ等都支持基于Hive的查询。</p>
+<p>成本低、稳定性好，生态兼容性好，因此Hive在企业中应用的较多。</p>
+<h3 id="spark-sql"><a href="#spark-sql" class="headerlink" title="spark sql"></a>spark sql</h3><p>SparkSQL是Hadoop中另一个著名的SQL引擎，它以Spark作为底层计算框架，Spark使用RDD作为分布式程序的工作集合，它提供一种分布式共享内存的受限形式。 在分布式共享内存系统中，应用可以向全局地址空间的任意位置进行读写操作，而RDD是只读的，对其只能进行创建、转化和求值等操作。这种内存操作大大提高了计算速度。</p>
+<p>SparkSQL作为Spark生态的一员继续发展，而不再受限于Hive，只是兼容Hive。可以利用hive作为数据源，Spark作为计算引擎，通过SQL解析引擎，实现基于Hive数据源，Spark作为计算引擎的方案。</p>
+<p><strong>性能：</strong></p>
+<p>SparkSQL的性能相对其他的组件要差一些，多表单表查询性能都不突出</p>
+<h3 id="Impala"><a href="#Impala" class="headerlink" title="Impala"></a>Impala</h3><p>Impala是Cloudera在受到Google的Dremel启发下开发的实时交互SQL大数据查询工具，它拥有和Hadoop一样的可扩展性、它提供了类SQL（类Hsql）语法，在多用户场景下也能拥有较高的响应速度和吞吐量。它是由Java和C++实现的，Java提供的查询交互的接口和实现，C++实现了查询引擎部分，除此之外，Impala还能够共享Hive Metastore，甚至可以直接使用Hive的JDBC jar和beeline等直接对Impala进行查询、支持丰富的数据存储格式（Parquet、Avro等）。</p>
+<p>此外，Impala 没有再使用缓慢的 Hive+MapReduce 批处理，而是通过使用与商用并行关系数据库中类似的分布式查询引擎，可以直接从 HDFS 或 HBase 中用 SELECT、JOIN 和统计函数查询数据，从而大大降低了延迟。</p>
+<p><strong>性能：</strong></p>
+<p>Impala官方宣传其计算速度是一大优点，在实际测试中它的多表查询性能和presto差不多，但是单表查询方面却不如presto好。 而且Impala有很多不支持的地方，例如：不支持update、delete操作，不支持grouping sets语法，不支持Date数据类型，不支持ORC文件格式等等，所以impala 一般采用Parquet格式进行查询，而且Impala在查询时占用的内存很大。</p>
+<h3 id="HAWQ"><a href="#HAWQ" class="headerlink" title="HAWQ"></a>HAWQ</h3><p>HAWQ 是一个 Hadoop 上的 SQL 引擎，是以 Greenplum Database 为代码基础逐渐发展起来的。HAWQ 采用 MPP 架构，改进了针对 Hadoop 的基于成本的查询优化器。除了能高效处理本身的内部数据，还可通过 PXF 访问 HDFS、Hive、HBase、JSON 等外部数据源。HAWQ全面兼容 SQL 标准，能编写 SQL UDF，还可用 SQL 完成简单的数据挖掘和机器学习。无论是功能特性，还是性能表现，HAWQ 都比较适用于构建 Hadoop 分析型数据仓库应用。</p>
+<p><strong>性能</strong>:</p>
+<p>HAWQ 吸收了先进的基于成本的 SQL 查询优化器，自动生成执行计划，可优化使用Hadoop集群资源。 HAWQ 采用 Dynamic Pipelining 技术解决这一关键问题。Dynamic Pipelining 是一种并行数据流框架，利用线性可扩展加速Hadoop查询，数据直接存储在HDFS上，并且其SQL查询优化器已经为基于HDFS的文件系统性能特征进行过细致的优化。</p>
+<p>但是HAWQ在多表查询时比Presto、Impala差一些；而且不适合单表的复杂聚合操作，单表测试性能方面要比其余四种组件差很多，HAWQ环境搭建也会遇到诸多问题。</p>
+<h3 id="ClickHouse"><a href="#ClickHouse" class="headerlink" title="ClickHouse"></a>ClickHouse</h3><p>ClickHouse由俄罗斯Yandex公司开发。专为在线数据分析而设计。Yandex是俄罗斯搜索引擎公司。官方提供的文档表名，ClickHouse日处理记录数”十亿级”。</p>
+<p><strong>特性：</strong></p>
+<ul>
+<li>采用列式存储</li>
+<li>数据压缩</li>
+<li>基于磁盘的存储，大部分列式存储数据库为了追求速度，会将数据直接写入内存，按时内存的空间往往很小</li>
+<li>CPU 利用率高，在计算时会使用机器上的所有 CPU 资源</li>
+<li>支持分片，并且同一个计算任务会在不同分片上并行执行，计算完成后会将结果汇总</li>
+<li>支持SQL，SQL 几乎成了大数据的标准工具，使用门槛较低</li>
+<li>支持联表查询</li>
+<li>支持实时更新</li>
+<li>自动多副本同步</li>
+<li>支持索引</li>
+<li>分布式存储查询</li>
+</ul>
+<p><strong>性能</strong>:</p>
+<p>ClickHouse 作为目前所有开源MPP计算框架中计算速度最快的，它在做多列的表，同时行数很多的表的查询时，性能是很让人兴奋的，但是在做多表的Join时，它的性能是不如单宽表查询的。</p>
+<p>性能测试结果表明ClickHouse在单表查询方面表现出很大的性能优势，但是在多表查询中性能却比较差，不如Presto和Impala、HAWQ的效果好。</p>
+<h3 id="Greenplum"><a href="#Greenplum" class="headerlink" title="Greenplum"></a>Greenplum</h3><p>Greenplum是一个开源的大规模并行数据分析引擎。借助MPP架构，在大型数据集上执行复杂SQL分析的速度比很多解决方案都要快。</p>
+<p><strong>特性：</strong></p>
+<ul>
+<li>GPDB完全支持ANSI SQL 2008标准和SQL OLAP 2003 扩展。</li>
+<li>从应用编程接口上讲，它支持ODBC和JDBC。</li>
+<li>完善的标准支持使得系统开发、维护和管理都大为方便。</li>
+<li>支持分布式事务，支持ACID。</li>
+<li>保证数据的强一致性。</li>
+<li>做为分布式数据库，拥有良好的线性扩展能力。</li>
+<li>GPDB有完善的生态系统，可以与很多企业级产品集成，譬如SAS、Cognos、Informatic、Tableau等。</li>
+<li>也可以很多种开源软件集成，譬如Pentaho、Talend 等</li>
+</ul>
+<p><strong>性能</strong>:</p>
+<p>Greenplum作为关系型数据库产品，它的特点主要就是查询速度快，数据装载速度快，批量DML处理快。 而且性能可以随着硬件的添加，呈线性增加，拥有非常良好的可扩展性。因此，它主要适用于面向分析的应用。 比如构建企业级ODS&#x2F;EDW，或者数据集市等，Greenplum都是不错的选择。</p>
+<p>整体性能上Greenplum的表现比较中庸，单表查询不如clickhouse，多表查询不如impala，整体性能不如presto。</p>
+<h3 id="Presto-Trino"><a href="#Presto-Trino" class="headerlink" title="Presto&#x2F;Trino"></a><strong>Presto&#x2F;Trino</strong></h3><p><strong>介绍</strong>：</p>
+<p>速度：Presto&#x2F;Trino是一个高度并行的分布式查询引擎，适用于高效、低延迟的交互式查询，能够解决Facebook这样大规模的商业数据仓库交互式分析和处理的速度问题。</p>
+<p>规模：数据量支持EB级的数仓和数据湖；</p>
+<p>简单：它支持标准的ANSI SQL，包括复杂查询、聚合（Aggregation）、连接（Join）和窗口函数（Window Functions)，且安装配置简单；</p>
+<p>多才多艺：快速的交互式即席分析、数小时的大规模批处理查询，以及执行亚秒级查询的大容量应用；</p>
+<p>广泛兼容：Presto本身并不存储数据，但是可以接入多种数据源：不仅支持Hive，还支持mysql、oracle等关系型数据库，也支持kafka、redis、MongoDB等非关系型数据库，对于实时数据库ClickHouse也能够完美支持。</p>
+<p>就地分析：通过Presto，可以在Hadoop、Mysql等数据库本地查询数据，而无需进行复杂、缓慢且容易出错的数据复制过程；</p>
+<p>联合查询：Presto支持跨数据源的联合查询，一个Presto查询可以跨越多个系统进行分析。例如将Hive中的学生表与Mysql中的班级表进行关联。也可以将mysql库中的表数据直接读取插入到hive中。</p>
+<p>免费：Presto和Trino都是开源的。</p>
+<p>Presto终结了数据分析的两难选择：要么使用速度快的昂贵的商业方案，要么使用消耗大量硬件的慢速的“免费”方案。</p>
+<p><strong>性能</strong>：</p>
+<p>Presto综合性能比起来要比其余组件好一些，无论是查询性能还是支持的数据源和数据格式方面都要突出一些，在单表查询时性能靠前，多表查询方面性能也很突出。</p>
+<p>由于Presto是完全基于内存的并行计算，所以Presto在查询时占用的内存也不少，但是要比Impala少一些，比如多表Join时需要很大的内存，Impala占用的内存比Presto要多。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a><strong>总结</strong></h3><p><strong>多表查询</strong></p>
+<p>Presto、Impala以及HAWQ在多表查询方面更有优势。</p>
+<p>虽说Presto和Impala在多表查询方面的性能差别不大，但是Impala的功能有一些局限性，Impala不支持的功能是没有办法参与性能对比测试的，例如：不支持update、delete操作，不支持grouping sets语法，不支持Date数据类型，不支持ORC文件格式等等，而Presto则基本没有这些局限问题。</p>
+<p><strong>单大表聚合</strong></p>
+<p>在单表测试方面ClickHouse性能最好，其次是Presto，相比于HAWQ和impala以及SparkSQL在单大表聚合操作方面的表现也相对优秀。</p>
+<p><strong>综合对比表格</strong></p>
+<p><img src="/posts/bd-presto/image-20230531223807226.png" alt="image-20230531223807226"></p>
+<h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a><strong>使用场景</strong></h3><p><strong>Presto</strong></p>
+<p>多数据源时，presto可以基于标准SQL进行统一的跨DB&#x2F;Schema读写。</p>
+<p>快速查询时，presto综合性能更好；Presto&#x2F;Trino 也能够极大地加速 ETL 过程。</p>
+<p>但Presto需要的硬件资源也更昂贵。因此ODS和DWD数据量较大的分层，使用hive会更节省资</p>
+<p>源。</p>
+<p><strong>Hive</strong></p>
+<p>海量数据的场景下，一是需要大量的硬件资源，二是海量的数据极可能造成内存溢出等各种异</p>
+<p>常。此时推荐使用Hive：成本低、稳定性好，且生态兼容性好。</p>
+<h2 id="Grouping-sets语法"><a href="#Grouping-sets语法" class="headerlink" title="Grouping sets语法"></a>Grouping sets语法</h2><blockquote>
+<p>hive sql和presto sql是由区别的！语法上有略微差异</p>
+</blockquote>
+<h3 id="Hive的写法"><a href="#Hive的写法" class="headerlink" title="Hive的写法"></a>Hive的写法</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span></span><br><span class="line">  <span class="keyword">month</span>,</span><br><span class="line">  <span class="keyword">day</span>,</span><br><span class="line">  <span class="built_in">count</span>(userid)</span><br><span class="line"><span class="keyword">from</span> test.t_user</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">day</span>,<span class="keyword">month</span>    #这里需要加分组字段</span><br><span class="line"><span class="keyword">grouping</span> sets (<span class="keyword">month</span>,<span class="keyword">day</span>,(<span class="keyword">month</span>,<span class="keyword">day</span>))</span><br></pre></td></tr></table></figure>
+
+<h3 id="Presto写法"><a href="#Presto写法" class="headerlink" title="Presto写法"></a>Presto写法</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span></span><br><span class="line">  <span class="keyword">month</span>,</span><br><span class="line">  <span class="keyword">day</span>,</span><br><span class="line">  <span class="built_in">count</span>(userid)</span><br><span class="line"><span class="keyword">from</span> test.t_user</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span>          #这里不能加分组字段</span><br><span class="line"><span class="keyword">grouping</span> sets (<span class="keyword">month</span>,<span class="keyword">day</span>,(<span class="keyword">month</span>,<span class="keyword">day</span>))</span><br></pre></td></tr></table></figure>
+
+<h3 id="Grouping的写法"><a href="#Grouping的写法" class="headerlink" title="Grouping的写法"></a>Grouping的写法</h3><ul>
+<li><p>hive</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 有就是 1 ，没有就是0</span></span><br><span class="line"><span class="keyword">select</span></span><br><span class="line">  <span class="keyword">month</span>,</span><br><span class="line">  <span class="keyword">day</span>,</span><br><span class="line">  <span class="built_in">count</span>(userid),    <span class="comment">-- 0  0</span></span><br><span class="line">  <span class="keyword">case</span> <span class="keyword">when</span> grouping__id <span class="operator">=</span> <span class="number">3</span> <span class="comment">-- month_day   1  1</span></span><br><span class="line">        <span class="keyword">then</span> <span class="string">&#x27;month_day&#x27;</span></span><br><span class="line">       <span class="keyword">when</span> grouping__id <span class="operator">=</span> <span class="number">2</span> <span class="comment">-- month       1  0</span></span><br><span class="line">         <span class="keyword">then</span> <span class="string">&#x27;month&#x27;</span></span><br><span class="line">       <span class="keyword">when</span> grouping__id <span class="operator">=</span> <span class="number">1</span> <span class="comment">-- day         0  1</span></span><br><span class="line">         <span class="keyword">then</span> <span class="string">&#x27;day&#x27;</span></span><br><span class="line">       <span class="keyword">when</span> grouping__id <span class="operator">=</span> <span class="number">0</span> <span class="comment">-- all         0  0</span></span><br><span class="line">         <span class="keyword">then</span> <span class="string">&#x27;all&#x27;</span></span><br><span class="line">  <span class="keyword">end</span>  <span class="keyword">as</span> group_type</span><br><span class="line"><span class="keyword">from</span> test.t_user</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">day</span>,<span class="keyword">month</span>  <span class="comment">-- 这里的顺序要和select后边的字段顺序相反</span></span><br><span class="line"><span class="keyword">grouping</span> sets (<span class="keyword">month</span>,<span class="keyword">day</span>,(<span class="keyword">month</span>,<span class="keyword">day</span>),());</span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p>presto</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 有就是 0 ，没有就是1</span></span><br><span class="line"><span class="keyword">select</span></span><br><span class="line">  <span class="keyword">month</span>,</span><br><span class="line">  <span class="keyword">day</span>,</span><br><span class="line">  <span class="built_in">count</span>(userid),    <span class="comment">-- 0  0</span></span><br><span class="line">  <span class="keyword">case</span> <span class="keyword">when</span> <span class="keyword">grouping</span>(<span class="keyword">month</span>,<span class="keyword">day</span>) <span class="operator">=</span> <span class="number">0</span>  <span class="comment">-- month_day</span></span><br><span class="line">        <span class="keyword">then</span> <span class="string">&#x27;month_day&#x27;</span></span><br><span class="line">                    <span class="comment">-- 0   1</span></span><br><span class="line">       <span class="keyword">when</span>  <span class="keyword">grouping</span>(<span class="keyword">month</span>,<span class="keyword">day</span>) <span class="operator">=</span> <span class="number">1</span>  <span class="comment">-- month</span></span><br><span class="line">        <span class="keyword">then</span>  <span class="string">&#x27;month&#x27;</span></span><br><span class="line">                   <span class="comment">--  1    0</span></span><br><span class="line">       <span class="keyword">when</span> <span class="keyword">grouping</span>(<span class="keyword">month</span>,<span class="keyword">day</span>) <span class="operator">=</span> <span class="number">2</span>   <span class="comment">-- day</span></span><br><span class="line">         <span class="keyword">then</span>  <span class="string">&#x27;day&#x27;</span></span><br><span class="line">                   <span class="comment">--  1   1</span></span><br><span class="line">       <span class="keyword">when</span> <span class="keyword">grouping</span>(<span class="keyword">month</span>,<span class="keyword">day</span>) <span class="operator">=</span> <span class="number">3</span>  <span class="comment">-- all</span></span><br><span class="line">         <span class="keyword">then</span>  <span class="string">&#x27;all&#x27;</span></span><br><span class="line">  <span class="keyword">end</span>  <span class="keyword">as</span> group_type</span><br><span class="line"><span class="keyword">from</span> test.t_user</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span></span><br><span class="line"><span class="keyword">grouping</span> sets (<span class="keyword">month</span>,<span class="keyword">day</span>,(<span class="keyword">month</span>,<span class="keyword">day</span>),())</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="Presto集群模式安装"><a href="#Presto集群模式安装" class="headerlink" title="Presto集群模式安装"></a>Presto集群模式安装</h2><h3 id="集群规划-1"><a href="#集群规划-1" class="headerlink" title="集群规划"></a>集群规划</h3><p><img src="/posts/bd-presto/image-20230531232815156.png" alt="image-20230531232815156"></p>
+<h3 id="项目集群环境安装JDK"><a href="#项目集群环境安装JDK" class="headerlink" title="项目集群环境安装JDK"></a>项目集群环境安装JDK</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">可以手动安装oracle JDK</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">也可以使用yum在线安装 openjDK</span></span><br><span class="line">yum install java-1.8.0-openjdk* -y</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">安装完成后，查看jdk版本：</span></span><br><span class="line">java -version</span><br></pre></td></tr></table></figure>
+
+<h3 id="上传Presto安装包"><a href="#上传Presto安装包" class="headerlink" title="上传Presto安装包"></a>上传Presto安装包</h3><blockquote>
+<p>hadoop01</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">创建安装目录</span></span><br><span class="line">mkdir -p /export/server</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">yum安装上传文件插件lrzsz</span></span><br><span class="line">yum install -y lrzsz</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">上传安装包到hadoop01的/export/server目录</span></span><br><span class="line">presto-server-0.245.1.tar.gz</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">解压、重命名</span></span><br><span class="line">tar -xzvf presto-server-0.245.1.tar.gz</span><br><span class="line">mv presto-server-0.245.1 presto</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">创建配置文件存储目录</span></span><br><span class="line">mkdir -p /export/server/presto/etc</span><br></pre></td></tr></table></figure>
+
+<h3 id="添加配置文件"><a href="#添加配置文件" class="headerlink" title="添加配置文件"></a>添加配置文件</h3><blockquote>
+<p>hadoop01</p>
+</blockquote>
+<ul>
+<li><p>etc&#x2F;config.properties</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">cd</span> <span class="string">/export/server/presto</span></span><br><span class="line"></span><br><span class="line"><span class="attr">vim</span> <span class="string">etc/config.properties</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">#---------添加如下内容---------------</span></span><br><span class="line"><span class="attr">coordinator</span>=<span class="string">true</span></span><br><span class="line"><span class="attr">node-scheduler.include-coordinator</span>=<span class="string">true</span></span><br><span class="line"><span class="attr">http-server.http.port</span>=<span class="string">8090</span></span><br><span class="line"><span class="attr">query.max-memory</span>=<span class="string">6GB</span></span><br><span class="line"><span class="attr">query.max-memory-per-node</span>=<span class="string">2GB</span></span><br><span class="line"><span class="attr">query.max-total-memory-per-node</span>=<span class="string">2GB</span></span><br><span class="line"><span class="attr">discovery-server.enabled</span>=<span class="string">true</span></span><br><span class="line"><span class="attr">discovery.uri</span>=<span class="string">http://192.168.88.80:8090</span></span><br><span class="line"><span class="comment">#---------end-------------------</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">#参数说明</span></span><br><span class="line"><span class="attr">coordinator</span>:<span class="string">是否为coordinator节点，注意worker节点需要写false</span></span><br><span class="line"><span class="attr">node-scheduler.include-coordinator</span>:<span class="string">coordinator在调度时是否也作为worker</span></span><br><span class="line"><span class="attr">discovery-server.enabled</span>:<span class="string">Discovery服务开启功能。presto通过该服务来找到集群中所有的节点。每一个Presto实例都会在启动的时候将自己注册到discovery服务；  注意：worker节点不需要配 </span></span><br><span class="line"><span class="attr">discovery.uri</span>:<span class="string">Discovery server的URI。由于启用了Presto coordinator内嵌的Discovery服务，因此这个uri就是Presto coordinator的uri。</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>etc&#x2F;jvm.config</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">vim etc/jvm.config</span><br><span class="line"></span><br><span class="line">-server</span><br><span class="line">-Xmx3G</span><br><span class="line">-XX:+UseG1GC</span><br><span class="line">-XX:G1HeapRegionSize=32M</span><br><span class="line">-XX:+UseGCOverheadLimit</span><br><span class="line">-XX:+ExplicitGCInvokesConcurrent</span><br><span class="line">-XX:+HeapDumpOnOutOfMemoryError</span><br><span class="line">-XX:+ExitOnOutOfMemoryError</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>etc&#x2F;node.properties</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mkdir</span> <span class="string">-p /export/data/presto</span></span><br><span class="line"><span class="attr">vim</span> <span class="string">etc/node.properties</span></span><br><span class="line"></span><br><span class="line"><span class="attr">node.environment</span>=<span class="string">cdhpresto</span></span><br><span class="line"><span class="attr">node.id</span>=<span class="string">presto-cdh01</span></span><br><span class="line"><span class="attr">node.data-dir</span>=<span class="string">/export/data/presto</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>etc&#x2F;catalog&#x2F;hive.properties</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mkdir</span> <span class="string">-p etc/catalog</span></span><br><span class="line"><span class="attr">vim</span> <span class="string">etc/catalog/hive.properties</span></span><br><span class="line"></span><br><span class="line"><span class="attr">connector.name</span>=<span class="string">hive-hadoop2</span></span><br><span class="line"><span class="attr">hive.metastore.uri</span>=<span class="string">thrift://192.168.88.80:9083</span></span><br><span class="line"><span class="attr">hive.max-partitions-per-writers</span>=<span class="string">300</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>step4：scp安装包到其他机器</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">在hadoop02创建文件夹</span></span><br><span class="line">mkdir -p /export/server</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">在hadoop01远程<span class="built_in">cp</span>安装包</span></span><br><span class="line">cd /export/server</span><br><span class="line">scp -r presto hadoop02:$PWD</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">ssh的时候如果没有配置免密登录 需要输入密码scp  密码：123456</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="hadoop02配置修改"><a href="#hadoop02配置修改" class="headerlink" title="hadoop02配置修改"></a>hadoop02配置修改</h3><ul>
+<li><p>etc&#x2F;config.properties</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">cd</span> <span class="string">/export/server/presto</span></span><br><span class="line"><span class="attr">vim</span> <span class="string">etc/config.properties</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">#----删除之前文件中的全部内容 替换为以下的内容   vim编辑器删除命令 8dd</span></span><br><span class="line"><span class="attr">coordinator</span>=<span class="string">false</span></span><br><span class="line"><span class="attr">http-server.http.port</span>=<span class="string">8090</span></span><br><span class="line"><span class="attr">query.max-memory</span>=<span class="string">6GB</span></span><br><span class="line"><span class="attr">query.max-memory-per-node</span>=<span class="string">2GB</span></span><br><span class="line"><span class="attr">query.max-total-memory-per-node</span>=<span class="string">2GB</span></span><br><span class="line"><span class="attr">discovery.uri</span>=<span class="string">http://192.168.88.80:8090</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>etc&#x2F;jvm.config</p>
+<blockquote>
+<p>和hadoop01一样，不变，唯一注意的就是如果机器内存小，需要调整-Xmx参数</p>
+</blockquote>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">vim</span> <span class="string">etc/jvm.config</span></span><br><span class="line"></span><br><span class="line"><span class="attr">-server</span></span><br><span class="line"><span class="attr">-Xmx3G</span></span><br><span class="line"><span class="attr">-XX</span>:<span class="string">+UseG1GC</span></span><br><span class="line"><span class="attr">-XX</span>:<span class="string">G1HeapRegionSize=32M</span></span><br><span class="line"><span class="attr">-XX</span>:<span class="string">+UseGCOverheadLimit</span></span><br><span class="line"><span class="attr">-XX</span>:<span class="string">+ExplicitGCInvokesConcurrent</span></span><br><span class="line"><span class="attr">-XX</span>:<span class="string">+HeapDumpOnOutOfMemoryError</span></span><br><span class="line"><span class="attr">-XX</span>:<span class="string">+ExitOnOutOfMemoryError</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>etc&#x2F;node.properties</p>
+<blockquote>
+<p>修改编号node.id</p>
+</blockquote>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mkdir</span> <span class="string">-p /export/data/presto</span></span><br><span class="line"><span class="attr">vim</span> <span class="string">etc/node.properties</span></span><br><span class="line"></span><br><span class="line"><span class="attr">node.environment</span>=<span class="string">cdhpresto</span></span><br><span class="line"><span class="attr">node.id</span>=<span class="string">presto-cdh02</span></span><br><span class="line"><span class="attr">node.data-dir</span>=<span class="string">/export/data/presto</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>etc&#x2F;catalog&#x2F;hive.properties</p>
+<blockquote>
+<p>保持不变</p>
+</blockquote>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">vim</span> <span class="string">etc/catalog/hive.properties</span></span><br><span class="line"></span><br><span class="line"><span class="attr">connector.name</span>=<span class="string">hive-hadoop2</span></span><br><span class="line"><span class="attr">hive.metastore.uri</span>=<span class="string">thrift://192.168.88.80:9083</span></span><br><span class="line"><span class="attr">hive.max-partitions-per-writers</span>=<span class="string">300</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="Presto集群启停"><a href="#Presto集群启停" class="headerlink" title="Presto集群启停"></a>Presto集群启停</h2><blockquote>
+<p>注意，每台机器都需要启动</p>
+</blockquote>
+<h3 id="后台启动"><a href="#后台启动" class="headerlink" title="后台启动"></a>后台启动</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]# cd ~</span><br><span class="line">[root@hadoop01 ~]# /export/server/presto/bin/launcher start</span><br><span class="line">Started as 89560</span><br><span class="line"></span><br><span class="line">[root@hadoop02 ~]# cd ~</span><br><span class="line">[root@hadoop02 ~]# /export/server/presto/bin/launcher start</span><br><span class="line">Started as 92288</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看进程是否启动成功</span></span><br><span class="line">PrestoServer</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">后台启动使用jps 配合<span class="built_in">kill</span> -9命令 关闭进程</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="web-UI页面"><a href="#web-UI页面" class="headerlink" title="web UI页面"></a>web UI页面</h3><p><a target="_blank" rel="noopener" href="http://192.168.88.80:8090/ui/">http://192.168.88.80:8090/ui/</a></p>
+<p><img src="/posts/bd-presto/image-20230531232829088.png" alt="image-20230531232829088"></p>
+<h3 id="启动日志"><a href="#启动日志" class="headerlink" title="启动日志"></a>启动日志</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">日志路径：/export/data/presto/var/log/</span></span><br><span class="line"></span><br><span class="line">http-request.log</span><br><span class="line">launcher.log</span><br><span class="line">server.log</span><br></pre></td></tr></table></figure>
+
+<h2 id="Presto命令行客户端"><a href="#Presto命令行客户端" class="headerlink" title="Presto命令行客户端"></a>Presto命令行客户端</h2><ul>
+<li><p>下载CLI客户端</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">presto-cli-0.241-executable.jar</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>上传客户端到Presto安装包</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">上传presto-cli-0.245.1-executable.jar到/export/server/presto/bin</span></span><br><span class="line"></span><br><span class="line">mv presto-cli-0.245.1-executable.jar presto</span><br><span class="line">chmod +x presto</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>CLI客户端启动</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/export/server/presto/bin/presto --server localhost:8090 --catalog hive --schema default</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="Datagrip连接使用"><a href="#Datagrip连接使用" class="headerlink" title="Datagrip连接使用"></a>Datagrip连接使用</h2><blockquote>
+<ul>
+<li>JDBC 驱动：&#x3D;&#x3D;presto-jdbc-0.245.1.jar&#x3D;&#x3D;</li>
+<li>JDBC 地址：&#x3D;&#x3D;jdbc:presto:&#x2F;&#x2F;192.168.88.80:8090&#x2F;hive&#x3D;&#x3D;</li>
+</ul>
+</blockquote>
+<h3 id="配置驱动"><a href="#配置驱动" class="headerlink" title="配置驱动"></a>配置驱动</h3><p><img src="/posts/bd-presto/image-20230531232843051.png" alt="image-20230531232843051"></p>
+<p><img src="/posts/bd-presto/image-20230531232858844.png" alt="image-20230531232858844"></p>
+<h3 id="创建连接"><a href="#创建连接" class="headerlink" title="创建连接"></a>创建连接</h3><p><img src="/posts/bd-presto/image-20230531232908945.png" alt="image-20230531232908945"></p>
+<p><img src="/posts/bd-presto/image-20230531232917613.png" alt="image-20230531232917613"></p>
+<p><img src="/posts/bd-presto/image-20230531232924993.png" alt="image-20230531232924993"></p>
+<h3 id="测试体验"><a href="#测试体验" class="headerlink" title="测试体验"></a>测试体验</h3><p><img src="/posts/bd-presto/image-20230531232935990.png" alt="image-20230531232935990"></p>
+<p><img src="/posts/bd-presto/image-20230531232944575.png" alt="image-20230531232944575"></p>
+<p><img src="/posts/bd-presto/image-20230531232953033.png" alt="image-20230531232953033"></p>
+<p><img src="/posts/bd-presto/image-20230531233011980.png" alt="image-20230531233011980"></p>
+<p><img src="/posts/bd-presto/image-20230531233020482.png" alt="image-20230531233020482"></p>
+<h2 id="时间日期类型注意事项"><a href="#时间日期类型注意事项" class="headerlink" title="时间日期类型注意事项"></a>时间日期类型注意事项</h2><ul>
+<li><p>&#x3D;&#x3D;date_format&#x3D;&#x3D;(timestamp, format)  &#x3D;&#x3D;&gt; varchar </p>
+<ul>
+<li>作用: 将指定的日期对象转换为字符串操作</li>
+</ul>
+</li>
+<li><p>&#x3D;&#x3D;date_parse&#x3D;&#x3D;(string, format) → timestamp </p>
+<ul>
+<li>作用: 用于将字符串的日期数据转换为日期对象</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">#hive的写法，将日期转为：<span class="number">2020</span><span class="operator">/</span><span class="number">10</span><span class="operator">/</span><span class="number">10</span> <span class="number">12</span>:<span class="number">50</span>:<span class="number">50</span></span><br><span class="line"><span class="keyword">select</span> from_unixtime(unix_timestamp(<span class="string">&#x27;2020-10-10 12:50:50&#x27;</span>) , <span class="string">&#x27;yyyy/MM/dd hh:mm:ss&#x27;</span>);</span><br><span class="line"></span><br><span class="line">#presto写法，将日期转为：<span class="number">2020</span><span class="operator">/</span><span class="number">10</span><span class="operator">/</span><span class="number">10</span> <span class="number">12</span>:<span class="number">50</span>:<span class="number">50</span></span><br><span class="line"><span class="keyword">select</span> date_format( <span class="type">timestamp</span> <span class="string">&#x27;2020-10-10 12:50:50&#x27;</span> , <span class="string">&#x27;%Y/%m/%d %H:%i:%s&#x27;</span>);</span><br><span class="line"><span class="keyword">select</span> date_format( <span class="type">date</span> <span class="string">&#x27;2020-10-10&#x27;</span> , <span class="string">&#x27;%Y/%m/%d&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">----</span></span><br><span class="line">注意: 参数一必须是日期对象</span><br><span class="line">	所以如果传递的是字符串, 必须将先转换为日期对象:  </span><br><span class="line">		方式一:  标识为日期对象, 但是格式必须为标准日期格式</span><br><span class="line">			<span class="type">timestamp</span> <span class="string">&#x27;2020-10-10 12:50:50&#x27;</span></span><br><span class="line">			<span class="type">date</span> <span class="string">&#x27;2020-10-10&#x27;</span></span><br><span class="line">		方式二: 如果不标准，先用date_parse解析成为标准</span><br><span class="line">			date_parse(<span class="string">&#x27;2020-10-10 12:50:50&#x27;</span>,<span class="string">&#x27;%Y-%m-%d %H:%i:%s&#x27;</span>)  </span><br><span class="line"></span><br><span class="line">扩展说明: 日期format格式说明</span><br><span class="line">	年：<span class="operator">%</span>Y</span><br><span class="line">	月：<span class="operator">%</span>m</span><br><span class="line">	日：<span class="operator">%</span>d</span><br><span class="line">	时：<span class="operator">%</span>H</span><br><span class="line">	分：<span class="operator">%</span>i</span><br><span class="line">	秒：<span class="operator">%</span>s</span><br><span class="line">	周几：<span class="operator">%</span>w(<span class="number">0.</span><span class="number">.6</span>)	</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x3D;&#x3D;date_add&#x3D;&#x3D;(unit, value, timestamp) → [same as input]</p>
+<ul>
+<li>作用: 用于对日期数据进行 加 减 操作</li>
+</ul>
+</li>
+<li><p>&#x3D;&#x3D;date_diff&#x3D;&#x3D;(unit, timestamp1, timestamp2) → bigint</p>
+<ul>
+<li>作用: 用于比对两个日期之间差值</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">#hive的写法</span><br><span class="line"><span class="comment">-- 将日期向前推3天</span></span><br><span class="line"><span class="keyword">select</span> date_sub(<span class="string">&#x27;2023-03-18&#x27;</span>,<span class="number">3</span>);</span><br><span class="line"><span class="keyword">select</span> date_add(<span class="string">&#x27;2023-03-18&#x27;</span>,<span class="number">-3</span>);</span><br><span class="line"></span><br><span class="line">#presto的写法</span><br><span class="line"><span class="comment">-- 将日期向前推3天</span></span><br><span class="line"><span class="keyword">select</span>  date_add(<span class="string">&#x27;hour&#x27;</span>,<span class="number">3</span>,<span class="type">timestamp</span> <span class="string">&#x27;2021-09-02 15:59:50&#x27;</span>);   <span class="comment">-- 向后推3个小时</span></span><br><span class="line"><span class="keyword">select</span>  date_add(<span class="string">&#x27;day&#x27;</span>,<span class="number">-3</span>,<span class="type">timestamp</span> <span class="string">&#x27;2021-09-02 15:59:50&#x27;</span>);   <span class="comment">-- 向前推1天</span></span><br><span class="line"><span class="keyword">select</span>  date_add(<span class="string">&#x27;month&#x27;</span>,<span class="number">-1</span>,<span class="type">timestamp</span> <span class="string">&#x27;2021-09-02 15:59:50&#x27;</span>); <span class="comment">-- 向前推1月</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 计算日期的差值</span></span><br><span class="line">#hive的写法</span><br><span class="line"><span class="keyword">select</span> datediff(<span class="string">&#x27;2022-12-23&#x27;</span>,<span class="string">&#x27;2021-10-18&#x27;</span>)</span><br><span class="line">#presto写法</span><br><span class="line"><span class="keyword">select</span> date_diff(<span class="string">&#x27;year&#x27;</span>,<span class="type">timestamp</span> <span class="string">&#x27;2020-09-02 06:30:30&#x27;</span>,<span class="type">timestamp</span> <span class="string">&#x27;2021-09-02 15:59:50&#x27;</span>)</span><br><span class="line"><span class="keyword">select</span> date_diff(<span class="string">&#x27;month&#x27;</span>,<span class="type">timestamp</span> <span class="string">&#x27;2021-06-02 06:30:30&#x27;</span>,<span class="type">timestamp</span> <span class="string">&#x27;2021-09-02 15:59:50&#x27;</span>)</span><br><span class="line"><span class="keyword">select</span> date_diff(<span class="string">&#x27;day&#x27;</span>,<span class="type">timestamp</span> <span class="string">&#x27;2021-08-02 06:30:30&#x27;</span>,<span class="type">timestamp</span> <span class="string">&#x27;2021-09-02 15:59:50&#x27;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+<ul>
+<li><p>插入数据的写法不同</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">#hive的写法</span><br><span class="line"><span class="keyword">set</span> 参数名 <span class="operator">=</span> 参数值</span><br><span class="line"><span class="keyword">with</span> t1 <span class="keyword">as</span> (</span><br><span class="line">  查询语句</span><br><span class="line">)</span><br><span class="line"><span class="keyword">insert</span> overwrite <span class="keyword">table</span>  yp_dws.dws_sale_daycount <span class="keyword">partition</span> (dt)</span><br><span class="line"><span class="keyword">select</span></span><br><span class="line">  字段</span><br><span class="line"><span class="keyword">from</span> t1;</span><br><span class="line"></span><br><span class="line">#presto的写法</span><br><span class="line">#presto不支持overwrite，要覆盖之前，只能<span class="keyword">truncate</span>表</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span>   yp_dws.dws_sale_daycount </span><br><span class="line"><span class="keyword">with</span> t1 <span class="keyword">as</span> (</span><br><span class="line">  查询语句</span><br><span class="line">)</span><br><span class="line"><span class="keyword">select</span></span><br><span class="line">  字段</span><br><span class="line"><span class="keyword">from</span> t1;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="Presto常规优化"><a href="#Presto常规优化" class="headerlink" title="Presto常规优化"></a>Presto常规优化</h2><ul>
+<li><p>数据存储优化</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--1）合理设置分区</span></span><br><span class="line">	与Hive类似，Presto会根据元信息读取分区数据，合理的分区能减少Presto数据读取量，提升查询性能。</span><br><span class="line"></span><br><span class="line"><span class="comment">--2）使用列式存储</span></span><br><span class="line">	Presto对ORC文件读取做了特定优化，因此在Hive中创建Presto使用的表时，建议采用ORC格式存储。相对于Parquet，Presto对ORC支持更好。</span><br><span class="line">	Parquet和ORC一样都支持列式存储，但是Presto对ORC支持更好，而Impala对Parquet支持更好。在数仓设计时，要根据后续可能的查询引擎合理设置数据存储格式。</span><br><span class="line"></span><br><span class="line"><span class="comment">--3）使用压缩</span></span><br><span class="line">	数据压缩可以减少节点间数据传输对IO带宽压力，对于即席查询需要快速解压，建议采用Snappy压缩。</span><br><span class="line"></span><br><span class="line"><span class="comment">--4）预先排序</span></span><br><span class="line">	对于已经排序的数据，在查询的数据过滤阶段，ORC格式支持跳过读取不必要的数据。比如对于经常需要过滤的字段可以预先排序。</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="keyword">table</span> nation_orc <span class="keyword">partition</span>(p) <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> nation SORT <span class="keyword">BY</span> n_name;</span><br><span class="line">如果需要过滤n_name字段，则性能将提升。</span><br><span class="line"><span class="keyword">SELECT</span> <span class="built_in">count</span>(<span class="operator">*</span>) <span class="keyword">FROM</span> nation_orc <span class="keyword">WHERE</span> n_name<span class="operator">=</span>’AUSTRALIA’; </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>SQL优化</p>
+<ul>
+<li>列裁剪</li>
+<li>分区裁剪</li>
+<li>group by优化<ul>
+<li>按照数据量大小降序排列</li>
+</ul>
+</li>
+<li>order by使用limit</li>
+<li>用regexp_like代替多个like语句</li>
+<li>join时候大表放置在左边</li>
+</ul>
+</li>
+<li><p>替换非ORC格式的Hive表</p>
+</li>
+</ul>
+<h2 id="Presto内存调优"><a href="#Presto内存调优" class="headerlink" title="Presto内存调优"></a>Presto内存调优</h2><h3 id="内存管理机制–内存分类"><a href="#内存管理机制–内存分类" class="headerlink" title="内存管理机制–内存分类"></a>内存管理机制–内存分类</h3><blockquote>
+<p>Presto管理的内存分为两大类：&#x3D;&#x3D;user memory&#x3D;&#x3D;和&#x3D;&#x3D;system memory&#x3D;&#x3D;</p>
+</blockquote>
+<ul>
+<li><p>user memory用户内存</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">跟用户数据相关的，比如读取用户输入数据会占据相应的内存，这种内存的占用量跟用户底层数据量大小是强相关的</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>system memory系统内存</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">执行过程中衍生出的副产品，比如tablescan表扫描，write buffers写入缓冲区，跟查询输入的数据本身不强相关的内存。</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="内存管理机制–内存池"><a href="#内存管理机制–内存池" class="headerlink" title="内存管理机制–内存池"></a>内存管理机制–内存池</h3><blockquote>
+<p>&#x3D;&#x3D;内存池中来实现分配user memory和system memory&#x3D;&#x3D;。</p>
+<p>内存池为常规内存池GENERAL_POOL、预留内存池RESERVED_POOL。</p>
+</blockquote>
+<p><img src="/posts/bd-presto/image-20230531233112207.png" alt="image-20230531233112207"></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">1、GENERAL_POOL</span>:<span class="string">在一般情况下，一个查询执行所需要的user/system内存都是从general pool中分配的，reserved pool在一般情况下是空闲不用的。</span></span><br><span class="line"></span><br><span class="line"><span class="attr">2、RESERVED_POOL</span>:<span class="string">大部分时间里是不参与计算的，但是当集群中某个Worker节点的general pool消耗殆尽之后，coordinator会选择集群中内存占用最多的查询，把这个查询分配到reserved pool，这样这个大查询自己可以继续执行，而腾出来的内存也使得其它的查询可以继续执行，从而避免整个系统阻塞。</span></span><br><span class="line"></span><br><span class="line"><span class="attr">注意</span>:<span class="string"></span></span><br><span class="line"><span class="attr">reserved</span> <span class="string">pool到底多大呢？这个是没有直接的配置可以设置的，他的大小上限就是集群允许的最大的查询的大小(query.total-max-memory-per-node)。</span></span><br><span class="line"><span class="attr">reserved</span> <span class="string">pool也有缺点，一个是在普通模式下这块内存会被浪费掉了，二是大查询可以用Hive来替代。因此也可以禁用掉reserved pool（experimental.reserved-pool-enabled设置为false），那系统内存耗尽的时候没有reserved pool怎么办呢？它有一个OOM Killer的机制，对于超出内存限制的大查询SQL将会被系统Kill掉，从而避免影响整个presto。</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="内存相关参数"><a href="#内存相关参数" class="headerlink" title="内存相关参数"></a>内存相关参数</h3><p><img src="/posts/bd-presto/image-20230531233056251.png" alt="image-20230531233056251"></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">1、user</span> <span class="string">memory用户内存参数</span></span><br><span class="line"><span class="attr">query.max-memory-per-node</span>:<span class="string">单个query操作在单个worker上user memory能用的最大值</span></span><br><span class="line"><span class="attr">query.max-memory</span>:<span class="string">单个query在整个集群中允许占用的最大user memory</span></span><br><span class="line"></span><br><span class="line"><span class="attr">2、user+system总内存参数</span></span><br><span class="line"><span class="attr">query.max-total-memory-per-node</span>:<span class="string">单个query操作可在单个worker上使用的最大(user + system)内存</span></span><br><span class="line"><span class="attr">query.max-total-memory</span>:<span class="string">单个query在整个集群中允许占用的最大(user + system) memory</span></span><br><span class="line"></span><br><span class="line"><span class="attr">当这些阈值被突破的时候，query会以insufficient</span> <span class="string">memory（内存不足）的错误被终结。</span></span><br><span class="line"></span><br><span class="line"><span class="attr">3、协助阻止机制</span></span><br><span class="line"><span class="attr">在高内存压力下保持系统稳定。当general</span> <span class="string">pool常规内存池已满时，操作会被置为blocked阻塞状态，直到通用池中的内存可用为止。此机制可防止激进的查询填满JVM堆并引起可靠性问题。</span></span><br><span class="line"></span><br><span class="line"><span class="attr">4、其他参数</span></span><br><span class="line"><span class="attr">memory.heap-headroom-per-node</span>:<span class="string">这个内存是JVM堆中预留给第三方库的内存分配，presto无法跟踪统计，默认值是-Xmx * 0.3</span></span><br><span class="line"></span><br><span class="line"><span class="attr">5、结论</span></span><br><span class="line"><span class="attr">GeneralPool</span> = <span class="string">服务器总内存 - ReservedPool - memory.heap-headroom-per-node - Linux系统内存</span></span><br><span class="line"></span><br><span class="line"><span class="attr">常规内存池内存大小</span>=<span class="string">服务器物理总内存-服务器linux操作系统内存-预留内存池大小-预留给第三方库内存</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="内存优化建议"><a href="#内存优化建议" class="headerlink" title="内存优化建议"></a>内存优化建议</h3><ul>
+<li><p>常见的报错解决</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">1、Query</span> <span class="string">exceeded per-node total memory limit of xx</span></span><br><span class="line"><span class="attr">适当增加query.max-total-memory-per-node。</span></span><br><span class="line"></span><br><span class="line"><span class="attr">2、Query</span> <span class="string">exceeded distributed user memory limit of xx</span></span><br><span class="line"><span class="attr">适当增加query.max-memory。</span></span><br><span class="line"></span><br><span class="line"><span class="attr">3、Could</span> <span class="string">not communicate with the remote task. The node may have crashed or be under too much load</span></span><br><span class="line"><span class="attr">内存不够，导致节点crash，可以查看/var/log/message。</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>建议参数设置</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">1、query.max-memory-per-node和query.max-total-memory-per-node是query操作使用的主要内存配置，因此这两个配置可以适当加大。</span></span><br><span class="line"><span class="attr">memory.heap-headroom-per-node是三方库的内存，默认值是JVM-Xmx</span> <span class="string">* 0.3，可以手动改小一些。</span></span><br><span class="line"></span><br><span class="line"><span class="attr">1)</span> <span class="string">各节点JVM内存推荐大小: 当前节点剩余内存*80%</span></span><br><span class="line"></span><br><span class="line"><span class="attr">2)</span> <span class="string">对于heap-headroom-pre-node第三方库的内存配置: 建议jvm内存的%15左右</span></span><br><span class="line"></span><br><span class="line"><span class="attr">3)</span> <span class="string">在配置的时候, 不要正正好好, 建议预留一点点, 以免出现问题</span></span><br><span class="line"></span><br><span class="line"><span class="attr">数据量在35TB</span> <span class="string">, presto节点数量大约在30台左右 (128GB内存 + 8核CPU)   </span></span><br><span class="line"></span><br><span class="line"><span class="attr">注意：</span></span><br><span class="line"><span class="attr">1、query.max-memory-per-node小于query.max-total-memory-per-node。</span></span><br><span class="line"><span class="attr">2、query.max-memory小于query.max-total-memory。</span></span><br><span class="line"><span class="attr">3、query.max-total-memory-per-node</span> <span class="string">与memory.heap-headroom-per-node 之和必须小于 jvm max memory，也就是jvm.config 中配置的-Xmx。</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><img src="/posts/bd-presto/image-20230927230904543-1708320657201-453.png" alt="image-20230927230904543"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbchen.com">左耳</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbchen.com/posts/bd-presto.html">https://nbchen.com/posts/bd-presto.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbchen.com" target="_blank">左耳</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a><a class="post-meta__tags" href="/tags/Presto/">Presto</a></div><div class="post-share"><div class="social-share" data-image="/img/cover/post_cover_2.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赛博打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/site/wechat.png" target="_blank"><img class="post-qr-code-img" src="/img/site/wechat.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/site/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/site/alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><a class="prev-post pull-left" href="/posts/bd-spark.html" title="【大数据系列】Spark"><img class="cover" src="/img/cover/post_cover_1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【大数据系列】Spark</div></div></a><a class="next-post pull-right" href="/posts/bd-hive.html" title="【大数据系列】Hive"><img class="cover" src="/img/cover/post_cover_1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【大数据系列】Hive</div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a href="/posts/bd-spark.html" title="【大数据系列】Spark"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【大数据系列】Spark</div></div></a><a href="/posts/bd-oozie.html" title="【大数据系列】Oozie"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【大数据系列】Oozie</div></div></a><a href="/posts/bd-flume.html" title="【大数据系列】Flume"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【大数据系列】Flume</div></div></a><a href="/posts/bd-flink.html" title="【大数据系列】Flink"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【大数据系列】Flink</div></div></a><a href="/posts/bd-storm.html" title="【大数据系列】Storm"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【大数据系列】Storm</div></div></a><a href="/posts/bd-hive.html" title="【大数据系列】Hive"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【大数据系列】Hive</div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info is-center"><div class="avatar-img"><img src="/img/logo/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">左耳</div><div class="author-info-description">一夜鱼龙舞</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">241</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">191</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/zuoer96"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/zuoer96" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:1745233303@gmail.com" target="_blank" title="QQ邮箱"><i class="fas fa-envelope" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎光临小站，这里是我日常收集和整理的总结，希望能对你有所帮助：）<br/><br/>本站的内容经过个人加工总结而来，也参考了网友们分享的资料，如有侵权，请第一时间联系我，我将及时进行修改和删除😊</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Preso%E6%A1%86%E6%9E%B6"><span class="toc-number">1.</span> <span class="toc-text">Preso框架</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Presto%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.</span> <span class="toc-text">Presto基础介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Presto%E8%83%8C%E6%99%AF"><span class="toc-number">1.1.1.</span> <span class="toc-text">Presto背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Presto%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.2.</span> <span class="toc-text">Presto介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Presto%E7%89%B9%E7%82%B9"><span class="toc-number">1.1.3.</span> <span class="toc-text">Presto特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#presto%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">1.1.4.</span> <span class="toc-text">presto优缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Presto%E6%9E%B6%E6%9E%84"><span class="toc-number">1.1.5.</span> <span class="toc-text">Presto架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Presto%E6%9C%AF%E8%AF%AD"><span class="toc-number">1.1.6.</span> <span class="toc-text">Presto术语</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Presto%E5%8D%95%E6%9C%BA%E5%AE%89%E8%A3%85"><span class="toc-number">1.2.</span> <span class="toc-text">Presto单机安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Presto-Server%E5%AE%89%E8%A3%85"><span class="toc-number">1.2.1.</span> <span class="toc-text">Presto-Server安装</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E8%A6%81%E6%B1%82"><span class="toc-number">1.2.1.1.</span> <span class="toc-text">环境要求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Java8%E5%AE%89%E8%A3%85"><span class="toc-number">1.2.1.2.</span> <span class="toc-text">Java8安装</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BD%E8%A7%A3%E5%8E%8B"><span class="toc-number">1.2.1.3.</span> <span class="toc-text">下载解压</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.2.</span> <span class="toc-text">配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%8A%82%E7%82%B9%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">节点环境配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#JVM%E8%99%9A%E6%8B%9F%E6%9C%BA%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">JVM虚拟机配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Presto%E6%9C%8D%E5%8A%A1%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.2.3.</span> <span class="toc-text">Presto服务配置</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#coordinator%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.2.3.1.</span> <span class="toc-text">coordinator配置</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#worker%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.2.3.2.</span> <span class="toc-text">worker配置</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#coordinator-worker%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.2.3.3.</span> <span class="toc-text">coordinator&amp;worker配置</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E9%A1%B9%E5%90%AB%E4%B9%89"><span class="toc-number">1.2.2.3.4.</span> <span class="toc-text">配置项含义</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E7%BA%A7%E5%88%AB"><span class="toc-number">1.2.2.4.</span> <span class="toc-text">日志级别</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5%E5%99%A8%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.2.5.</span> <span class="toc-text">连接器配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%90%E8%A1%8CPresto"><span class="toc-number">1.2.2.6.</span> <span class="toc-text">运行Presto</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Presto-Cli%E5%AE%89%E8%A3%85"><span class="toc-number">1.2.3.</span> <span class="toc-text">Presto-Cli安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Presto%E9%AA%8C%E8%AF%81"><span class="toc-number">1.2.4.</span> <span class="toc-text">Presto验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Presto%E5%90%AF%E5%8A%A8"><span class="toc-number">1.2.5.</span> <span class="toc-text">Presto启动</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Presto%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA%EF%BC%88%E6%97%A7%EF%BC%89"><span class="toc-number">1.3.</span> <span class="toc-text">Presto集群搭建（旧）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92"><span class="toc-number">1.3.1.</span> <span class="toc-text">集群规划</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E5%8F%91%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.3.2.</span> <span class="toc-text">分发配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE-1"><span class="toc-number">1.3.3.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hadoop01-coordinator%E9%85%8D%E7%BD%AE"><span class="toc-number">1.3.4.</span> <span class="toc-text">hadoop01-coordinator配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C"><span class="toc-number">1.3.5.</span> <span class="toc-text">运行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E7%AE%A1%E7%90%86%E9%A1%B5%E9%9D%A2%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.3.6.</span> <span class="toc-text">集群管理页面介绍</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8FSQL%E6%9F%A5%E8%AF%A2%E5%BC%95%E6%93%8E%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94"><span class="toc-number">1.4.</span> <span class="toc-text">分布式SQL查询引擎性能对比</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#hive"><span class="toc-number">1.4.1.</span> <span class="toc-text">hive</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#spark-sql"><span class="toc-number">1.4.2.</span> <span class="toc-text">spark sql</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Impala"><span class="toc-number">1.4.3.</span> <span class="toc-text">Impala</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HAWQ"><span class="toc-number">1.4.4.</span> <span class="toc-text">HAWQ</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ClickHouse"><span class="toc-number">1.4.5.</span> <span class="toc-text">ClickHouse</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Greenplum"><span class="toc-number">1.4.6.</span> <span class="toc-text">Greenplum</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Presto-Trino"><span class="toc-number">1.4.7.</span> <span class="toc-text">Presto&#x2F;Trino</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.4.8.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">1.4.9.</span> <span class="toc-text">使用场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Grouping-sets%E8%AF%AD%E6%B3%95"><span class="toc-number">1.5.</span> <span class="toc-text">Grouping sets语法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Hive%E7%9A%84%E5%86%99%E6%B3%95"><span class="toc-number">1.5.1.</span> <span class="toc-text">Hive的写法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Presto%E5%86%99%E6%B3%95"><span class="toc-number">1.5.2.</span> <span class="toc-text">Presto写法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Grouping%E7%9A%84%E5%86%99%E6%B3%95"><span class="toc-number">1.5.3.</span> <span class="toc-text">Grouping的写法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Presto%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%BC%8F%E5%AE%89%E8%A3%85"><span class="toc-number">1.6.</span> <span class="toc-text">Presto集群模式安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92-1"><span class="toc-number">1.6.1.</span> <span class="toc-text">集群规划</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85JDK"><span class="toc-number">1.6.2.</span> <span class="toc-text">项目集群环境安装JDK</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E4%BC%A0Presto%E5%AE%89%E8%A3%85%E5%8C%85"><span class="toc-number">1.6.3.</span> <span class="toc-text">上传Presto安装包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.6.4.</span> <span class="toc-text">添加配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hadoop02%E9%85%8D%E7%BD%AE%E4%BF%AE%E6%94%B9"><span class="toc-number">1.6.5.</span> <span class="toc-text">hadoop02配置修改</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Presto%E9%9B%86%E7%BE%A4%E5%90%AF%E5%81%9C"><span class="toc-number">1.7.</span> <span class="toc-text">Presto集群启停</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8E%E5%8F%B0%E5%90%AF%E5%8A%A8"><span class="toc-number">1.7.1.</span> <span class="toc-text">后台启动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#web-UI%E9%A1%B5%E9%9D%A2"><span class="toc-number">1.7.2.</span> <span class="toc-text">web UI页面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E6%97%A5%E5%BF%97"><span class="toc-number">1.7.3.</span> <span class="toc-text">启动日志</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Presto%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.8.</span> <span class="toc-text">Presto命令行客户端</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Datagrip%E8%BF%9E%E6%8E%A5%E4%BD%BF%E7%94%A8"><span class="toc-number">1.9.</span> <span class="toc-text">Datagrip连接使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E9%A9%B1%E5%8A%A8"><span class="toc-number">1.9.1.</span> <span class="toc-text">配置驱动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E8%BF%9E%E6%8E%A5"><span class="toc-number">1.9.2.</span> <span class="toc-text">创建连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E4%BD%93%E9%AA%8C"><span class="toc-number">1.9.3.</span> <span class="toc-text">测试体验</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E6%97%A5%E6%9C%9F%E7%B1%BB%E5%9E%8B%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-number">1.10.</span> <span class="toc-text">时间日期类型注意事项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Presto%E5%B8%B8%E8%A7%84%E4%BC%98%E5%8C%96"><span class="toc-number">1.11.</span> <span class="toc-text">Presto常规优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Presto%E5%86%85%E5%AD%98%E8%B0%83%E4%BC%98"><span class="toc-number">1.12.</span> <span class="toc-text">Presto内存调优</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E6%9C%BA%E5%88%B6%E2%80%93%E5%86%85%E5%AD%98%E5%88%86%E7%B1%BB"><span class="toc-number">1.12.1.</span> <span class="toc-text">内存管理机制–内存分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E6%9C%BA%E5%88%B6%E2%80%93%E5%86%85%E5%AD%98%E6%B1%A0"><span class="toc-number">1.12.2.</span> <span class="toc-text">内存管理机制–内存池</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E7%9B%B8%E5%85%B3%E5%8F%82%E6%95%B0"><span class="toc-number">1.12.3.</span> <span class="toc-text">内存相关参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96%E5%BB%BA%E8%AE%AE"><span class="toc-number">1.12.4.</span> <span class="toc-text">内存优化建议</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-14.html" title="【项目系列】人力资源项目（十四）：表单校验"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十四）：表单校验"/></a><div class="content"><a class="title" href="/posts/project-hrm-14.html" title="【项目系列】人力资源项目（十四）：表单校验">【项目系列】人力资源项目（十四）：表单校验</a><time datetime="2024-11-13T15:28:20.000Z" title="发表于 2024-11-13 23:28:20">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-13.html" title="【项目系列】人力资源项目（十三）：打包上线"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十三）：打包上线"/></a><div class="content"><a class="title" href="/posts/project-hrm-13.html" title="【项目系列】人力资源项目（十三）：打包上线">【项目系列】人力资源项目（十三）：打包上线</a><time datetime="2024-11-13T15:28:12.000Z" title="发表于 2024-11-13 23:28:12">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-12.html" title="【项目系列】人力资源项目（十二）：多语言tab页全屏主题"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十二）：多语言tab页全屏主题"/></a><div class="content"><a class="title" href="/posts/project-hrm-12.html" title="【项目系列】人力资源项目（十二）：多语言tab页全屏主题">【项目系列】人力资源项目（十二）：多语言tab页全屏主题</a><time datetime="2024-11-13T15:28:02.000Z" title="发表于 2024-11-13 23:28:02">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-11.html" title="【项目系列】人力资源项目（十一）：主页审批图表"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十一）：主页审批图表"/></a><div class="content"><a class="title" href="/posts/project-hrm-11.html" title="【项目系列】人力资源项目（十一）：主页审批图表">【项目系列】人力资源项目（十一）：主页审批图表</a><time datetime="2024-11-13T15:27:45.000Z" title="发表于 2024-11-13 23:27:45">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-10.html" title="【项目系列】人力资源项目（十）：其他模块集成"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十）：其他模块集成"/></a><div class="content"><a class="title" href="/posts/project-hrm-10.html" title="【项目系列】人力资源项目（十）：其他模块集成">【项目系列】人力资源项目（十）：其他模块集成</a><time datetime="2024-11-13T15:27:35.000Z" title="发表于 2024-11-13 23:27:35">2024-11-13</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 By 左耳</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/#/Integrated/index"><span>备案号：闽ICP备2022007849号-1</span></a> <a target="_blank" rel="noopener" href="https://beian.mps.gov.cn/#/query/webSearch"><img class="icp-icon" src="/img/site/icp.png"><span>闽ICP备2022007849号</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const initGitalk = () => {
+    const gitalk = new Gitalk(Object.assign({
+      clientID: 'f5adbf6afe0a4b1a5259',
+      clientSecret: '2aa273b1981e0841b91db860a815d252d7fce5b2',
+      repo: 'zuoer96.github.io',
+      owner: 'zuoer96',
+      admin: ['zuoer96'],
+      id: 'f9b039774a35b392326422ca150347f3',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  const loadGitalk = async() => {
+    if (typeof Gitalk === 'function') initGitalk()
+    else {
+      await btf.getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+      await btf.getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js')
+      initGitalk()
+    }
+  }
+  
+  const commentCount = n => {
+    const isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+    if (isCommentCount) {
+      isCommentCount.textContent= n
+    }
+  }
+
+  if ('Gitalk' === 'Gitalk' || !false) {
+    if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+    else loadGitalk()
+  } else {
+    window.loadOtherComment = loadGitalk
+  }
+})()</script></div><script src="/js/webstack.js?1"></script><script src="/js/movie.js?1"></script><script src="/js/echarts.min.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: true,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><script src="/js/markmap.js"></script></body></html>

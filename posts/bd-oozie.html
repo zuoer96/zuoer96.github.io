@@ -1,0 +1,375 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>【大数据系列】Oozie | 左耳</title><meta name="author" content="左耳"><meta name="copyright" content="左耳"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="大数据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【大数据系列】Oozie">
+<meta property="og:url" content="https://nbchen.com/posts/bd-oozie.html">
+<meta property="og:site_name" content="左耳">
+<meta property="og:description" content="大数据">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbchen.com/img/cover/post_cover_2.png">
+<meta property="article:published_time" content="2024-11-13T12:19:07.000Z">
+<meta property="article:modified_time" content="2024-11-13T12:30:25.874Z">
+<meta property="article:author" content="左耳">
+<meta property="article:tag" content="大数据">
+<meta property="article:tag" content="Oozie">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbchen.com/img/cover/post_cover_2.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://nbchen.com/posts/bd-oozie.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lWO9QTcbfhCMrpHW2Iz8w1cT6iVDffApIJepQIhimJU"/><meta name="baidu-site-verification" content="17911f388d35a0ab926c0cfff1ca6ea7"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?17911f388d35a0ab926c0cfff1ca6ea7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-3FC1C6JTVL"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-3FC1C6JTVL')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-3FC1C6JTVL', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":100,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【大数据系列】Oozie',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-11-13 20:30:25'
+}</script><link rel="stylesheet" href="/css/equipment.css?1"><link rel="stylesheet" href="/css/movies.css?1"><link rel="stylesheet" href="/css/webstack.css?1"><link rel="stylesheet" href="/css/flag.css?1"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/logo/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">241</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">191</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover/post_cover_2.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">左耳</span></a><a class="nav-page-title" href="/"><span class="site-name">【大数据系列】Oozie</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">【大数据系列】Oozie</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-11-13T12:19:07.000Z" title="发表于 2024-11-13 20:19:07">2024-11-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-13T12:30:25.874Z" title="更新于 2024-11-13 20:30:25">2024-11-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">1.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>5分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="小工具篇"><a href="#小工具篇" class="headerlink" title="小工具篇"></a>小工具篇</h1><h2 id="任务调度-HUE操作OOZIE"><a href="#任务调度-HUE操作OOZIE" class="headerlink" title="任务调度 | HUE操作OOZIE"></a>任务调度 | HUE操作OOZIE</h2><h3 id="工作流概念"><a href="#工作流概念" class="headerlink" title="工作流概念"></a>工作流概念</h3><p>工作流（Workflow），指“业务过程的部分或整体在计算机应用环境下的自动化”。是对工作流程及其各操作步骤之间业务规则的抽象、概括描述。<br>工作流解决的主要问题是：为了实现某个业务目标，利用计算机软件在多个参与者之间按某种预定规则自动传递文档、信息或者任务。<br>一个完整的数据分析系统通常都是由多个前后依赖的模块组合构成的：数据采集、数据预处理、数据分析、数据展示等。各个模块单元之间存在时间先后依赖关系，且存在着周期性重复。</p>
+<p><strong>核心概念:依赖执行 周期重复执行</strong></p>
+<h3 id="工作流实现方式"><a href="#工作流实现方式" class="headerlink" title="工作流实现方式"></a>工作流实现方式</h3><ul>
+<li>自己开发实现调度工具</li>
+<li>使用第三方调度软件</li>
+</ul>
+<h3 id="工作流调度"><a href="#工作流调度" class="headerlink" title="工作流调度"></a>工作流调度</h3><p>1、在大数据的实际开发中，我们数据的整个处理和分析过程是周期型的工作，比如每隔一天都需要讲整个流程执行一遍<br>2、所以我们需要一个工作流调度框架，帮我们在合适的时间重复执行这个分析任务</p>
+<h3 id="什么是oozie"><a href="#什么是oozie" class="headerlink" title="什么是oozie"></a>什么是oozie</h3><p>Oozie是一个用于管理Apache Hadoop作业的工作流调度程序系统。</p>
+<p>Oozie由Cloudera公司贡献给Apache的基于工作流引擎的开源框架,是用于Hadoop平台的开源的工作流调度引擎,是用来管理Hadoop作业,属于web应用程序，由Oozie client和Oozie Server两个组件构成,Oozie Server运行于Java Servlet容器（Tomcat）中的web程序。</p>
+<p>Oozie的目的是按照DAG（有向无环图）调度一系列的Map&#x2F;Reduce或者Hive等任务。Oozie 工作流由hPDL（Hadoop Process Definition Language）定义（这是一种XML流程定义语言）。</p>
+<h4 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h4><ul>
+<li>需要按顺序进行一系列任务；</li>
+<li>需要并行处理的任务；</li>
+<li>需要定时、周期触发的任务；</li>
+<li>可视化作业流运行过程；</li>
+<li>运行结果或异常的通报。</li>
+</ul>
+<h4 id="Oozie架构"><a href="#Oozie架构" class="headerlink" title="Oozie架构"></a>Oozie架构</h4><p><img src="/posts/bd-oozie/image-20230415092318056.png" alt="image-20230415092318056"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">#Oozie Client</span><br><span class="line">	提供命令行、java api、rest等方式，对Oozie的工作流流程的提交、启动、运行等操作；</span><br><span class="line"></span><br><span class="line">#Oozie WebApp</span><br><span class="line">	即 Oozie Server,本质是一个java应用。可以使用内置的web容器，也可以使用外置的web容器；</span><br><span class="line"></span><br><span class="line">#Hadoop Cluster </span><br><span class="line">	底层执行Oozie编排流程的各个hadoop生态圈组件；</span><br><span class="line">	</span><br><span class="line">Oozie底层也是MapReduce</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/bd-oozie/image-20230415092413396.png" alt="image-20230415092413396"></p>
+<p><img src="/posts/bd-oozie/image-20230415092423650.png" alt="image-20230415092423650"></p>
+<h4 id="Oozie工作流类型"><a href="#Oozie工作流类型" class="headerlink" title="Oozie工作流类型"></a>Oozie工作流类型</h4><blockquote>
+<p>&#x3D;&#x3D;workflow&#x3D;&#x3D; 普通工作流 没有定时和条件触发功能。</p>
+<p>&#x3D;&#x3D;coordinator&#x3D;&#x3D; 定时工作流 可以设置执行周期和频率</p>
+<p>bundle 批处理工作流  一次可以提交执行多个coordinator</p>
+</blockquote>
+<p><img src="/posts/bd-oozie/image-20230415092455030.png" alt="image-20230415092455030"></p>
+<p><img src="/posts/bd-oozie/image-20230415092513826.png" alt="image-20230415092513826"></p>
+<h3 id="大数据中的工作流"><a href="#大数据中的工作流" class="headerlink" title="大数据中的工作流"></a>大数据中的工作流</h3><p>能够使用工作流完成的业务一般具有什么特点呢?</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">1)</span> <span class="string">整个业务流程需要周期性重复干</span></span><br><span class="line"><span class="attr">2)</span> <span class="string">整个业务流程可以被划分为多个阶段</span></span><br><span class="line"><span class="attr">3)</span> <span class="string">每一个阶段存在依赖关系,前序没有操作, 后续也无法执行</span></span><br><span class="line"></span><br><span class="line"><span class="attr">如果发现实际生产中的某些业务满足了以上特征,</span> <span class="string">就可以尝试使用工作流来解决</span></span><br></pre></td></tr></table></figure>
+
+<p>请问, 大数据的工作流程是否可以使用工作流来解决呢? 完全可以的</p>
+<p><img src="/posts/bd-oozie/image-20230927231253554.png" alt="image-20230927231253554"></p>
+<p>请问: 如何实现一个工作流呢? 已经有爱心人士将工作流软件实现了, 只需要学习如何使用这些软件配置工作流程即可</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">单独使用</span>:<span class="string"></span></span><br><span class="line">	<span class="attr">azkaban</span>: <span class="string">来源于领英公司  配置工作流的方式是通过类似于properties文件的方式来配置, 只需要简单的几行即可配置,提供了一个非常的好可视化界面, 通过界面可以对工作流进行监控管理, 号称 只要能够被shell所执行, azkaban都可以进行调度, 所以azkaban就是一个shell客户端软件</span></span><br><span class="line"></span><br><span class="line">	<span class="attr">oozie</span>: <span class="string">来源于apache 出现时间较早一款工作流调度工具, 整个工作流的配置主要采用XML方式进行配置, 整个XML配置是非常繁琐的, 如果配置一个MR, 相当于将MR重写一遍, 而且虽然提供了一个管理界面, 但是这个界面仅能查看, 无法进行操作, 而且界面异常卡顿</span></span><br><span class="line"></span><br><span class="line"><span class="attr">总结</span>:<span class="string"></span></span><br><span class="line">	<span class="attr">azkaban要比oozie更加好用</span></span><br><span class="line">	</span><br><span class="line"></span><br><span class="line"><span class="attr">如何和HUE结合使用</span>:<span class="string"></span></span><br><span class="line">	<span class="attr">azkaban由于不属于apache旗下,</span> <span class="string">所以无法和HUE集成</span></span><br><span class="line">	<span class="attr">hue是属于apache旗下的,</span> <span class="string">所以HUE像集成一款工作流的调度工具, 肯定优先集成自家产品</span></span><br><span class="line">	<span class="attr">ooize也是属于apache旗下的,</span> <span class="string">HUE对oozie是可以直接集成的, 集成之后, 只需要用户通过鼠标的方式点一点即可实现工作流的配置</span></span><br><span class="line">	</span><br><span class="line"><span class="attr">总结</span>:<span class="string"></span></span><br><span class="line">	<span class="attr">hue加入后,</span> <span class="string">oozie要比azkaban更加好用</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>oozie本质是将工作流翻译为MR程序来运行</p>
+</blockquote>
+<h3 id="Oozie使用案例"><a href="#Oozie使用案例" class="headerlink" title="Oozie使用案例"></a>Oozie使用案例</h3><h4 id="Oozie的操作步骤-WorkFlow"><a href="#Oozie的操作步骤-WorkFlow" class="headerlink" title="Oozie的操作步骤-WorkFlow"></a>Oozie的操作步骤-WorkFlow</h4><ul>
+<li>1、开启Oozie服务</li>
+</ul>
+<p><img src="/posts/bd-oozie/image-20220610160335387.png" alt="image-20220610160335387"></p>
+<ul>
+<li><p>2、打开Oozie页面</p>
+<p><img src="/posts/bd-oozie/WINDOWS/system32/大数据/image-20220610151549257.png"></p>
+</li>
+<li><p>3、创建WorkFlow工作流,并命名</p>
+<p><img src="/posts/bd-oozie/image-20220610160647301.png"></p>
+</li>
+<li><p>4、让oozie调度hive脚本</p>
+<p><img src="/posts/bd-oozie/image-20220610160815459.png" alt="image-20220610160815459"></p>
+</li>
+<li><p>5、找到你的hive脚本</p>
+<p><img src="/posts/bd-oozie/image-20220610161324971.png" alt="image-20220610161324971"></p>
+<ul>
+<li><p>5.1 在Linux的&#x2F;root目录，写一个SQL脚本:hive_test.sql</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">create database myhive;</span><br><span class="line">use myhive;</span><br><span class="line">create  table if not exists stu(id int ,name string)</span><br><span class="line"> row format delimited fields terminated by &#x27;\t&#x27;;</span><br><span class="line">insert into stu values (1,&quot;zhangsan&quot;);</span><br><span class="line">insert into stu values (2,&quot;lisi&quot;);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>5.1 在本地设置脚本权限为为777</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod 777  /root/hive_test.sh</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>5.2 将脚本上传到HDFS的&#x2F;user&#x2F;hue&#x2F;oozie_test目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hadoop fs -put  /root/hive_test.sh /user/hue/oozie_test</span><br><span class="line">hadoop fs -chmod 777 /user/hue/oozie_test/hive_test.sh</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>6、保存工作流</p>
+<p><img src="/posts/bd-oozie/image-20220610161411043.png" alt="image-20220610161411043"></p>
+</li>
+<li><p>7、点击执行</p>
+<p><img src="/posts/bd-oozie/image-20220610161450410.png" alt="image-20220610161450410"></p>
+</li>
+<li><p>8、查看进度</p>
+<p><img src="/posts/bd-oozie/image-20220610161545883.png" alt="image-20220610161545883"></p>
+</li>
+<li><p>9、以后如何找到该工作流？</p>
+<p><img src="/posts/bd-oozie/image-20220610161721421.png" alt="image-20220610161721421"></p>
+<p><img src="/posts/bd-oozie/image-20220610161750504.png" alt="image-20220610161750504"></p>
+</li>
+</ul>
+<h4 id="Oozie的操作步骤-定时计划"><a href="#Oozie的操作步骤-定时计划" class="headerlink" title="Oozie的操作步骤-定时计划"></a>Oozie的操作步骤-定时计划</h4><ul>
+<li><p>1、打开定时计划页面</p>
+<p><img src="/posts/bd-oozie/image-20220610162058541.png" alt="image-20220610162058541"></p>
+</li>
+<li><p>2、进行设置</p>
+<p><img src="/posts/bd-oozie/image-20220610162538387.png" alt="image-20220610162538387"></p>
+</li>
+<li><p>3、保存并执行</p>
+</li>
+</ul>
+<h4 id="Oozie的操作步骤-多个定时计划批量执行（Bundle）"><a href="#Oozie的操作步骤-多个定时计划批量执行（Bundle）" class="headerlink" title="Oozie的操作步骤-多个定时计划批量执行（Bundle）"></a>Oozie的操作步骤-多个定时计划批量执行（Bundle）</h4><p><img src="/posts/bd-oozie/image-20220610163632445.png" alt="image-20220610163632445"></p>
+<h4 id="WorkFlow-、计划、Bundle之间的关系"><a href="#WorkFlow-、计划、Bundle之间的关系" class="headerlink" title="WorkFlow 、计划、Bundle之间的关系"></a>WorkFlow 、计划、Bundle之间的关系</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1、WorkFlow是一次性的工作流</span><br><span class="line">2、计划是让WorkFlow可以定时的多次执行</span><br><span class="line">3、Bundle是包含多个计划，可以让多个计划进行批量管理</span><br><span class="line"></span><br><span class="line">结论： Bundle包含计划， 计划包含WorkFlow, WorkFlow包含命令和脚本</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/bd-oozie/image-20230415093149662.png" alt="image-20230415093149662"></p>
+<ul>
+<li><p>新增oozie程序</p>
+</li>
+<li><p>提交任务</p>
+</li>
+<li><p>修复异常</p>
+</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbchen.com">左耳</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbchen.com/posts/bd-oozie.html">https://nbchen.com/posts/bd-oozie.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbchen.com" target="_blank">左耳</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a><a class="post-meta__tags" href="/tags/Oozie/">Oozie</a></div><div class="post-share"><div class="social-share" data-image="/img/cover/post_cover_2.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赛博打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/site/wechat.png" target="_blank"><img class="post-qr-code-img" src="/img/site/wechat.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/site/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/site/alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><a class="prev-post pull-left" href="/posts/project-pinda.html" title="【项目系列】品达通用权限系统"><img class="cover" src="/img/cover/post_cover_2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【项目系列】品达通用权限系统</div></div></a><a class="next-post pull-right" href="/posts/bd-flume.html" title="【大数据系列】Flume"><img class="cover" src="/img/cover/post_cover_1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【大数据系列】Flume</div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a href="/posts/bd-spark.html" title="【大数据系列】Spark"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【大数据系列】Spark</div></div></a><a href="/posts/bd-flume.html" title="【大数据系列】Flume"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【大数据系列】Flume</div></div></a><a href="/posts/bd-flink.html" title="【大数据系列】Flink"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【大数据系列】Flink</div></div></a><a href="/posts/bd-storm.html" title="【大数据系列】Storm"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【大数据系列】Storm</div></div></a><a href="/posts/bd-presto.html" title="【大数据系列】Presto"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【大数据系列】Presto</div></div></a><a href="/posts/bd-hive.html" title="【大数据系列】Hive"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【大数据系列】Hive</div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info is-center"><div class="avatar-img"><img src="/img/logo/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">左耳</div><div class="author-info-description">一夜鱼龙舞</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">241</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">191</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/zuoer96"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/zuoer96" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:1745233303@gmail.com" target="_blank" title="QQ邮箱"><i class="fas fa-envelope" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎光临小站，这里是我日常收集和整理的总结，希望能对你有所帮助：）<br/><br/>本站的内容经过个人加工总结而来，也参考了网友们分享的资料，如有侵权，请第一时间联系我，我将及时进行修改和删除😊</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B0%8F%E5%B7%A5%E5%85%B7%E7%AF%87"><span class="toc-number">1.</span> <span class="toc-text">小工具篇</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6-HUE%E6%93%8D%E4%BD%9COOZIE"><span class="toc-number">1.1.</span> <span class="toc-text">任务调度 | HUE操作OOZIE</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%A6%82%E5%BF%B5"><span class="toc-number">1.1.1.</span> <span class="toc-text">工作流概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E6%B5%81%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="toc-number">1.1.2.</span> <span class="toc-text">工作流实现方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E6%B5%81%E8%B0%83%E5%BA%A6"><span class="toc-number">1.1.3.</span> <span class="toc-text">工作流调度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFoozie"><span class="toc-number">1.1.4.</span> <span class="toc-text">什么是oozie</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">1.1.4.1.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Oozie%E6%9E%B6%E6%9E%84"><span class="toc-number">1.1.4.2.</span> <span class="toc-text">Oozie架构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Oozie%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.1.4.3.</span> <span class="toc-text">Oozie工作流类型</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%A7%E6%95%B0%E6%8D%AE%E4%B8%AD%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%B5%81"><span class="toc-number">1.1.5.</span> <span class="toc-text">大数据中的工作流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Oozie%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B"><span class="toc-number">1.1.6.</span> <span class="toc-text">Oozie使用案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Oozie%E7%9A%84%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4-WorkFlow"><span class="toc-number">1.1.6.1.</span> <span class="toc-text">Oozie的操作步骤-WorkFlow</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Oozie%E7%9A%84%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4-%E5%AE%9A%E6%97%B6%E8%AE%A1%E5%88%92"><span class="toc-number">1.1.6.2.</span> <span class="toc-text">Oozie的操作步骤-定时计划</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Oozie%E7%9A%84%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4-%E5%A4%9A%E4%B8%AA%E5%AE%9A%E6%97%B6%E8%AE%A1%E5%88%92%E6%89%B9%E9%87%8F%E6%89%A7%E8%A1%8C%EF%BC%88Bundle%EF%BC%89"><span class="toc-number">1.1.6.3.</span> <span class="toc-text">Oozie的操作步骤-多个定时计划批量执行（Bundle）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WorkFlow-%E3%80%81%E8%AE%A1%E5%88%92%E3%80%81Bundle%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-number">1.1.6.4.</span> <span class="toc-text">WorkFlow 、计划、Bundle之间的关系</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-14.html" title="【项目系列】人力资源项目（十四）：表单校验"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十四）：表单校验"/></a><div class="content"><a class="title" href="/posts/project-hrm-14.html" title="【项目系列】人力资源项目（十四）：表单校验">【项目系列】人力资源项目（十四）：表单校验</a><time datetime="2024-11-13T15:28:20.000Z" title="发表于 2024-11-13 23:28:20">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-13.html" title="【项目系列】人力资源项目（十三）：打包上线"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十三）：打包上线"/></a><div class="content"><a class="title" href="/posts/project-hrm-13.html" title="【项目系列】人力资源项目（十三）：打包上线">【项目系列】人力资源项目（十三）：打包上线</a><time datetime="2024-11-13T15:28:12.000Z" title="发表于 2024-11-13 23:28:12">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-12.html" title="【项目系列】人力资源项目（十二）：多语言tab页全屏主题"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十二）：多语言tab页全屏主题"/></a><div class="content"><a class="title" href="/posts/project-hrm-12.html" title="【项目系列】人力资源项目（十二）：多语言tab页全屏主题">【项目系列】人力资源项目（十二）：多语言tab页全屏主题</a><time datetime="2024-11-13T15:28:02.000Z" title="发表于 2024-11-13 23:28:02">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-11.html" title="【项目系列】人力资源项目（十一）：主页审批图表"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十一）：主页审批图表"/></a><div class="content"><a class="title" href="/posts/project-hrm-11.html" title="【项目系列】人力资源项目（十一）：主页审批图表">【项目系列】人力资源项目（十一）：主页审批图表</a><time datetime="2024-11-13T15:27:45.000Z" title="发表于 2024-11-13 23:27:45">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-10.html" title="【项目系列】人力资源项目（十）：其他模块集成"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十）：其他模块集成"/></a><div class="content"><a class="title" href="/posts/project-hrm-10.html" title="【项目系列】人力资源项目（十）：其他模块集成">【项目系列】人力资源项目（十）：其他模块集成</a><time datetime="2024-11-13T15:27:35.000Z" title="发表于 2024-11-13 23:27:35">2024-11-13</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 By 左耳</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/#/Integrated/index"><span>备案号：闽ICP备2022007849号-1</span></a> <a target="_blank" rel="noopener" href="https://beian.mps.gov.cn/#/query/webSearch"><img class="icp-icon" src="/img/site/icp.png"><span>闽ICP备2022007849号</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const initGitalk = () => {
+    const gitalk = new Gitalk(Object.assign({
+      clientID: 'f5adbf6afe0a4b1a5259',
+      clientSecret: '2aa273b1981e0841b91db860a815d252d7fce5b2',
+      repo: 'zuoer96.github.io',
+      owner: 'zuoer96',
+      admin: ['zuoer96'],
+      id: 'b7408994a811579572545382a093ff3c',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  const loadGitalk = async() => {
+    if (typeof Gitalk === 'function') initGitalk()
+    else {
+      await btf.getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+      await btf.getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js')
+      initGitalk()
+    }
+  }
+  
+  const commentCount = n => {
+    const isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+    if (isCommentCount) {
+      isCommentCount.textContent= n
+    }
+  }
+
+  if ('Gitalk' === 'Gitalk' || !false) {
+    if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+    else loadGitalk()
+  } else {
+    window.loadOtherComment = loadGitalk
+  }
+})()</script></div><script src="/js/webstack.js?1"></script><script src="/js/movie.js?1"></script><script src="/js/echarts.min.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: true,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><script src="/js/markmap.js"></script></body></html>

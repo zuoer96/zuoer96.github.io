@@ -1,0 +1,2860 @@
+<hr>
+<h2 id="title-【项目系列】人力资源项目（八）：员工管理id-project-hrm-8-htmltags-项目-人力资源项目categories-编程keywords-‘语法-基础-Java-微服务-编程-数据存储’description-项目实战date-2024-11-13-23-27-15"><a href="#title-【项目系列】人力资源项目（八）：员工管理id-project-hrm-8-htmltags-项目-人力资源项目categories-编程keywords-‘语法-基础-Java-微服务-编程-数据存储’description-项目实战date-2024-11-13-23-27-15" class="headerlink" title="title: 【项目系列】人力资源项目（八）：员工管理id: project-hrm-8.htmltags:  - 项目  - 人力资源项目categories:  - 编程keywords: ‘语法,基础,Java,微服务,编程,数据存储’description: 项目实战date: 2024-11-13 23:27:15"></a>title: 【项目系列】人力资源项目（八）：员工管理<br>id: project-hrm-8.html<br>tags:<br>  - 项目<br>  - 人力资源项目<br>categories:<br>  - 编程<br>keywords: ‘语法,基础,Java,微服务,编程,数据存储’<br>description: 项目实战<br>date: 2024-11-13 23:27:15</h2><h2 id="封装一个通用的工具栏"><a href="#封装一个通用的工具栏" class="headerlink" title="封装一个通用的工具栏"></a>封装一个通用的工具栏</h2><p>**<code>目标</code>**：封装一个通用的工具栏供大家使用</p>
+<h3 id="通用工具栏的组件结构"><a href="#通用工具栏的组件结构" class="headerlink" title="通用工具栏的组件结构"></a>通用工具栏的组件结构</h3><blockquote>
+<p>在后续的业务开发中，经常会用到一个类似下图的工具栏，作为公共组件，进行一下封装</p>
+</blockquote>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200723223704401-1696348781167-231.png" alt="image-20200723223704401"></p>
+<p>组件 <strong><code>src/components/PageTools/index.vue</code></strong></p>
+<pre><code class="vue">&lt;template&gt;
+  &lt;el-card class=&quot;page-tools&quot;&gt;
+    &lt;el-row type=&quot;flex&quot; justify=&quot;space-between&quot; align=&quot;middle&quot;&gt;
+      &lt;el-col&gt;
+        &lt;div  v-if=&quot;showBefore&quot; class=&quot;before&quot;&gt;
+          &lt;i class=&quot;el-icon-info&quot; /&gt;
+          &lt;!-- 定义前面得插槽 --&gt;
+          &lt;slot name=&quot;before&quot; /&gt;
+        &lt;/div&gt;
+      &lt;/el-col&gt;
+      &lt;el-col&gt;
+        &lt;el-row type=&quot;flex&quot; justify=&quot;end&quot;&gt;
+           &lt;!-- 定义后面的插槽 --&gt;
+           &lt;slot name=&quot;after&quot; /&gt;
+        &lt;/el-row&gt;
+      &lt;/el-col&gt;
+    &lt;/el-row&gt;
+  &lt;/el-card&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+  props: {
+    showBefore: {
+      type: Boolean,
+      default: false
+    }
+
+  }
+}
+&lt;/script&gt;
+
+&lt;style lang=&#39;scss&#39;&gt;
+ .page-tools {
+    margin: 10px 0;
+    .before {
+      line-height: 34px;
+    i {
+      margin-right: 5px;
+      color: #409eff;
+    }
+    display: inline-block;
+    padding: 0px 10px;
+    border-radius: 3px;
+    border: 1px solid rgba(145, 213, 255, 1);
+    background: rgba(230, 247, 255, 1);
+  }
+ }
+&lt;/style&gt;
+</code></pre>
+<h3 id="组件统一注册"><a href="#组件统一注册" class="headerlink" title="组件统一注册"></a>组件统一注册</h3><blockquote>
+<p>为了方便所有的页面都可以不用引用该组件，可以进行全局注册</p>
+</blockquote>
+<p>提供注册入口 <strong><code>src/componets/index.js</code></strong></p>
+<pre><code class="js">// 该文件负责所有的公共的组件的全局注册   Vue.use
+import PageTools from &#39;./PageTools&#39;
+export default {
+  install(Vue) {
+    //  注册全局的通用栏组件对象
+    Vue.component(&#39;PageTools&#39;, PageTools)
+  }
+}
+</code></pre>
+<blockquote>
+<p>在入口处进行注册 <strong><code>src/main.js</code></strong></p>
+</blockquote>
+<pre><code class="js">import Component from &#39;@/components&#39;
+Vue.use(Component) // 注册自己的插件
+</code></pre>
+<p><strong>提交代码</strong></p>
+<p>**<code>本节任务</code>**： 封装一个通用的工具栏</p>
+<h2 id="员工列表页面的基本布局和结构"><a href="#员工列表页面的基本布局和结构" class="headerlink" title="员工列表页面的基本布局和结构"></a>员工列表页面的基本布局和结构</h2><p>**<code>目标</code>**：实现员工列表页面的基本布局和结构</p>
+<p><strong>结构代码</strong> <strong><code>src/employees/index.vue</code></strong></p>
+<pre><code class="vue">&lt;template&gt;
+  &lt;div class=&quot;dashboard-container&quot;&gt;
+    &lt;div class=&quot;app-container&quot;&gt;
+      &lt;page-tools :show-before=&quot;true&quot;&gt;
+        &lt;span slot=&quot;before&quot;&gt;共166条记录&lt;/span&gt;
+        &lt;template slot=&quot;after&quot;&gt;
+          &lt;el-button size=&quot;small&quot; type=&quot;warning&quot;&gt;导入&lt;/el-button&gt;
+          &lt;el-button size=&quot;small&quot; type=&quot;danger&quot;&gt;导出&lt;/el-button&gt;
+          &lt;el-button size=&quot;small&quot; type=&quot;primary&quot;&gt;新增员工&lt;/el-button&gt;
+        &lt;/template&gt;
+      &lt;/page-tools&gt;
+      &lt;!-- 放置表格和分页 --&gt;
+      &lt;el-card&gt;
+        &lt;el-table border&gt;
+          &lt;el-table-column label=&quot;序号&quot; sortable=&quot;&quot; /&gt;
+          &lt;el-table-column label=&quot;姓名&quot; sortable=&quot;&quot; /&gt;
+          &lt;el-table-column label=&quot;工号&quot; sortable=&quot;&quot; /&gt;
+          &lt;el-table-column label=&quot;聘用形式&quot; sortable=&quot;&quot; /&gt;
+          &lt;el-table-column label=&quot;部门&quot; sortable=&quot;&quot; /&gt;
+          &lt;el-table-column label=&quot;入职时间&quot; sortable=&quot;&quot; /&gt;
+          &lt;el-table-column label=&quot;账户状态&quot; sortable=&quot;&quot; /&gt;
+          &lt;el-table-column label=&quot;操作&quot; sortable=&quot;&quot; fixed=&quot;right&quot; width=&quot;280&quot;&gt;
+            &lt;template&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;查看&lt;/el-button&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;转正&lt;/el-button&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;调岗&lt;/el-button&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;离职&lt;/el-button&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;角色&lt;/el-button&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;删除&lt;/el-button&gt;
+            &lt;/template&gt;
+          &lt;/el-table-column&gt;
+        &lt;/el-table&gt;
+        &lt;!-- 分页组件 --&gt;
+        &lt;el-row type=&quot;flex&quot; justify=&quot;center&quot; align=&quot;middle&quot; style=&quot;height: 60px&quot;&gt;
+          &lt;el-pagination layout=&quot;prev, pager, next&quot; /&gt;
+        &lt;/el-row&gt;
+      &lt;/el-card&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+</code></pre>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200831162222975-1696348781167-230.png" alt="image-20200831162222975"></p>
+<p><strong>提交代码</strong></p>
+<p>**<code>本节任务</code>**：员工列表页面的基本布局和结构</p>
+<h2 id="员工列表数据请求和分页加载"><a href="#员工列表数据请求和分页加载" class="headerlink" title="员工列表数据请求和分页加载"></a>员工列表数据请求和分页加载</h2><p>**<code>目标</code>**实现员工数据的加载和分页请求</p>
+<p>首先，封装员工的加载请求 <strong><code>src/api/employees.js</code></strong></p>
+<pre><code class="js">/**
+ * 获取员工的综合列表数据
+ * ***/
+export function getEmployeeList(params) {
+  return request({
+    url: &#39;/sys/user&#39;,
+    params
+  })
+}
+</code></pre>
+<p>然后，实现加载数据和分页的逻辑</p>
+<pre><code class="js">import { getEmployeeList } from &#39;@/api/employees&#39;
+export default {
+  data() {
+    return {
+      loading: false,
+      list: [], // 接数据的
+      page: {
+        page: 1, // 当前页码
+        size: 10,
+        total: 0 // 总数
+      }
+
+    }
+  },
+  created() {
+    this.getEmployeeList()
+  },
+  methods: {
+    changePage(newPage) {
+      this.page.page = newPage
+      this.getEmployeeList()
+    },
+    async getEmployeeList() {
+      this.loading = true
+      const { total, rows } = await getEmployeeList(this.page)
+      this.page.total = total
+      this.list = rows
+      this.loading = false
+    }
+  }
+}
+</code></pre>
+<p><strong>绑定表格</strong></p>
+<pre><code class="vue">      &lt;el-card v-loading=&quot;loading&quot;&gt;
+        &lt;el-table border :data=&quot;list&quot;&gt;
+          &lt;el-table-column label=&quot;序号&quot; sortable=&quot;&quot; type=&quot;index&quot; /&gt;
+          &lt;el-table-column label=&quot;姓名&quot; sortable=&quot;&quot; prop=&quot;username&quot; /&gt;
+          &lt;el-table-column label=&quot;工号&quot; sortable=&quot;&quot; prop=&quot;workNumber&quot; /&gt;
+          &lt;el-table-column label=&quot;聘用形式&quot; sortable=&quot;&quot; prop=&quot;formOfEmployment&quot; /&gt;
+          &lt;el-table-column label=&quot;部门&quot; sortable=&quot;&quot; prop=&quot;departmentName&quot; /&gt;
+          &lt;el-table-column label=&quot;入职时间&quot; sortable=&quot;&quot; prop=&quot;timeOfEntry&quot; /&gt;
+          &lt;el-table-column label=&quot;账户状态&quot; sortable=&quot;&quot; prop=&quot;enableState&quot; /&gt;
+          &lt;el-table-column label=&quot;操作&quot; sortable=&quot;&quot; fixed=&quot;right&quot; width=&quot;280&quot;&gt;
+            &lt;template&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;查看&lt;/el-button&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;转正&lt;/el-button&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;调岗&lt;/el-button&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;离职&lt;/el-button&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;角色&lt;/el-button&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;删除&lt;/el-button&gt;
+            &lt;/template&gt;
+          &lt;/el-table-column&gt;
+        &lt;/el-table&gt;
+        &lt;!-- 分页组件 --&gt;
+        &lt;el-row type=&quot;flex&quot; justify=&quot;center&quot; align=&quot;middle&quot; style=&quot;height: 60px&quot;&gt;
+          &lt;el-pagination
+            layout=&quot;prev, pager, next&quot;
+            :page-size=&quot;page.size&quot;
+            :current-page=&quot;page.page&quot;
+            :total=&quot;page.total&quot;
+            @current-change=&quot;changePage&quot;
+          /&gt;
+        &lt;/el-row&gt;
+      &lt;/el-card&gt;
+</code></pre>
+<p><strong>提交代码</strong></p>
+<p>**<code>本节任务</code>**员工列表数据请求和分页加载</p>
+<h2 id="员工列表中的数据进行格式化"><a href="#员工列表中的数据进行格式化" class="headerlink" title="员工列表中的数据进行格式化"></a>员工列表中的数据进行格式化</h2><p>**<code>目标</code>**：将列表中的内容进行格式化</p>
+<h3 id="利用列格式化属性处理聘用形式"><a href="#利用列格式化属性处理聘用形式" class="headerlink" title="利用列格式化属性处理聘用形式"></a>利用列格式化属性处理聘用形式</h3><p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200724001315166-1696348781167-232.png" alt="image-20200724001315166"></p>
+<blockquote>
+<p>上小节中，列表中的<strong>聘用形式</strong>&#x2F;<strong>入职时间</strong>和<strong>账户状态</strong>需要进行显示内容的处理</p>
+</blockquote>
+<p>那么聘用形式中<strong>1</strong>代表什么含义，这实际上是我们需要的枚举数据，该数据的存放文件位于我们提供的**<code>资源/枚举</code><strong>中，可以将枚举下的文件夹放于</strong><code>src/api</code>**文件夹下</p>
+<p>针对<strong>聘用形式</strong>，可以使用<strong>el-table-column</strong>的<strong>formatter</strong>属性进行设置</p>
+<pre><code class="js">  import    EmployeeEnum from &#39;@/api/constant/employees&#39;
+ &lt;!-- 格式化聘用形式 --&gt;
+    &lt;el-table-column label=&quot;聘用形式&quot; sortable :formatter=&quot;formatEmployment&quot; /&gt;
+   // 格式化聘用形式
+    formatEmployment(row, column, cellValue, index) {
+      // 要去找 1所对应的值
+      const obj = EmployeeEnum.hireType.find(item =&gt; item.id === cellValue)
+      return obj ? obj.value : &#39;未知&#39;
+    }
+</code></pre>
+<h3 id="过滤器解决时间格式的处理"><a href="#过滤器解决时间格式的处理" class="headerlink" title="过滤器解决时间格式的处理"></a>过滤器解决时间格式的处理</h3><p>针对入职时间，我们可以采用<strong>作用域插槽</strong>进行处理</p>
+<pre><code class="vue"> &lt;el-table-column label=&quot;入职时间&quot; sortable prop=&quot;timeOfEntry&quot;&gt;
+            &lt;template slot-scope=&quot;obj&quot;&gt;
+              {{
+                obj.row.timeOfEntry | 过滤器
+              }}
+            &lt;/template&gt;
+  &lt;/el-table-column&gt;
+</code></pre>
+<blockquote>
+<p>问题来了，过滤器从哪里呢？</p>
+</blockquote>
+<p>在**<code>资源/过滤器</code><strong>中，我们提供了若干工具方法，我们可以将其转化成过滤器，首先将其拷贝到</strong><code>src</code>**</p>
+<p>在**<code>main.js</code>**中将工具方法转化成过滤器</p>
+<pre><code class="js">import * as filters from &#39;@/filters&#39; // 引入工具类
+// 注册全局的过滤器
+Object.keys(filters).forEach(key =&gt; {
+  // 注册过滤器
+  Vue.filter(key, filters[key])
+})
+</code></pre>
+<blockquote>
+<p>好了，现在可以愉快的用过滤器的方式使用工具类的方法了</p>
+</blockquote>
+<pre><code class="vue">       &lt;el-table-column label=&quot;入职时间&quot; sortable=&quot;&quot; align=&quot;center&quot;&gt;
+            &lt;!-- 作用域插槽 --&gt;
+            &lt;template slot-scope=&quot;{ row }&quot;&gt;{{ row.timeOfEntry | formatDate }}&lt;/template&gt;
+       &lt;/el-table-column&gt;
+</code></pre>
+<p>最后一项，账户状态，可以用开关组件switch进行显示</p>
+<pre><code class="vue"> &lt;el-table-column label=&quot;账户状态&quot; align=&quot;center&quot; sortable=&quot;&quot; prop=&quot;enableState&quot;&gt;
+            &lt;template slot-scope=&quot;{ row }&quot;&gt;
+              &lt;!-- 根据当前状态来确定 是否打开开关 --&gt;
+              &lt;el-switch :value=&quot;row.enableState === 1&quot; /&gt;
+            &lt;/template&gt;
+    &lt;/el-table-column&gt;
+</code></pre>
+<p><strong>提交代码</strong></p>
+<p><strong><code>本节任务</code></strong> 员工列表中的数据进行格式化</p>
+<h2 id="删除员工功能"><a href="#删除员工功能" class="headerlink" title="删除员工功能"></a>删除员工功能</h2><p>**<code>目标</code>**实现删除员工的功能</p>
+<p>首先封装 删除员工的请求</p>
+<pre><code class="js">/**
+ * 删除员工接口
+ * ****/
+
+export function delEmployee(id) {
+  return request({
+    url: `/sys/user/${id}`,
+    method: &#39;delete&#39;
+  })
+}
+</code></pre>
+<p><strong>删除功能</strong></p>
+<pre><code class="vue"> &lt;template slot-scope=&quot;{ row }&quot;&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;查看&lt;/el-button&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;转正&lt;/el-button&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;调岗&lt;/el-button&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;离职&lt;/el-button&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot;&gt;角色&lt;/el-button&gt;
+              &lt;el-button type=&quot;text&quot; size=&quot;small&quot; @click=&quot;deleteEmployee(row.id)&quot;&gt;删除&lt;/el-button&gt;
+            &lt;/template&gt; 
+    // 删除员工
+    async deleteEmployee(id) {
+      try {
+        await this.$confirm(&#39;您确定删除该员工吗&#39;)
+        await delEmployee(id)
+        this.getEmployeeList()
+        this.$message.success(&#39;删
+除员工成功&#39;)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+</code></pre>
+<p><strong>提交代码</strong></p>
+<p>**<code>本节任务</code>**： 删除员工功能</p>
+<h2 id="新增员工功能-弹层-校验-部门"><a href="#新增员工功能-弹层-校验-部门" class="headerlink" title="新增员工功能-弹层-校验-部门"></a>新增员工功能-弹层-校验-部门</h2><p>**<code>目标</code>**：实现新增员工的功能</p>
+<h3 id="新建员工弹层组件"><a href="#新建员工弹层组件" class="headerlink" title="新建员工弹层组件"></a>新建员工弹层组件</h3><blockquote>
+<p>当我们点击新增员工时，我们需要一个类似的弹层</p>
+</blockquote>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200917110516195-1696348781167-233.png" alt="image-20200917110516195"></p>
+<p>类似**<code>组织架构</code>**的组件，同样新建一个弹层组件 <strong><code>src/views/employees/components/add-employee.vue</code></strong></p>
+<pre><code class="vue">&lt;template&gt;
+  &lt;el-dialog title=&quot;新增员工&quot; :visible=&quot;showDialog&quot;&gt;
+    &lt;!-- 表单 --&gt;
+    &lt;el-form label-width=&quot;120px&quot;&gt;
+      &lt;el-form-item label=&quot;姓名&quot;&gt;
+        &lt;el-input style=&quot;width:50%&quot; placeholder=&quot;请输入姓名&quot; /&gt;
+      &lt;/el-form-item&gt;
+      &lt;el-form-item label=&quot;手机&quot;&gt;
+        &lt;el-input style=&quot;width:50%&quot; placeholder=&quot;请输入手机号&quot; /&gt;
+      &lt;/el-form-item&gt;
+      &lt;el-form-item label=&quot;入职时间&quot;&gt;
+        &lt;el-date-picker style=&quot;width:50%&quot; placeholder=&quot;请选择入职时间&quot; /&gt;
+      &lt;/el-form-item&gt;
+      &lt;el-form-item label=&quot;聘用形式&quot;&gt;
+        &lt;el-select style=&quot;width:50%&quot; placeholder=&quot;请选择&quot; /&gt;
+      &lt;/el-form-item&gt;
+      &lt;el-form-item label=&quot;工号&quot;&gt;
+        &lt;el-input style=&quot;width:50%&quot; placeholder=&quot;请输入工号&quot; /&gt;
+      &lt;/el-form-item&gt;
+      &lt;el-form-item label=&quot;部门&quot;&gt;
+        &lt;el-input style=&quot;width:50%&quot; placeholder=&quot;请选择部门&quot; /&gt;
+      &lt;/el-form-item&gt;
+      &lt;el-form-item label=&quot;转正时间&quot;&gt;
+        &lt;el-date-picker style=&quot;width:50%&quot; placeholder=&quot;请选择转正时间&quot; /&gt;
+      &lt;/el-form-item&gt;
+    &lt;/el-form&gt;
+    &lt;!-- footer插槽 --&gt;
+    &lt;template v-slot:footer&gt;
+      &lt;el-row type=&quot;flex&quot; justify=&quot;center&quot;&gt;
+        &lt;el-col :span=&quot;6&quot;&gt;
+          &lt;el-button size=&quot;small&quot;&gt;取消&lt;/el-button&gt;
+          &lt;el-button type=&quot;primary&quot; size=&quot;small&quot;&gt;确定&lt;/el-button&gt;
+        &lt;/el-col&gt;
+      &lt;/el-row&gt;
+    &lt;/template&gt;
+  &lt;/el-dialog&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+  props: {
+    showDialog: {
+      type: Boolean,
+      default: false
+    }
+  }
+}
+&lt;/script&gt;
+
+&lt;style&gt;
+
+&lt;/style&gt;
+</code></pre>
+<h3 id="引用弹出层，点击弹出"><a href="#引用弹出层，点击弹出" class="headerlink" title="引用弹出层，点击弹出"></a>引用弹出层，点击弹出</h3><p>父组件中引用，弹出层</p>
+<pre><code class="vue">import AddDemployee from &#39;./components/add-employee&#39;
+&lt;!-- 放置新增组件 --&gt;
+ &lt;add-employee :show-dialog.sync=&quot;showDialog&quot; /&gt;
+</code></pre>
+<pre><code class="vue">&lt;!-- 放置新增组件 --&gt;
+ &lt;add-employee :show-dialog.sync=&quot;showDialog&quot; /&gt;
+
+ &lt;el-button icon=&quot;plus&quot; type=&quot;primary&quot; size=&quot;small&quot; @click=&quot;showDialog = true&quot;&gt;新增员工&lt;/el-button&gt;
+</code></pre>
+<h3 id="新增员工的表单校验"><a href="#新增员工的表单校验" class="headerlink" title="新增员工的表单校验"></a>新增员工的表单校验</h3><p><strong>封装新增员工</strong>api <strong><code>src/api/employees.js</code></strong></p>
+<pre><code class="js">/** **
+ *  新增员工的接口
+ * **/
+export function addEmployee(data) {
+  return request({
+    method: &#39;post&#39;,
+    url: &#39;/sys/user&#39;,
+    data
+  })
+}
+</code></pre>
+<p>针对员工属性，添加校验规则</p>
+<pre><code class="js">import EmployeeEnum from &#39;@/api/constant/employees&#39;
+
+  data() {
+    return {
+      EmployeeEnum, // 在data中定义数据
+      // 表单数据
+      treeData: [], // 定义数组接收树形数据
+      showTree: false, // 控制树形的显示或者隐藏
+      loading: false, // 控制树的显示或者隐藏进度条
+      formData: {
+        username: &#39;&#39;,
+        mobile: &#39;&#39;,
+        formOfEmployment: &#39;&#39;,
+        workNumber: &#39;&#39;,
+        departmentName: &#39;&#39;,
+        timeOfEntry: &#39;&#39;,
+        correctionTime: &#39;&#39;
+      },
+      rules: {
+        username: [{ required: true, message: &#39;用户姓名不能为空&#39;, trigger: &#39;blur&#39; }, {
+          min: 1, max: 4, message: &#39;用户姓名为1-4位&#39;
+        }],
+        mobile: [{ required: true, message: &#39;手机号不能为空&#39;, trigger: &#39;blur&#39; }, {
+          pattern: /^1[3-9]\d{9}$/, message: &#39;手机号格式不正确&#39;, trigger: &#39;blur&#39;
+        }],
+        formOfEmployment: [{ required: true, message: &#39;聘用形式不能为空&#39;, trigger: &#39;blur&#39; }],
+        workNumber: [{ required: true, message: &#39;工号不能为空&#39;, trigger: &#39;blur&#39; }],
+        departmentName: [{ required: true, message: &#39;部门不能为空&#39;, trigger: &#39;change&#39; }],
+        timeOfEntry: [{ required: true, message: &#39;入职时间&#39;, trigger: &#39;blur&#39; }]
+      }
+    }
+  }
+</code></pre>
+<p>绑定数据和规则校验</p>
+<pre><code class="vue">    &lt;el-form :model=&quot;formData&quot; :rules=&quot;rules&quot; label-width=&quot;120px&quot;&gt;
+      &lt;el-form-item label=&quot;姓名&quot; prop=&quot;username&quot;&gt;
+        &lt;el-input v-model=&quot;formData.username&quot; style=&quot;width:50%&quot; placeholder=&quot;请输入姓名&quot; /&gt;
+      &lt;/el-form-item&gt;
+      &lt;el-form-item label=&quot;手机&quot; prop=&quot;mobile&quot;&gt;
+        &lt;el-input v-model=&quot;formData.mobile&quot; style=&quot;width:50%&quot; placeholder=&quot;请输入手机号&quot; /&gt;
+      &lt;/el-form-item&gt;
+      &lt;el-form-item label=&quot;入职时间&quot; prop=&quot;timeOfEntry&quot;&gt;
+        &lt;el-date-picker v-model=&quot;formData.timeOfEntry&quot; style=&quot;width:50%&quot; placeholder=&quot;请选择日期&quot; /&gt;
+      &lt;/el-form-item&gt;
+      &lt;el-form-item label=&quot;聘用形式&quot; prop=&quot;formOfEmployment&quot;&gt;
+        &lt;el-select v-model=&quot;formData.formOfEmployment&quot; style=&quot;width:50%&quot; placeholder=&quot;请选择&quot; /&gt;
+      &lt;/el-form-item&gt;
+      &lt;el-form-item label=&quot;工号&quot; prop=&quot;workNumber&quot;&gt;
+        &lt;el-input v-model=&quot;formData.workNumber&quot; style=&quot;width:50%&quot; placeholder=&quot;请输入工号&quot; /&gt;
+      &lt;/el-form-item&gt;
+      &lt;el-form-item label=&quot;部门&quot; prop=&quot;departmentName&quot;&gt;
+        &lt;el-input v-model=&quot;formData.departmentName&quot; style=&quot;width:50%&quot; placeholder=&quot;请选择部门&quot; /&gt;
+      &lt;/el-form-item&gt;
+      &lt;el-form-item label=&quot;转正时间&quot; prop=&quot;correctionTime&quot;&gt;
+        &lt;el-date-picker v-model=&quot;formData.correctionTime&quot; style=&quot;width:50%&quot; placeholder=&quot;请选择日期&quot; /&gt;
+      &lt;/el-form-item&gt;
+    &lt;/el-form&gt;
+</code></pre>
+<h3 id="加载部门数据转化树形"><a href="#加载部门数据转化树形" class="headerlink" title="加载部门数据转化树形"></a>加载部门数据转化树形</h3><p><strong>聘用形式和选择部门的处理</strong></p>
+<blockquote>
+<p> 员工的部门是从树形部门中选择一个部门</p>
+</blockquote>
+<p><strong>获取部门数据，转化树形</strong></p>
+<pre><code class="js">import { getDepartments } from &#39;@/api/departments&#39;
+import { transListToTreeData } from &#39;@/utils&#39;
+  data () {
+      return {
+             // 表单数据
+       treeData: [], // 定义数组接收树形数据
+       showTree: false, // 控制树形的显示或者隐藏
+       loading: false, // 控制树的显示或者隐藏进度条
+      }
+  },
+  methods: {
+      async getDepartments() {
+      this.showTree = true
+      this.loading = true
+      const { depts } = await getDepartments()
+      // depts是数组 但不是树形
+      this.treeData = transListToTreeData(depts, &#39;&#39;)
+      this.loading = false
+    },
+  }
+</code></pre>
+<h3 id="点击部门赋值表单数据"><a href="#点击部门赋值表单数据" class="headerlink" title="点击部门赋值表单数据"></a>点击部门赋值表单数据</h3><p><strong>选择部门，赋值表单数据</strong></p>
+<pre><code class="vue">&lt;el-form-item label=&quot;部门&quot; prop=&quot;departmentName&quot;&gt;
+        &lt;el-input v-model=&quot;formData.departmentName&quot; style=&quot;width:50%&quot; placeholder=&quot;请选择部门&quot; @focus=&quot;getDepartments&quot; /&gt;
+        &lt;!-- 放置一个tree组件 --&gt;
+        &lt;el-tree
+          v-if=&quot;showTree&quot;
+          v-loading=&quot;loading&quot;
+          :data=&quot;treeData&quot;
+          :default-expand-all=&quot;true&quot;
+          :props=&quot;{ label: &#39;name&#39; }&quot;
+          @node-click=&quot;selectNode&quot;
+        /&gt;
+      &lt;/el-form-item&gt;
+</code></pre>
+<p><strong>点击部门时触发</strong></p>
+<pre><code class="js">    selectNode(node) {
+      this.formData.departmentName = node.name
+      this.showTree = false
+    }
+</code></pre>
+<p><strong>聘用形式</strong></p>
+<pre><code class="vue">    &lt;el-form-item label=&quot;聘用形式&quot; prop=&quot;formOfEmployment&quot;&gt;
+        &lt;el-select v-model=&quot;formData.formOfEmployment&quot; style=&quot;width:50%&quot; placeholder=&quot;请选择&quot;&gt;
+          &lt;!-- 遍历只能遍历组件的数据 --&gt;
+          &lt;el-option v-for=&quot;item in EmployeeEnum.hireType&quot; :key=&quot;item.id&quot; :label=&quot;item.value&quot; :value=&quot;item.id&quot; /&gt;
+        &lt;/el-select&gt;
+      &lt;/el-form-item&gt;
+</code></pre>
+<h2 id="新增员工功能-确定-取消"><a href="#新增员工功能-确定-取消" class="headerlink" title="新增员工功能-确定-取消"></a>新增员工功能-确定-取消</h2><p><strong>调用新增接口</strong></p>
+<pre><code class="js">    // 点击确定时 校验整个表单
+    async btnOK() {
+      try {
+        await this.$refs.addEmployee.validate()
+        // 调用新增接口
+        await addEmployee(this.formData) // 新增员工
+        // 告诉父组件更新数据
+        // this.$parent 可以直接调用到父组件的实例 实际上就是父组件this
+        // this.$emit
+        this.$parent.getEmployeeList()
+        this.$parent.showDialog = false
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    btnCancel() {
+      // 重置原来的数据
+      this.formData = {
+        username: &#39;&#39;,
+        mobile: &#39;&#39;,
+        formOfEmployment: &#39;&#39;,
+        workNumber: &#39;&#39;,
+        departmentName: &#39;&#39;,
+        timeOfEntry: &#39;&#39;,
+        correctionTime: &#39;&#39;
+      }
+      this.$refs.addEmployee.resetFields() // 重置校验结果
+      this.$emit(&#39;update:showDialog&#39;, false)
+    }
+</code></pre>
+<blockquote>
+<p>新增员工的功能和组织架构的功能极其类似，这里不做过多阐述</p>
+</blockquote>
+<p><strong>提交代码</strong></p>
+<p><strong><code>本节任务</code></strong> 新增员工功能和弹层</p>
+<h2 id="员工导入组件封装"><a href="#员工导入组件封装" class="headerlink" title="员工导入组件封装"></a>员工导入组件封装</h2><p>**<code>目标</code>**：封装一个导入excel数据的文件</p>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200726005308648-1696348781167-234.png" alt="image-20200726005308648"></p>
+<p>首先封装一个类似的组件，首先需要注意的是，类似功能，vue-element-admin已经提供了，我们只需要改造即可 <a href="https://github.com/PanJiaChen/vue-element-admin/blob/master/src/components/UploadExcel/index.vue">代码地址</a></p>
+<blockquote>
+<p>类似功能性的组件，我们只需要会使用和封装即可 </p>
+</blockquote>
+<p>excel导入功能需要使用npm包**<code>xlsx</code><strong>，所以需要安装</strong><code>xlsx</code>**插件</p>
+<pre><code class="bash">$ npm i xlsx
+</code></pre>
+<blockquote>
+<p>将vue-element-admin提供的导入功能新建一个组件，位置： <strong><code>src/components/UploadExcel</code></strong></p>
+</blockquote>
+<p><strong>注册全局的导入excel组件</strong></p>
+<pre><code class="js">import PageTools from &#39;./PageTools&#39;
+import UploadExcel from &#39;./UploadExcel&#39;
+export default {
+  install(Vue) {
+    Vue.component(&#39;PageTools&#39;, PageTools) // 注册工具栏组件
+    Vue.component(&#39;UploadExcel&#39;, UploadExcel) // 注册导入excel组件
+  }
+}
+</code></pre>
+<p><strong>修改样式和布局</strong></p>
+<pre><code class="vue">&lt;template&gt;
+ &lt;div class=&quot;upload-excel&quot;&gt;
+    &lt;div class=&quot;btn-upload&quot;&gt;
+      &lt;el-button :loading=&quot;loading&quot; size=&quot;mini&quot; type=&quot;primary&quot; @click=&quot;handleUpload&quot;&gt;
+        点击上传
+      &lt;/el-button&gt;
+    &lt;/div&gt;
+
+    &lt;input ref=&quot;excel-upload-input&quot; class=&quot;excel-upload-input&quot; type=&quot;file&quot; accept=&quot;.xlsx, .xls&quot; @change=&quot;handleClick&quot;&gt;
+    &lt;div class=&quot;drop&quot; @drop=&quot;handleDrop&quot; @dragover=&quot;handleDragover&quot; @dragenter=&quot;handleDragover&quot;&gt;
+      &lt;i class=&quot;el-icon-upload&quot; /&gt;
+      &lt;span&gt;将文件拖到此处&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+&lt;style scoped lang=&quot;scss&quot;&gt;
+.upload-excel {
+  display: flex;
+  justify-content: center;
+   margin-top: 100px;
+   .excel-upload-input{
+       display: none;
+        z-index: -9999;
+     }
+   .btn-upload , .drop{
+      border: 1px dashed #bbb;
+      width: 350px;
+      height: 160px;
+      text-align: center;
+      line-height: 160px;
+   }
+   .drop{
+       line-height: 80px;
+       color: #bbb;
+      i {
+        font-size: 60px;
+        display: block;
+      }
+   }
+}
+&lt;/style&gt;
+</code></pre>
+<p><strong>提交代码</strong></p>
+<p>**<code>本节任务</code>**：员工导入组件封装</p>
+<h2 id="员工的导入"><a href="#员工的导入" class="headerlink" title="员工的导入"></a>员工的导入</h2><p>**<code>目标</code>**：实现员工的导入</p>
+<h3 id="建立公共导入的页面路由"><a href="#建立公共导入的页面路由" class="headerlink" title="建立公共导入的页面路由"></a>建立公共导入的页面路由</h3><p><strong>新建一个公共的导入页面，挂载路由</strong> <strong><code>src/router/index.js</code></strong></p>
+<pre><code class="js">{
+    path: &#39;/import&#39;,
+    component: Layout,
+    hidden: true, // 隐藏在左侧菜单中
+    children: [{
+      path: &#39;&#39;, // 二级路由path什么都不写 表示二级默认路由
+      component: () =&gt; import(&#39;@/views/import&#39;)
+    }]
+  },
+</code></pre>
+<p><strong>创建import路由组件</strong> <strong><code>src/views/import/index.vue</code></strong></p>
+<pre><code class="vue">&lt;template&gt;
+  &lt;!-- 公共导入组件 --&gt; 
+  &lt;upload-excel :on-success=&quot;success&quot; /&gt;
+&lt;/template&gt;
+</code></pre>
+<h3 id="分析excel导入代码，封装接口"><a href="#分析excel导入代码，封装接口" class="headerlink" title="分析excel导入代码，封装接口"></a>分析excel导入代码，封装接口</h3><blockquote>
+<p>封装导入员工的api接口  </p>
+</blockquote>
+<pre><code class="js">/** *
+ *  封装一个导入员工的接口
+ *
+ * ***/
+
+export function importEmployee(data) {
+  return request({
+    url: &#39;/sys/user/batch&#39;,
+    method: &#39;post&#39;,
+    data
+  })
+}
+</code></pre>
+<h3 id="实现excel导入"><a href="#实现excel导入" class="headerlink" title="实现excel导入"></a>实现excel导入</h3><p><strong>获取导入的excel数据, 导入excel接口</strong></p>
+<pre><code class="js">    async  success({ header, results }) {
+      // 如果是导入员工
+        const userRelations = {
+          &#39;入职日期&#39;: &#39;timeOfEntry&#39;,
+          &#39;手机号&#39;: &#39;mobile&#39;,
+          &#39;姓名&#39;: &#39;username&#39;,
+          &#39;转正日期&#39;: &#39;correctionTime&#39;,
+          &#39;工号&#39;: &#39;workNumber&#39;
+        }
+        const arr = []
+       results.forEach(item =&gt; {
+          const userInfo = {}
+          Object.keys(item).forEach(key =&gt; {
+            userInfo[userRelations[key]] = item[key]
+          })
+         arr.push(userInfo) 
+        })
+        await importEmployee(arr) // 调用导入接口
+        this.$router.back()
+    }
+</code></pre>
+<blockquote>
+<p>为了让这个页面可以服务更多的导入功能，我们可以在页面中用参数来判断，是否是导入员工</p>
+</blockquote>
+<pre><code class="js"> data() {
+    return {
+      type: this.$route.query.type
+    }
+  },
+</code></pre>
+<p>当excel中有日期格式的时候，实际转化的值为一个数字，我们需要一个方法进行转化</p>
+<pre><code class="js">    formatDate(numb, format) {
+      const time = new Date((numb - 1) * 24 * 3600000 + 1)
+      time.setYear(time.getFullYear() - 70)
+      const year = time.getFullYear() + &#39;&#39;
+      const month = time.getMonth() + 1 + &#39;&#39;
+      const date = time.getDate() - 1 + &#39;&#39;
+      if (format &amp;&amp; format.length === 1) {
+        return year + format + month + format + date
+      }
+      return year + (month &lt; 10 ? &#39;0&#39; + month : month) + (date &lt; 10 ? &#39;0&#39; + date : date)
+    }
+</code></pre>
+<blockquote>
+<p>需要注意，**<code>导入的手机号不能和之前的存在的手机号重复</code>**</p>
+</blockquote>
+<p><strong>逻辑判断</strong> </p>
+<pre><code class="js"> async  success({ header, results }) {
+      if (this.type === &#39;user&#39;) {
+        const userRelations = {
+          &#39;入职日期&#39;: &#39;timeOfEntry&#39;,
+          &#39;手机号&#39;: &#39;mobile&#39;,
+          &#39;姓名&#39;: &#39;username&#39;,
+          &#39;转正日期&#39;: &#39;correctionTime&#39;,
+          &#39;工号&#39;: &#39;workNumber&#39;
+        }
+        const arr = []
+        // 遍历所有的数组
+        results.forEach(item =&gt; {
+        // 需要将每一个条数据里面的中文都换成英文
+          const userInfo = {}
+          Object.keys(item).forEach(key =&gt; {
+          // key是当前的中文名 找到对应的英文名
+            if (userRelations[key] === &#39;timeOfEntry&#39; || userRelations[key] === &#39;correctionTime&#39;) {
+              userInfo[userRelations[key]] = new Date(this.formatDate(item[key], &#39;/&#39;)) // 只有这样, 才能入库
+              return
+            }
+            userInfo[userRelations[key]] = item[key]
+          })
+          // 最终userInfo变成了全是英文
+          arr.push(userInfo)
+        })
+        await importEmployee(arr)
+        this.$message.success(&#39;导入成功&#39;)
+      }
+      this.$router.back() // 回到上一页
+    },
+    formatDate(numb, format) {
+      const time = new Date((numb - 1) * 24 * 3600000 + 1)
+      time.setYear(time.getFullYear() - 70)
+      const year = time.getFullYear() + &#39;&#39;
+      const month = time.getMonth() + 1 + &#39;&#39;
+      const date = time.getDate() - 1 + &#39;&#39;
+      if (format &amp;&amp; format.length === 1) {
+        return year + format + month + format + date
+      }
+      return year + (month &lt; 10 ? &#39;0&#39; + month : month) + (date &lt; 10 ? &#39;0&#39; + date : date)
+    }
+</code></pre>
+<p><strong>员工页面跳转</strong></p>
+<pre><code class="vue">&lt;el-button type=&quot;warning&quot; size=&quot;small&quot; @click=&quot;$router.push(&#39;/import?type=user&#39;)&quot;&gt;导入&lt;/el-button&gt;
+</code></pre>
+<p>**<code>目标</code>**： 实现员工的导入</p>
+<h2 id="员工导出excel功能"><a href="#员工导出excel功能" class="headerlink" title="员工导出excel功能"></a>员工导出excel功能</h2><p><strong>目标</strong>： 实现将员工数据导出功能</p>
+<blockquote>
+<p>日常业务中，我们经常遇到excel导出功能， 怎么使用呢</p>
+</blockquote>
+<p>Excel 的导入导出都是依赖于<a href="https://github.com/SheetJS/js-xlsx">js-xlsx</a>来实现的。</p>
+<p>在 <code>js-xlsx</code>的基础上又封装了<a href="https://github.com/PanJiaChen/vue-element-admin/blob/master/src/vendor/Export2Excel.js">Export2Excel.js</a>来方便导出数据。</p>
+<h3 id="安装excel所需依赖和按需加载"><a href="#安装excel所需依赖和按需加载" class="headerlink" title="安装excel所需依赖和按需加载"></a>安装excel所需依赖和按需加载</h3><p>由于 <code>Export2Excel</code>不仅依赖<code>js-xlsx</code>还依赖<code>file-saver</code>和<code>script-loader</code>。</p>
+<p>所以你先需要安装如下命令：</p>
+<pre><code class="bash">npm install xlsx file-saver -S
+npm install script-loader -S -D
+</code></pre>
+<p>由于<code>js-xlsx</code>体积还是很大的，导出功能也不是一个非常常用的功能，所以使用的时候建议使用懒加载。使用方法如下：</p>
+<pre><code class="js">import(&#39;@/vendor/Export2Excel&#39;).then(excel =&gt; {
+  excel.export_json_to_excel({
+    header: tHeader, //表头 必填
+    data, //具体数据 必填
+    filename: &#39;excel-list&#39;, //非必填
+    autoWidth: true, //非必填
+    bookType: &#39;xlsx&#39; //非必填
+  })
+})
+</code></pre>
+<h3 id="excel导出参数的介绍"><a href="#excel导出参数的介绍" class="headerlink" title="excel导出参数的介绍"></a>excel导出参数的介绍</h3><blockquote>
+<p>vue-element-admin提供了导出的功能模块，在课程资源&#x2F;excel导出目录下，放置到src目录下</p>
+</blockquote>
+<p><strong>参数</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>header</td>
+<td>导出数据的表头</td>
+<td>Array</td>
+<td>&#x2F;</td>
+<td>[]</td>
+</tr>
+<tr>
+<td>data</td>
+<td>导出的具体数据</td>
+<td>Array</td>
+<td>&#x2F;</td>
+<td>[[]]</td>
+</tr>
+<tr>
+<td>filename</td>
+<td>导出文件名</td>
+<td>String</td>
+<td>&#x2F;</td>
+<td>excel-list</td>
+</tr>
+<tr>
+<td>autoWidth</td>
+<td>单元格是否要自适应宽度</td>
+<td>Boolean</td>
+<td>true &#x2F; false</td>
+<td>true</td>
+</tr>
+<tr>
+<td>bookType</td>
+<td>导出文件类型</td>
+<td>String</td>
+<td>xlsx, csv, txt, <a href="https://github.com/SheetJS/js-xlsx#supported-output-formats">more</a></td>
+<td>xlsx</td>
+</tr>
+</tbody></table>
+<h3 id="excel导出基本的结构"><a href="#excel导出基本的结构" class="headerlink" title="excel导出基本的结构"></a>excel导出基本的结构</h3><blockquote>
+<p>我们最重要的一件事，就是把表头和数据进行相应的对应</p>
+</blockquote>
+<p>因为数据中的key是英文，想要导出的表头是中文的话，需要将中文和英文做对应</p>
+<pre><code class="js">   const headers = {
+        &#39;手机号&#39;: &#39;mobile&#39;,
+        &#39;姓名&#39;: &#39;username&#39;,
+        &#39;入职日期&#39;: &#39;timeOfEntry&#39;,
+        &#39;聘用形式&#39;: &#39;formOfEmployment&#39;,
+        &#39;转正日期&#39;: &#39;correctionTime&#39;,
+        &#39;工号&#39;: &#39;workNumber&#39;,
+        &#39;部门&#39;: &#39;departmentName&#39;
+      }
+</code></pre>
+<p>然后，<strong>完成导出代码</strong></p>
+<pre><code class="js">    // 导出excel数据
+    exportData() {
+      //  做操作
+      // 表头对应关系
+      const headers = {
+        &#39;姓名&#39;: &#39;username&#39;,
+        &#39;手机号&#39;: &#39;mobile&#39;,
+        &#39;入职日期&#39;: &#39;timeOfEntry&#39;,
+        &#39;聘用形式&#39;: &#39;formOfEmployment&#39;,
+        &#39;转正日期&#39;: &#39;correctionTime&#39;,
+        &#39;工号&#39;: &#39;workNumber&#39;,
+        &#39;部门&#39;: &#39;departmentName&#39;
+      }
+      // 懒加载
+      import(&#39;@/vendor/Export2Excel&#39;).then(async excel =&gt; {
+        const { rows } = await getEmployeeList({ page: 1, size: this.page.total })
+        const data = this.formatJson(headers, rows)
+
+        excel.export_json_to_excel({
+          header: Object.keys(headers),
+          data,
+          filename: &#39;员工信息表&#39;,
+          autoWidth: true,
+          bookType: &#39;xlsx&#39;
+
+        })
+        // 获取所有的数据
+
+        // excel.export_json_to_excel({
+        //   header: [&#39;姓名&#39;, &#39;薪资&#39;],
+        //   data: [[&#39;张三&#39;, 12000], [&#39;李四&#39;, 5000]],
+        //   filename: &#39;员工薪资表&#39;,
+        //   autoWidth: true,
+        //   bookType: &#39;csv&#39;
+        // })
+      })
+    },
+    // 该方法负责将数组转化成二维数组
+    formatJson(headers, rows) {
+      // 首先遍历数组
+      // [{ username: &#39;张三&#39;},{},{}]  =&gt; [[’张三&#39;],[],[]]
+      return rows.map(item =&gt; {
+        return Object.keys(headers).map(key =&gt; {
+          if (headers[key] === &#39;timeOfEntry&#39; || headers[key] === &#39;correctionTime&#39;) {
+            return formatDate(item[headers[key]]) // 返回格式化之前的时间
+          } else if (headers[key] === &#39;formOfEmployment&#39;) {
+            var en = EmployeeEnum.hireType.find(obj =&gt; obj.id === item[headers[key]])
+            return en ? en.value : &#39;未知&#39;
+          }
+          return item[headers[key]]
+        }) // =&gt; [&quot;张三&quot;, &quot;13811&quot;，&quot;2018&quot;,&quot;1&quot;, &quot;2018&quot;, &quot;10002&quot;]
+      })
+      // return data
+      // return rows.map(item =&gt; {
+      //   // item是对象  =&gt; 转化成只有值的数组 =&gt; 数组值的顺序依赖headers  {username: &#39;张三&#39;  }
+      //   // Object.keys(headers)  =&gt; [&quot;姓名&quot;, &quot;手机号&quot;,...]
+      //   return Object.keys(headers).map(key =&gt; {
+      //     return item[headers[key]]
+      //   }) // /  得到 [&#39;张三&#39;，’129‘，’dd‘,&#39;dd&#39;]
+      // })
+    }
+</code></pre>
+<h3 id="导出时间格式的处理"><a href="#导出时间格式的处理" class="headerlink" title="导出时间格式的处理"></a>导出时间格式的处理</h3><pre><code class="js">    formatJson(headers, rows) {
+      return rows.map(item =&gt; {
+        // item是一个对象  { mobile: 132111,username: &#39;张三&#39;  }
+        // [&quot;手机号&quot;, &quot;姓名&quot;, &quot;入职日期&quot; 。。]
+        return Object.keys(headers).map(key =&gt; {
+          // 需要判断 字段
+          if (headers[key] === &#39;timeOfEntry&#39; || headers[key] === &#39;correctionTime&#39;) {
+            // 格式化日期
+            return formatDate(item[headers[key]])
+          } else if (headers[key] === &#39;formOfEmployment&#39;) {
+            const obj = EmployeeEnum.hireType.find(obj =&gt; obj.id === item[headers[key]])
+            return obj ? obj.value : &#39;未知&#39;
+          }
+          return item[headers[key]]
+        })
+        // [&quot;132&quot;, &#39;张三’， ‘’，‘’，‘’d]
+      })
+      // return rows.map(item =&gt; Object.keys(headers).map(key =&gt; item[headers[key]]))
+      // 需要处理时间格式问题
+    }
+</code></pre>
+<h3 id="扩展-复杂表头的导出"><a href="#扩展-复杂表头的导出" class="headerlink" title="扩展  复杂表头的导出"></a><strong><code>扩展</code></strong>  复杂表头的导出</h3><blockquote>
+<p>当需要导出复杂表头的时候，vue-element-admin同样支持该类操作</p>
+</blockquote>
+<p><strong>vue-element-admin</strong> 提供的导出方法中有 <strong>multiHeader</strong>和<strong>merges</strong> 的参数</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>multiHeader</td>
+<td>复杂表头的部分</td>
+<td>Array</td>
+<td>&#x2F;</td>
+<td>[[]]</td>
+</tr>
+<tr>
+<td>merges</td>
+<td>需要合并的部分</td>
+<td>Array</td>
+<td>&#x2F;</td>
+<td>[]</td>
+</tr>
+</tbody></table>
+<p>multiHeader里面是一个二维数组，里面的一个元素是一行表头，假设你想得到一个如图的结构</p>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20201014152302636-1696348781167-235.png" alt="image-20201014152302636"></p>
+<p>mutiHeader应该这样定义</p>
+<pre><code class="js">const multiHeader = [[&#39;姓名&#39;, &#39;主要信息&#39;, &#39;&#39;, &#39;&#39;, &#39;&#39;, &#39;&#39;, &#39;部门&#39;]]
+</code></pre>
+<p>multiHeader中的一行表头中的字段的个数需要和真正的列数相等，假设想要跨列，多余的空间需要定义成空串</p>
+<p>它主要对应的是标准的表头</p>
+<pre><code class="js">const header = [&#39;姓名&#39;, &#39;手机号&#39;, &#39;入职日期&#39;, &#39;聘用形式&#39;, &#39;转正日期&#39;, &#39;工号&#39;, &#39;部门&#39;]
+</code></pre>
+<p>如果，我们要实现其合并的效果， 需要设定merges选项</p>
+<pre><code class="js"> const merges = [&#39;A1:A2&#39;, &#39;B1:F1&#39;, &#39;G1:G2&#39;]
+</code></pre>
+<p>merges的顺序是没关系的，只要配置这两个属性，就可以导出复杂表头的excel了</p>
+<pre><code class="js">  exportData() {
+      const headers = {
+        &#39;姓名&#39;: &#39;username&#39;,
+        &#39;手机号&#39;: &#39;mobile&#39;,
+        &#39;入职日期&#39;: &#39;timeOfEntry&#39;,
+        &#39;聘用形式&#39;: &#39;formOfEmployment&#39;,
+        &#39;转正日期&#39;: &#39;correctionTime&#39;,
+        &#39;工号&#39;: &#39;workNumber&#39;,
+        &#39;部门&#39;: &#39;departmentName&#39;
+      }
+      // 导出excel
+      import(&#39;@/vendor/Export2Excel&#39;).then(async excel =&gt; {
+        //  excel是引入文件的导出对象
+        // 导出  header从哪里来
+        // data从哪里来
+        // 现在没有一个接口获取所有的数据
+        // 获取员工的接口 页码 每页条数    100   1 10000
+        const { rows } = await getEmployeeList({ page: 1, size: this.page.total })
+        const data = this.formatJson(headers, rows) // 返回的data就是 要导出的结构
+        const multiHeader = [[&#39;姓名&#39;, &#39;主要信息&#39;, &#39;&#39;, &#39;&#39;, &#39;&#39;, &#39;&#39;, &#39;部门&#39;]]
+        const merges = [&#39;A1:A2&#39;, &#39;B1:F1&#39;, &#39;G1:G2&#39;]
+        excel.export_json_to_excel({
+          header: Object.keys(headers),
+          data,
+          filename: &#39;员工资料表&#39;,
+          multiHeader, // 复杂表头
+          merges // 合并选项
+        })
+
+        // excel.export_json_to_excel({
+        //   header: [&#39;姓名&#39;, &#39;工资&#39;],
+        //   data: [[&#39;张三&#39;, 3000], [&#39;李四&#39;, 5000]],
+        //   filename: &#39;员工工资表&#39;
+        // })
+        // [{ username: &#39;张三&#39;,mobile: 13112345678 }]  =&gt; [[]]
+        // 要转化 数据结构 还要和表头的顺序对应上
+        // 要求转出的标题是中文
+      })
+    },
+    // 将表头数据和数据进行对应
+    // [{}]  =&gt;   [[]]
+    formatJson(headers, rows) {
+      return rows.map(item =&gt; {
+        // item是一个对象  { mobile: 132111,username: &#39;张三&#39;  }
+        // [&quot;手机号&quot;, &quot;姓名&quot;, &quot;入职日期&quot; 。。]
+        return Object.keys(headers).map(key =&gt; {
+          // 需要判断 字段
+          if (headers[key] === &#39;timeOfEntry&#39; || headers[key] === &#39;correctionTime&#39;) {
+            // 格式化日期
+            return formatDate(item[headers[key]])
+          } else if (headers[key] === &#39;formOfEmployment&#39;) {
+            const obj = EmployeeEnum.hireType.find(obj =&gt; obj.id === item[headers[key]])
+            return obj ? obj.value : &#39;未知&#39;
+          }
+          return item[headers[key]]
+        })
+        // [&quot;132&quot;, &#39;张三’， ‘’，‘’，‘’d]
+      })
+      // return rows.map(item =&gt; Object.keys(headers).map(key =&gt; item[headers[key]]))
+      // 需要处理时间格式问题
+    }
+</code></pre>
+<p><strong>提交代码</strong></p>
+<p>**<code>本节任务</code>**实现将员工数据导出功能</p>
+<h2 id="员工详情页创建和布局"><a href="#员工详情页创建和布局" class="headerlink" title="员工详情页创建和布局"></a>员工详情页创建和布局</h2><p>**<code>目标</code>**：创建员工详情的主要布局页面和基本布局</p>
+<h3 id="详情页的基本布局和路由"><a href="#详情页的基本布局和路由" class="headerlink" title="详情页的基本布局和路由"></a>详情页的基本布局和路由</h3><p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200726130305221-1696348781167-237.png" alt="image-20200726130305221"></p>
+<p><strong>建立详情页路由</strong></p>
+<pre><code class="js">{
+    path: &#39;detail/:id&#39;, // query传参 动态路由传参
+    component: () =&gt; import(&#39;@/views/employees/detail&#39;),
+    hidden: true, // 不在左侧菜单显示
+    meta: {
+      title: &#39;员工详情&#39; // 标记当前路由规则的中文名称 后续在做左侧菜单时 使用
+    }
+  }
+</code></pre>
+<p><strong>建立基本架构</strong></p>
+<pre><code class="vue">&lt;div class=&quot;dashboard-container&quot;&gt;
+    &lt;div class=&quot;app-container&quot;&gt;
+      &lt;el-card&gt;
+        &lt;el-tabs&gt;
+          &lt;el-tab-pane label=&quot;登录账户设置&quot;&gt;
+
+            &lt;!-- 放置表单 --&gt;
+            &lt;el-form label-width=&quot;120px&quot; style=&quot;margin-left: 120px; margin-top:30px&quot;&gt;
+              &lt;el-form-item label=&quot;姓名:&quot;&gt;
+                &lt;el-input style=&quot;width:300px&quot; /&gt;
+              &lt;/el-form-item&gt;
+              &lt;el-form-item label=&quot;密码:&quot;&gt;
+                &lt;el-input style=&quot;width:300px&quot; type=&quot;password&quot; /&gt;
+              &lt;/el-form-item&gt;
+              &lt;el-form-item&gt;
+                &lt;el-button type=&quot;primary&quot;&gt;更新&lt;/el-button&gt;
+              &lt;/el-form-item&gt;
+            &lt;/el-form&gt;
+          &lt;/el-tab-pane&gt;
+          &lt;el-tab-pane label=&quot;个人详情&quot; /&gt;
+          &lt;el-tab-pane label=&quot;岗位信息&quot; /&gt;
+        &lt;/el-tabs&gt;
+      &lt;/el-card&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+</code></pre>
+<p><strong>列表跳转到详情</strong></p>
+<pre><code class="vue">&lt;el-button type=&quot;text&quot; size=&quot;small&quot; @click=&quot;$router.push(`/employees/detail/${obj.row.id}`)&quot;&gt;查看&lt;/el-button&gt;
+</code></pre>
+<h3 id="读取和保存用户信息的接口"><a href="#读取和保存用户信息的接口" class="headerlink" title="读取和保存用户信息的接口"></a>读取和保存用户信息的接口</h3><p><strong>加载个人基本信息</strong> &gt; 该接口已经在之前提供过了 <strong><code>src/api/user.js</code></strong></p>
+<pre><code class="js">/** *
+ *  获取某个用户的基本信息
+ *
+ * ***/
+export function getUserDetailById(id) {
+  return request({
+    url: `/sys/user/${id}`
+  })
+}
+</code></pre>
+<p><strong>保存个人基本信息</strong>  <strong><code>src/api/employees.js</code></strong></p>
+<pre><code class="js">/** *
+ *
+ * 保存员工的基本信息
+ * **/
+export function saveUserDetailById(data) {
+  return request({
+    url: `/sys/user/${data.id}`,
+    method: &#39;put&#39;,
+    data
+  })
+}
+</code></pre>
+<h3 id="实现用户名和密码的修改"><a href="#实现用户名和密码的修改" class="headerlink" title="实现用户名和密码的修改"></a>实现用户名和密码的修改</h3><p><strong><code>注意</code><strong>：这里有个缺陷，接口中读取的是后端的密文，我们并不能解密，所以当我们没有任何修改就保存时，会校验失败，因为密文超过了规定的12位长度，为了真的修改密码，我们设定了一个临时的字段 <strong>password2</strong>，用它来存储我们的修改值，最后保存的时候，把</strong>password2</strong>传给<strong>password</strong></p>
+<p><strong>用户名和密码的修改</strong>  <strong><code>src/views/employees/detail.vue</code></strong></p>
+<pre><code class="js">import { getUserDetailById } from &#39;@/api/user&#39;
+import { saveUserDetailById } from &#39;@/api/employees&#39;
+export default {
+  data() {
+    return {
+      userId: this.$route.params.id, // 这样可以后面直接通过 this.userId进行获取数据
+      userInfo: {
+        //   专门存放基本信息
+        username: &#39;&#39;,
+        password2: &#39;&#39;
+      },
+      rules: {
+        username: [{ required: true, message: &#39;姓名不能为空&#39;, trigger: &#39;blur&#39; }],
+        password2: [{ required: true, message: &#39;密码不能为空&#39;, trigger: &#39;blur&#39; },
+          { min: 6, max: 9, message: &#39;密码长度6-9位&#39;, trigger: &#39;blur&#39; }]
+      }
+    }
+  },
+  created() {
+    this.getUserDetailById()
+  },
+  methods: {
+    async getUserDetailById() {
+      this.userInfo = await getUserDetailById(this.userId)
+    },
+    async saveUser() {
+      try {
+        // 校验
+        await this.$refs.userForm.validate()
+        await saveUserDetailById({ ...this.userInfo, password: this.userInfo.password2 }) // 将新密码的值替换原密码的值
+        this.$message.success(&#39;保存成功&#39;)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  }
+}
+</code></pre>
+<p><strong>绑定表单数据</strong></p>
+<pre><code class="vue"> &lt;!-- 放置表单 --&gt;
+            &lt;el-form ref=&quot;userForm&quot; :model=&quot;userInfo&quot; :rules=&quot;rules&quot; label-width=&quot;120px&quot; style=&quot;margin-left: 120px; margin-top:30px&quot;&gt;
+              &lt;el-form-item label=&quot;姓名:&quot; prop=&quot;username&quot;&gt;
+                &lt;el-input v-model=&quot;userInfo.username&quot; style=&quot;width:300px&quot; /&gt;
+              &lt;/el-form-item&gt;
+              &lt;el-form-item label=&quot;新密码:&quot; prop=&quot;password2&quot;&gt;
+                &lt;el-input v-model=&quot;userInfo.password2&quot; style=&quot;width:300px&quot; type=&quot;password&quot; /&gt;
+              &lt;/el-form-item&gt;
+              &lt;el-form-item&gt;
+                &lt;el-button type=&quot;primary&quot; @click=&quot;saveUser&quot;&gt;更新&lt;/el-button&gt;
+              &lt;/el-form-item&gt;
+            &lt;/el-form&gt;
+</code></pre>
+<p><strong>提交代码</strong></p>
+<h2 id="个人组件和岗位组件封装"><a href="#个人组件和岗位组件封装" class="headerlink" title="个人组件和岗位组件封装"></a>个人组件和岗位组件封装</h2><h3 id="封装个人详情组件"><a href="#封装个人详情组件" class="headerlink" title="封装个人详情组件"></a>封装个人详情组件</h3><blockquote>
+<p>我们将员工个人信息分为三部分，账户，个人， 岗位，这个小节我们对个人组件和岗位组件进行封装</p>
+</blockquote>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200901105323305-1696348781167-236.png" alt="image-20200901105323305"></p>
+<p><strong>封装个人组件</strong>   <strong><code>src/views/employees/components/user-info.vue</code></strong></p>
+<pre><code class="vue">&lt;template&gt;
+  &lt;div class=&quot;user-info&quot;&gt;
+    &lt;!-- 个人信息 --&gt;
+    &lt;el-form label-width=&quot;220px&quot;&gt;
+      &lt;!-- 工号 入职时间 --&gt;
+      &lt;el-row class=&quot;inline-info&quot;&gt;
+        &lt;el-col :span=&quot;12&quot;&gt;
+          &lt;el-form-item label=&quot;工号&quot;&gt;
+            &lt;el-input v-model=&quot;userInfo.workNumber&quot; class=&quot;inputW&quot; /&gt;
+          &lt;/el-form-item&gt;
+        &lt;/el-col&gt;
+        &lt;el-col :span=&quot;12&quot;&gt;
+          &lt;el-form-item label=&quot;入职时间&quot;&gt;
+            &lt;el-date-picker
+              v-model=&quot;userInfo.timeOfEntry&quot;
+              type=&quot;date&quot;
+              class=&quot;inputW&quot;
+              value-format=&quot;YYYY-MM-DD&quot;
+            /&gt;
+          &lt;/el-form-item&gt;
+        &lt;/el-col&gt;
+      &lt;/el-row&gt;
+      &lt;!-- 姓名 部门 --&gt;
+      &lt;el-row class=&quot;inline-info&quot;&gt;
+        &lt;el-col :span=&quot;12&quot;&gt;
+          &lt;el-form-item label=&quot;姓名&quot;&gt;
+            &lt;el-input v-model=&quot;userInfo.username&quot; class=&quot;inputW&quot; /&gt;
+          &lt;/el-form-item&gt;
+        &lt;/el-col&gt;
+        &lt;el-col :span=&quot;12&quot;&gt;
+          &lt;el-form-item label=&quot;部门&quot;&gt;
+            &lt;el-input v-model=&quot;userInfo.departmentName&quot; class=&quot;inputW&quot; /&gt;
+          &lt;/el-form-item&gt;
+        &lt;/el-col&gt;
+      &lt;/el-row&gt;
+      &lt;!--手机 聘用形式  --&gt;
+      &lt;el-row class=&quot;inline-info&quot;&gt;
+        &lt;el-col :span=&quot;12&quot;&gt;
+          &lt;el-form-item label=&quot;手机&quot;&gt;
+            &lt;el-input v-model=&quot;userInfo.mobile&quot; /&gt;
+          &lt;/el-form-item&gt;
+        &lt;/el-col&gt;
+        &lt;el-col :span=&quot;12&quot;&gt;
+          &lt;el-form-item label=&quot;聘用形式&quot;&gt;
+            &lt;el-select v-model=&quot;userInfo.formOfEmployment&quot; class=&quot;inputW&quot;&gt;
+              &lt;el-option
+                v-for=&quot;item in EmployeeEnum.hireType&quot;
+                :key=&quot;item.id&quot;
+                :label=&quot;item.value&quot;
+                :value=&quot;item.id&quot;
+              /&gt;
+            &lt;/el-select&gt;
+          &lt;/el-form-item&gt;
+        &lt;/el-col&gt;
+      &lt;/el-row&gt;
+      &lt;!-- 员工照片 --&gt;
+      &lt;el-row class=&quot;inline-info&quot;&gt;
+        &lt;el-col :span=&quot;12&quot;&gt;
+          &lt;el-form-item label=&quot;员工头像&quot;&gt;
+            &lt;!-- 放置上传图片 --&gt;
+           
+          &lt;/el-form-item&gt;
+        &lt;/el-col&gt;
+      &lt;/el-row&gt;
+      &lt;!-- 保存个人信息 --&gt;
+      &lt;el-row class=&quot;inline-info&quot; type=&quot;flex&quot; justify=&quot;center&quot;&gt;
+        &lt;el-col :span=&quot;12&quot;&gt;
+          &lt;el-button type=&quot;primary&quot; @click=&quot;saveUser&quot;&gt;保存更新&lt;/el-button&gt;
+          &lt;el-button @click=&quot;$router.back()&quot;&gt;返回&lt;/el-button&gt;
+
+        &lt;/el-col&gt;
+      &lt;/el-row&gt;
+    &lt;/el-form&gt;
+    &lt;!-- 基础信息 --&gt;
+    &lt;el-form label-width=&quot;220px&quot;&gt;
+      &lt;div class=&quot;block&quot;&gt;
+        &lt;div class=&quot;title&quot;&gt;基础信息&lt;/div&gt;
+        &lt;el-form-item label=&quot;最高学历&quot;&gt;
+          &lt;el-select v-model=&quot;formData.theHighestDegreeOfEducation&quot; class=&quot;inputW2&quot;&gt;
+            &lt;el-option
+              v-for=&quot;item in EmployeeEnum.highestDegree&quot;
+              :key=&quot;item.value&quot;
+              :label=&quot;item.label&quot;
+              :value=&quot;item.value&quot;
+            /&gt;
+          &lt;/el-select&gt;
+        &lt;/el-form-item&gt;
+        &lt;!-- 个人头像 --&gt;
+        &lt;!-- 员工照片 --&gt;
+
+        &lt;el-form-item label=&quot;员工照片&quot;&gt;
+          &lt;!-- 放置上传图片 --&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;国家/地区&quot;&gt;
+          &lt;el-select v-model=&quot;formData.nationalArea&quot; class=&quot;inputW2&quot;&gt;
+            &lt;el-option
+              v-for=&quot;item in EmployeeEnum.isOverseas&quot;
+              :key=&quot;item.value&quot;
+              :label=&quot;item.label&quot;
+              :value=&quot;item.value&quot;
+            /&gt;
+          &lt;/el-select&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;护照号&quot;&gt;
+          &lt;el-input v-model=&quot;formData.passportNo&quot; placeholder=&quot;正规护照格式&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;身份证号&quot;&gt;
+          &lt;el-input v-model=&quot;formData.idNumber&quot; placeholder=&quot;正规身份证格式&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;籍贯&quot;&gt;
+          &lt;el-input v-model=&quot;formData.nativePlace&quot; placeholder=&quot;籍贯地址&quot; class=&quot;inputW5&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;民族&quot;&gt;
+          &lt;el-input v-model=&quot;formData.nation&quot; placeholder=&quot;请输入民族&quot; class=&quot;inputW2&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;婚姻状况&quot;&gt;
+          &lt;el-select v-model=&quot;formData.maritalStatus&quot; class=&quot;inputW2&quot;&gt;
+            &lt;el-option
+              v-for=&quot;item in EmployeeEnum.maritaStatus&quot;
+              :key=&quot;item.value&quot;
+              :label=&quot;item.label&quot;
+              :value=&quot;item.value&quot;
+            /&gt;
+          &lt;/el-select&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;生日&quot;&gt;
+          &lt;el-input v-model=&quot;formData.birthday&quot; placeholder=&quot;示例 0323&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;年龄&quot;&gt;
+          &lt;el-input v-model=&quot;formData.age&quot; type=&quot;number&quot; class=&quot;inputW2&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;星座&quot;&gt;
+          &lt;el-select v-model=&quot;formData.constellation&quot; class=&quot;inputW2&quot;&gt;
+            &lt;el-option
+              v-for=&quot;item in EmployeeEnum.constellation&quot;
+              :key=&quot;item.value&quot;
+              :label=&quot;item.label&quot;
+              :value=&quot;item.value&quot;
+            /&gt;
+          &lt;/el-select&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;血型&quot;&gt;
+          &lt;el-select v-model=&quot;formData.bloodType&quot; class=&quot;inputW2&quot;&gt;
+            &lt;el-option
+              v-for=&quot;item in EmployeeEnum.bloodType&quot;
+              :key=&quot;item.value&quot;
+              :label=&quot;item.label&quot;
+              :value=&quot;item.value&quot;
+            /&gt;
+          &lt;/el-select&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;户籍所在地&quot;&gt;
+          &lt;el-input v-model=&quot;formData.domicile&quot; class=&quot;inputW5&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;政治面貌&quot;&gt;
+          &lt;el-input v-model=&quot;formData.politicalOutlook&quot; class=&quot;inputW2&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;入党时间&quot;&gt;
+          &lt;el-date-picker
+            v-model=&quot;formData.timeToJoinTheParty&quot;
+            type=&quot;date&quot;
+            placeholder=&quot;选择日期&quot;
+            class=&quot;inputW&quot;
+            value-format=&quot;yyyy-MM-dd&quot;
+          /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;存档机构&quot;&gt;
+          &lt;el-input v-model=&quot;formData.archivingOrganization&quot; placeholder=&quot;请输入&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;子女状态&quot;&gt;
+          &lt;el-input v-model=&quot;formData.stateOfChildren&quot; placeholder=&quot;请输入&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;子女有无商业险&quot;&gt;
+          &lt;el-radio-group v-model=&quot;formData.doChildrenHaveCommercialInsurance&quot;&gt;
+            &lt;el-radio label=&quot;1&quot;&gt;有&lt;/el-radio&gt;
+            &lt;el-radio label=&quot;2&quot;&gt;无&lt;/el-radio&gt;
+          &lt;/el-radio-group&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;有无违法违纪状态&quot;&gt;
+          &lt;el-input v-model=&quot;formData.isThereAnyViolationOfLawOrDiscipline&quot; placeholder=&quot;请输入&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;有无重大病史&quot;&gt;
+          &lt;el-input v-model=&quot;formData.areThereAnyMajorMedicalHistories&quot; placeholder=&quot;请输入&quot; /&gt;
+        &lt;/el-form-item&gt;
+      &lt;/div&gt;
+      &lt;!-- 通讯信息 --&gt;
+      &lt;div class=&quot;block&quot;&gt;
+        &lt;div class=&quot;title&quot;&gt;通讯信息&lt;/div&gt;
+        &lt;el-form-item label=&quot;QQ&quot;&gt;
+          &lt;el-input v-model=&quot;formData.qq&quot; placeholder=&quot;请输入&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;微信&quot;&gt;
+          &lt;el-input v-model=&quot;formData.wechat&quot; placeholder=&quot;请输入&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;现居住地&quot;&gt;
+          &lt;el-input v-model=&quot;formData.placeOfResidence&quot; placeholder=&quot;请输入&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;通讯地址&quot;&gt;
+          &lt;el-input v-model=&quot;formData.postalAddress&quot; placeholder=&quot;请输入&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;联系手机&quot;&gt;
+          &lt;el-input v-model=&quot;formData.contactTheMobilePhone&quot; placeholder=&quot;11位字符&quot; maxlength=&quot;11&quot; class=&quot;inputW&quot; @change.native=&quot;handlePhone(2)&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;个人邮箱&quot;&gt;
+          &lt;el-input v-model=&quot;formData.personalMailbox&quot; placeholder=&quot;请输入&quot; type=&quot;mail&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;紧急联系人&quot;&gt;
+          &lt;el-input v-model=&quot;formData.emergencyContact&quot; placeholder=&quot;请输入&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;紧急联系电话&quot;&gt;
+          &lt;el-input v-model=&quot;formData.emergencyContactNumber&quot; placeholder=&quot;11位字符&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+      &lt;/div&gt;
+      &lt;!-- 账号信息 --&gt;
+      &lt;div class=&quot;block&quot;&gt;
+        &lt;div class=&quot;title&quot;&gt;账号信息&lt;/div&gt;
+        &lt;el-form-item label=&quot;社保电脑号&quot;&gt;
+          &lt;el-input v-model=&quot;formData.socialSecurityComputerNumber&quot; placeholder=&quot;请输入&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;公积金账号&quot;&gt;
+          &lt;el-input v-model=&quot;formData.providentFundAccount&quot; placeholder=&quot;请输入&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;银行卡号&quot;&gt;
+          &lt;el-input v-model=&quot;formData.bankCardNumber&quot; placeholder=&quot;请输入&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;开户行&quot;&gt;
+          &lt;el-input v-model=&quot;formData.openingBank&quot; placeholder=&quot;请输入&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+      &lt;/div&gt;
+      &lt;!-- 教育信息 --&gt;
+      &lt;div class=&quot;block&quot;&gt;
+        &lt;div class=&quot;title&quot;&gt;教育信息&lt;/div&gt;
+        &lt;el-form-item label=&quot;学历类型&quot;&gt;
+          &lt;el-select v-model=&quot;formData.educationalType&quot; placeholder=&quot;请选择&quot;&gt;
+            &lt;el-option
+              v-for=&quot;item in EmployeeEnum.educationType&quot;
+              :key=&quot;item.value&quot;
+              :label=&quot;item.label&quot;
+              :value=&quot;item.value&quot;
+            /&gt;
+          &lt;/el-select&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;毕业学校&quot;&gt;
+          &lt;el-input v-model=&quot;formData.graduateSchool&quot; placeholder=&quot;请输入&quot; class=&quot;inputW2&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;入学时间&quot;&gt;
+          &lt;el-date-picker v-model=&quot;formData.enrolmentTime&quot; type=&quot;data&quot; placeholder=&quot;请输入时间&quot; class=&quot;inputW&quot; value-format=&quot;yyyy-MM-dd&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;毕业时间&quot;&gt;
+          &lt;el-date-picker v-model=&quot;formData.graduationTime&quot; type=&quot;data&quot; placeholder=&quot;请输入时间&quot; class=&quot;inputW&quot; value-format=&quot;yyyy-MM-dd&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;专业&quot;&gt;
+          &lt;el-input v-model=&quot;formData.major&quot; placeholder=&quot;请输入&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+      &lt;/div&gt;
+      &lt;!-- 从业信息 --&gt;
+      &lt;div class=&quot;block&quot;&gt;
+        &lt;div class=&quot;title&quot;&gt;从业信息&lt;/div&gt;
+        &lt;el-form-item label=&quot;上家公司&quot;&gt;
+          &lt;el-input v-model=&quot;formData.homeCompany&quot; placeholder=&quot;请输入&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;职称&quot;&gt;
+          &lt;el-input v-model=&quot;formData.title&quot; placeholder=&quot;请输入&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;有无竞业限制&quot;&gt;
+          &lt;el-input v-model=&quot;formData.isThereAnyCompetitionRestriction&quot; placeholder=&quot;请输入&quot; style=&quot;width:80%&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;备注&quot;&gt;
+          &lt;el-input v-model=&quot;formData.remarks&quot; type=&quot;textarea&quot; placeholder=&quot;请输入备注&quot; style=&quot;width:80%&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;!-- 保存员工信息 --&gt;
+        &lt;el-row class=&quot;inline-info&quot; type=&quot;flex&quot; justify=&quot;center&quot;&gt;
+          &lt;el-col :span=&quot;12&quot;&gt;
+            &lt;el-button type=&quot;primary&quot; @click=&quot;savePersonal&quot;&gt;保存更新&lt;/el-button&gt;
+            &lt;el-button @click=&quot;$router.back()&quot;&gt;返回&lt;/el-button&gt;
+          &lt;/el-col&gt;
+        &lt;/el-row&gt;
+      &lt;/div&gt;
+    &lt;/el-form&gt;
+
+  &lt;/div&gt;
+
+&lt;/template&gt;
+</code></pre>
+<blockquote>
+<p>本章节个人数据过于**<code>繁杂，庞大</code>**，同学们在开发期间，拷贝代码即可，我们只写关键部位的代码</p>
+</blockquote>
+<p><strong>定义user-info的数据</strong></p>
+<pre><code class="js">import EmployeeEnum from &#39;@/api/constant/employees&#39;
+
+export default {
+  data() {
+    return {
+      userId: this.$route.params.id,
+      EmployeeEnum, // 员工枚举数据
+      userInfo: {},
+      formData: {
+        userId: &#39;&#39;,
+        username: &#39;&#39;, // 用户名
+        sex: &#39;&#39;, // 性别
+        mobile: &#39;&#39;, // 手机
+        companyId: &#39;&#39;, // 公司id
+        departmentName: &#39;&#39;, // 部门名称
+        //  onTheJobStatus: &#39;&#39;, // 在职状态 no
+        dateOfBirth: &#39;&#39;, // 出生日期
+        timeOfEntry: &#39;&#39;, // 入职时间
+        theHighestDegreeOfEducation: &#39;&#39;, // 最高学历
+        nationalArea: &#39;&#39;, // 国家
+        passportNo: &#39;&#39;, // 护照号
+        idNumber: &#39;&#39;, // 身份证号
+        idCardPhotoPositive: &#39;&#39;, // 身份证照正
+        idCardPhotoBack: &#39;&#39;, // 身份证照正
+        nativePlace: &#39;&#39;, // 籍贯
+        nation: &#39;&#39;, // 民族
+        englishName: &#39;&#39;, // 英文名字
+        maritalStatus: &#39;&#39;, // 婚姻状况
+        staffPhoto: &#39;&#39;, // 员工照片
+        birthday: &#39;&#39;, // 生日
+        zodiac: &#39;&#39;, // 属相
+        age: &#39;&#39;, // 年龄
+        constellation: &#39;&#39;, // 星座
+        bloodType: &#39;&#39;, // 血型
+        domicile: &#39;&#39;, // 户籍所在地
+        politicalOutlook: &#39;&#39;, // 政治面貌
+        timeToJoinTheParty: &#39;&#39;, // 入党时间
+        archivingOrganization: &#39;&#39;, // 存档机构
+        stateOfChildren: &#39;&#39;, // 子女状态
+        doChildrenHaveCommercialInsurance: &#39;1&#39;, // 保险状态
+        isThereAnyViolationOfLawOrDiscipline: &#39;&#39;, // 违法违纪状态
+        areThereAnyMajorMedicalHistories: &#39;&#39;, // 重大病史
+        qq: &#39;&#39;, // QQ
+        wechat: &#39;&#39;, // 微信
+        residenceCardCity: &#39;&#39;, // 居住证城市
+        dateOfResidencePermit: &#39;&#39;, // 居住证办理日期
+        residencePermitDeadline: &#39;&#39;, // 居住证截止日期
+        placeOfResidence: &#39;&#39;, // 现居住地
+        postalAddress: &#39;&#39;, // 通讯地址
+        contactTheMobilePhone: &#39;&#39;, // 联系手机
+        personalMailbox: &#39;&#39;, // 个人邮箱
+        emergencyContact: &#39;&#39;, // 紧急联系人
+        emergencyContactNumber: &#39;&#39;, // 紧急联系电话
+        socialSecurityComputerNumber: &#39;&#39;, // 社保电脑号
+        providentFundAccount: &#39;&#39;, // 公积金账号
+        bankCardNumber: &#39;&#39;, // 银行卡号
+        openingBank: &#39;&#39;, // 开户行
+        educationalType: &#39;&#39;, // 学历类型
+        graduateSchool: &#39;&#39;, // 毕业学校
+        enrolmentTime: &#39;&#39;, // 入学时间
+        graduationTime: &#39;&#39;, // 毕业时间
+        major: &#39;&#39;, // 专业
+        graduationCertificate: &#39;&#39;, // 毕业证书
+        certificateOfAcademicDegree: &#39;&#39;, // 学位证书
+        homeCompany: &#39;&#39;, // 上家公司
+        title: &#39;&#39;, // 职称
+        resume: &#39;&#39;, // 简历
+        isThereAnyCompetitionRestriction: &#39;&#39;, // 有无竞业限制
+        proofOfDepartureOfFormerCompany: &#39;&#39;, // 前公司离职证明
+        remarks: &#39;&#39; // 备注
+      }
+    }
+  }
+}
+</code></pre>
+<p><strong>在detail.vue组件中，注册并使用</strong></p>
+<pre><code class="vue"> &lt;el-tab-pane label=&quot;个人详情&quot;&gt;
+            &lt;!-- 放置个人详情 --&gt;
+            &lt;component :is=&quot;userComponent&quot; /&gt;
+            &lt;!-- &lt;user-info /&gt; --&gt;
+  &lt;/el-tab-pane&gt;
+</code></pre>
+<p>在以上代码中，我们使用了动态组件<strong>component</strong>，它通过 **<code>is</code><strong>属性来绑定需要显示在该位置的组件，is属性可以直接为</strong><code>注册组件</code>**的组件名称即可</p>
+<h3 id="封装岗位组件"><a href="#封装岗位组件" class="headerlink" title="封装岗位组件"></a>封装岗位组件</h3><p>同理，封装岗位组件</p>
+<p><strong>封装岗位组件</strong>  <strong><code>src/views/employee/components/job-info.vue</code></strong></p>
+<pre><code class="vue">&lt;template&gt;
+&lt;div class=&quot;job-info&quot;&gt;
+    &lt;!-- 基础信息 --&gt;
+    &lt;el-form label-width=&quot;220px&quot;&gt;
+      &lt;div class=&quot;block&quot;&gt;
+        &lt;div class=&quot;title&quot;&gt;基础信息&lt;/div&gt;
+        &lt;el-form-item label=&quot;岗位&quot;&gt;
+          &lt;el-input v-model=&quot;formData.post&quot; placeholder=&quot;请输入&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;!-- &lt;el-form-item label=&quot;转正日期&quot;&gt;
+          &lt;el-date-picker
+            v-model=&quot;formData.dateOfCorrection&quot;
+            type=&quot;date&quot;
+            placeholder=&quot;选择日期&quot;
+            value-format=&quot;yyyy-MM-dd&quot;
+          /&gt;
+        &lt;/el-form-item&gt; --&gt;
+        &lt;el-form-item label=&quot;转正状态&quot;&gt;
+          &lt;el-select v-model=&quot;formData.stateOfCorrection&quot; placeholder=&quot;请选择&quot; disabled&gt;
+            &lt;el-option
+              v-for=&quot;item in EmployeeEnum.stateOfCorrection&quot;
+              :key=&quot;item.value&quot;
+              :value=&quot;item.value&quot;
+            /&gt;
+          &lt;/el-select&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;职级&quot;&gt;
+          &lt;el-input v-model=&quot;formData.rank&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;转正评价&quot;&gt;
+          &lt;el-input v-model=&quot;formData.correctionEvaluation&quot; type=&quot;textarea&quot; placeholder=&quot;1-300位字符&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;汇报对象&quot;&gt;
+          &lt;el-select v-model=&quot;formData.reportId&quot; filterable placeholder=&quot;请选择&quot; class=&quot;inputW&quot;&gt;
+            &lt;el-option v-for=&quot;item in depts&quot; :key=&quot;item.id&quot; :label=&quot;item.username&quot; :value=&quot;item.id&quot; /&gt;
+          &lt;/el-select&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;HRBP&quot;&gt;
+          &lt;el-select v-model=&quot;formData.hrbp&quot; filterable placeholder=&quot;请选择&quot; class=&quot;inputW&quot;&gt;
+            &lt;el-option v-for=&quot;item in depts&quot; :key=&quot;item.id&quot; :label=&quot;item.username&quot; :value=&quot;item.id&quot; class=&quot;inputW&quot; /&gt;
+          &lt;/el-select&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item class=&quot;formInfo&quot; label=&quot;调整司龄(天)：&quot;&gt;
+          &lt;el-input v-model=&quot;formData.adjustmentAgedays&quot; type=&quot;number&quot; placeholder=&quot;请输入&quot; class=&quot;inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;首次参加工作时间&quot;&gt;
+          &lt;el-date-picker
+            v-model=&quot;formData.workingTimeForTheFirstTime&quot;
+            type=&quot;date&quot;
+            placeholder=&quot;选择日期&quot;
+            value-format=&quot;yyyy-MM-dd&quot;
+          /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;调整工龄&quot;&gt;
+          &lt;el-input v-model=&quot;formData.adjustmentOfLengthOfService&quot; placeholder=&quot;0.00年&quot; class=&quot;inputW&quot; disabled /&gt;
+        &lt;/el-form-item&gt;
+      &lt;/div&gt;
+      &lt;!-- 合同信息 --&gt;
+      &lt;div class=&quot;block&quot;&gt;
+        &lt;div class=&quot;title&quot;&gt;合同信息&lt;/div&gt;
+        &lt;el-form-item class=&quot;formInfo&quot; label=&quot;首次合同开始时间：&quot;&gt;
+          &lt;el-date-picker
+            v-model=&quot;formData.initialContractStartTime&quot;
+            type=&quot;date&quot;
+            placeholder=&quot;选择日期&quot;
+            value-format=&quot;yyyy-MM-dd&quot;
+          /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;首次合同结束时间&quot;&gt;
+          &lt;el-date-picker
+            v-model=&quot;formData.firstContractTerminationTime&quot;
+            type=&quot;date&quot;
+            placeholder=&quot;选择日期&quot;
+            value-format=&quot;yyyy-MM-dd&quot;
+          /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;现合同开始时间&quot;&gt;
+          &lt;el-date-picker
+            v-model=&quot;formData.currentContractStartTime&quot;
+            type=&quot;date&quot;
+            placeholder=&quot;选择日期&quot;
+            value-format=&quot;yyyy-MM-dd&quot;
+          /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;现合同结束时间&quot;&gt;
+          &lt;el-date-picker
+            v-model=&quot;formData.closingTimeOfCurrentContract	&quot;
+            type=&quot;date&quot;
+            placeholder=&quot;选择日期&quot;
+            value-format=&quot;yyyy-MM-dd&quot;
+          /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;合同期限&quot;&gt;
+          &lt;el-select v-model=&quot;formData.contractPeriod&quot; class=&quot;filter-item&quot;&gt;
+            &lt;el-option
+              v-for=&quot;item in EmployeeEnum.contractPeriod&quot;
+              :key=&quot;item.value&quot;
+              :label=&quot;item.label&quot;
+              :value=&quot;item.value&quot;
+            /&gt;
+          &lt;/el-select&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;续签次数&quot;&gt;
+          &lt;el-select v-model=&quot;formData.renewalNumber&quot; class=&quot;filter-item&quot;&gt;
+            &lt;el-option
+              v-for=&quot;item in EmployeeEnum.renewalCount&quot;
+              :key=&quot;item.id&quot;
+              :label=&quot;item.value&quot;
+              :value=&quot;item.id&quot;
+            /&gt;
+          &lt;/el-select&gt;
+        &lt;/el-form-item&gt;
+      &lt;/div&gt;
+      &lt;!-- 招聘信息 --&gt;
+      &lt;div class=&quot;block&quot;&gt;
+        &lt;div class=&quot;title&quot;&gt;招聘信息&lt;/div&gt;
+        &lt;el-form-item label=&quot;其他招聘渠道&quot;&gt;
+          &lt;el-select v-model=&quot;formData.otherRecruitmentChannels&quot; placeholder=&quot;请选择&quot;&gt;
+            &lt;el-option
+              v-for=&quot;item in EmployeeEnum.resumeSource&quot;
+              :key=&quot;item.id&quot;
+              :label=&quot;item.value&quot;
+              :value=&quot;item.value&quot;
+            /&gt;
+          &lt;/el-select&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;招聘渠道&quot;&gt;
+          &lt;el-select v-model=&quot;formData.recruitmentChannels&quot; placeholder=&quot;请选择&quot;&gt;
+            &lt;el-option
+              v-for=&quot;item in EmployeeEnum.resumeSource&quot;
+              :key=&quot;item.value&quot;
+              :label=&quot;item.label&quot;
+              :value=&quot;item.value&quot;
+            /&gt;
+          &lt;/el-select&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;社招/校招&quot;&gt;
+          &lt;el-select v-model=&quot;formData.socialRecruitment&quot; placeholder=&quot;请选择&quot;&gt;
+            &lt;el-option
+              v-for=&quot;item in EmployeeEnum.hireSourceType&quot;
+              :key=&quot;item.value&quot;
+              :label=&quot;item.label&quot;
+              :value=&quot;item.value&quot;
+            /&gt;
+          &lt;/el-select&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;推荐企业/人&quot;&gt;
+          &lt;el-input v-model=&quot;formData.recommenderBusinessPeople&quot; placeholder=&quot;请输入&quot; class=&quot;infoPosition inputW&quot; /&gt;
+        &lt;/el-form-item&gt;
+      &lt;/div&gt;
+      &lt;!-- 从业信息 --&gt;
+      &lt;el-form-item&gt;
+        &lt;el-button type=&quot;primary&quot; @click=&quot;saveJob&quot;&gt;保存更新&lt;/el-button&gt;
+        &lt;el-button @click=&quot;$router.back()&quot;&gt;返回&lt;/el-button&gt;
+      &lt;/el-form-item&gt;
+    &lt;/el-form&gt;
+  &lt;/div&gt;
+
+&lt;/template&gt;
+</code></pre>
+<p><strong>定义岗位数据</strong></p>
+<pre><code class="js">import EmployeeEnum from &#39;@/api/constant/employees&#39;
+
+export default {
+  data() {
+    return {
+      userId: this.$route.params.id,
+      depts: [],
+      EmployeeEnum,
+      formData: {
+        adjustmentAgedays: &#39;&#39;, // 调整司龄天
+        adjustmentOfLengthOfService: &#39;&#39;, // 调整工龄天
+        closingTimeOfCurrentContract: &#39;&#39;, // 现合同结束时间
+        companyId: &#39;&#39;, // 公司ID
+        contractDocuments: &#39;&#39;, // 合同文件
+        contractPeriod: &#39;&#39;, // 合同期限
+        correctionEvaluation: &#39;&#39;, //  转正评价
+        currentContractStartTime: &#39;&#39;, // 现合同开始时间
+        firstContractTerminationTime: &#39;&#39;, // 首次合同结束时间
+        hrbp: &#39;&#39;, // HRBP
+        initialContractStartTime: &#39;&#39;, // 首次合同开始时间
+        otherRecruitmentChannels: &#39;&#39;, // 其他招聘渠道
+        post: &#39;&#39;, // 岗位
+        rank: null, // 职级
+        recommenderBusinessPeople: &#39;&#39;, // 推荐企业人
+        recruitmentChannels: &#39;&#39;, // 招聘渠道
+        renewalNumber: &#39;&#39;, // 续签次数
+        reportId: &#39;&#39;, // 汇报对象
+        reportName: null, // 汇报对象
+        socialRecruitment: &#39;&#39;, // 社招校招
+        stateOfCorrection: &#39;&#39;, // 转正状态
+        taxableCity: &#39;&#39;, // 纳税城市
+        userId: &#39;&#39;, // 员工ID
+        workMailbox: &#39;&#39;, // 工作邮箱
+        workingCity: &#39;&#39;, // 工作城市
+        workingTimeForTheFirstTime: &#39;&#39; // 首次参加工作时间
+      }
+    }
+  }
+}
+</code></pre>
+<p><strong>在detail.vue组件中，注册并使用</strong></p>
+<pre><code class="vue"> &lt;el-tab-pane label=&quot;岗位详情&quot;&gt;
+            &lt;!-- 放置岗位详情 --&gt;
+            &lt;component :is=&quot;JobInfo&quot; /&gt;
+  &lt;/el-tab-pane&gt;
+</code></pre>
+<p>**<code>本节任务</code>**：完成个人组件和岗位组件封装</p>
+<h2 id="员工个人信息和岗位信息-读取-保存"><a href="#员工个人信息和岗位信息-读取-保存" class="headerlink" title="员工个人信息和岗位信息-读取-保存"></a>员工个人信息和岗位信息-读取-保存</h2><p>**<code>目标</code>**：实现个人信息的岗位信息的读取和校验，保存</p>
+<h3 id="读取个人保存个人信息"><a href="#读取个人保存个人信息" class="headerlink" title="读取个人保存个人信息"></a>读取个人保存个人信息</h3><blockquote>
+<p>这个环节里面大部分都是繁杂的属性和重复的过程，所以该环节直接将过程代码拷贝到项目中即可</p>
+</blockquote>
+<p>封装 <strong>读取个人信息</strong> <strong>保存个人信息</strong>  <strong>读取岗位信息</strong> <strong>保存岗位信息</strong>  </p>
+<pre><code class="js">/** *
+ *  读取用户详情的基础信息
+ * **/
+export function getPersonalDetail(id) {
+  return request({
+    url: `/employees/${id}/personalInfo`
+  })
+}
+
+/** *
+ *  更新用户详情的基础信息
+ * **/
+export function updatePersonal(data) {
+  return request({
+    url: `/employees/${data.userId}/personalInfo`,
+    method: &#39;put&#39;,
+    data
+  })
+}
+
+
+/** **
+ * 获取用户的岗位信息
+ *
+ * ****/
+export function getJobDetail(id) {
+  return request({
+    url: `/employees/${id}/jobs`
+  })
+}
+
+
+/**
+ * 保存岗位信息
+ * ****/
+export function updateJob(data) {
+  return request({
+    url: `/employees/${data.userId}/jobs`,
+    method: &#39;put&#39;,
+    data
+  })
+}
+</code></pre>
+<p><strong>读取，保存个人信息</strong>  <strong><code>user-info</code></strong>  需要注意：这里的保存实际上分成了两个接口，这是接口的设计，我们只能遵守</p>
+<pre><code class="js">import { getPersonalDetail, updatePersonal, saveUserDetailById } from &#39;@/api/employees&#39;
+import { getUserDetailById } from &#39;@/api/user&#39;
+ created() {
+    this.getPersonalDetail()
+    this.getUserDetailById()
+  },
+  methods: {
+    async getPersonalDetail() {
+      this.formData = await getPersonalDetail(this.userId) // 获取员工数据
+    },
+    async savePersonal() {
+      await updatePersonal({ ...this.formData, id: this.userId })
+      this.$message.success(&#39;保存成功&#39;)
+    },
+    async saveUser() {
+    //  调用父组件
+      await saveUserDetailById(this.userInfo)
+      this.$message.success(&#39;保存成功&#39;)
+    },
+    async getUserDetailById() {
+      this.userInfo = await getUserDetailById(this.userId)
+    }
+  }
+</code></pre>
+<h3 id="读取保存岗位信息"><a href="#读取保存岗位信息" class="headerlink" title="读取保存岗位信息"></a>读取保存岗位信息</h3><p><strong>读取，保存岗位信息</strong>  <strong><code>job-info</code></strong></p>
+<pre><code class="js">  import { getEmployeeSimple, updateJob, getJobDetail } from &#39;@/api/employees&#39;
+
+  created() {
+    this.getJobDetail()
+    this.getEmployeeSimple()
+  },
+  methods: {
+    async getJobDetail() {
+      this.formData = await getJobDetail(this.userId)
+    },
+    // 获取员工列表
+    async getEmployeeSimple() {
+      this.depts = await getEmployeeSimple()
+    },
+    // 保存岗位信息
+    async saveJob() {
+      await updateJob(this.formData)
+      this.$message.success(&#39;保存岗位信息成功&#39;)
+    }
+  }
+</code></pre>
+<p><strong>提交代码</strong></p>
+<p><strong><code>本节任务</code></strong> 实现个人信息的岗位信息的读取和校验，保存</p>
+<h2 id="配置腾讯云Cos"><a href="#配置腾讯云Cos" class="headerlink" title="配置腾讯云Cos"></a>配置腾讯云Cos</h2><p>**<code>目标</code>**： 配置一个腾讯云cos</p>
+<blockquote>
+<p>由于上课的开发的特殊性，我们不希望把所有的图片都上传到我们自己的官方服务器上，这里我们可以采用一个腾讯云的图片方案</p>
+</blockquote>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200805200831035-1696348781167-238.png" alt="image-20200805200831035"></p>
+<blockquote>
+<p>上边图的意思就是说，我们找一个可以免费上传图片的服务器，帮我们**<code>代管图片</code><strong>，我们在自己的数据库里只保存一个地址就行， 这其实也是很多项目的处理方案，会有一个</strong><code>公共的文件服务器</code>**</p>
+</blockquote>
+<p>第一步，我们必须先拥有一个<a href="https://cloud.tencent.com/login?s_url=https://console.cloud.tencent.com/">腾迅云</a>的开发者账号(<strong>小心腾讯云的广告电话</strong>)</p>
+<blockquote>
+<p>请按照腾讯云的注册方式，注册自己的账号</p>
+</blockquote>
+<p>第二步，实名认证</p>
+<blockquote>
+<p>选择个人账户</p>
+</blockquote>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200805201013078-1696348781167-239.png" alt="image-20200805201013078"></p>
+<p><strong>填写个人身份信息</strong></p>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200805201230001-1696348781167-240.png" alt="image-20200805201230001"></p>
+<p>下一步，扫描二维码授权</p>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200805201318977-1696348781167-241.png" alt="image-20200805201318977"></p>
+<p><strong>手机端授权</strong></p>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200805201422567-1696348781167-242.png" alt="image-20200805201422567"></p>
+<p>点击<strong>领取免费产品</strong></p>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200805201513338-1696348781167-243.png" alt="image-20200805201513338"></p>
+<p><strong>选择对象存储COS</strong></p>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200805201559233-1696348781168-244.png" alt="image-20200805201559233"></p>
+<blockquote>
+<p>我们免费拥有**<code>6个月的50G流量</code>**的对象存储空间使用权限，足够我们上传用户头像的使用了</p>
+</blockquote>
+<p><strong>点击0元试用，开通服务</strong></p>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200805201750662-1696348781168-245.png" alt="image-20200805201750662"></p>
+<p>到这一步，账号的部分就操作完毕，接下来，我们需要来创建一个存储图片的存储桶</p>
+<p>登录 <a href="https://console.cloud.tencent.com/cos5">对象存储控制台</a> ，<a href="https://cloud.tencent.com/document/product/436/13309">创建存储桶</a>。设置存储桶的权限为 <strong><code>公有读，私有写</code></strong></p>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200806135409338-1696348781168-246.png" alt="image-20200806135409338"></p>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200916231600661-1696348781168-247.png" alt="image-20200916231600661"></p>
+<p>设置cors规则</p>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200916231949174-1696348781168-248.png" alt="image-20200916231949174"></p>
+<p>AllowHeader 需配成<code>*</code>，如下图所示。</p>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200805211749522-1696348781168-249.png" alt="image-20200805211749522"></p>
+<blockquote>
+<p>因为我们本身没有域名，所以这里设置成**<code>*</code>**，仅限于测试，正式环境的话，这里需要配置真实的域名地址</p>
+</blockquote>
+<p>到这里，我们的腾讯云存储桶就设置好了。</p>
+<h2 id="封装上传图片组件-上传组件需求分析"><a href="#封装上传图片组件-上传组件需求分析" class="headerlink" title="封装上传图片组件-上传组件需求分析"></a>封装上传图片组件-上传组件需求分析</h2><p><strong><code>目标</code></strong> 梳理整个的上传过程</p>
+<p><strong>初始化cos对象参数</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">名称</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">SecretId</td>
+<td align="left">开发者拥有的项目身份识别 ID，用以身份认证，可在 <a href="https://console.cloud.tencent.com/capi">API 密钥管理</a> 页面获取</td>
+</tr>
+<tr>
+<td align="left">SecretKey</td>
+<td align="left">开发者拥有的项目身份密钥，可在 <a href="https://console.cloud.tencent.com/capi">API 密钥管理</a> 页面获取</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>注意，上述的参数我们在本次开发过程中，直接将参数放置在前端代码中存储，但是腾讯云本身是不建议这么做的，因为**<code>敏感信息</code>**放在前端很容易被捕获，由于我们本次是测试研发，所以这个过程可以忽略</p>
+<p>正确的做法应该是，通过网站调用接口换取敏感信息</p>
+</blockquote>
+<p><a href="https://cloud.tencent.com/document/product/436/11459">相关文档</a></p>
+<p>实例化 上传sdk</p>
+<pre><code class="js">var cos = new COS({
+    SecretId: &#39;COS_SECRETID&#39;, // 身份识别 ID
+    SecretKey: &#39;COS_SECRETKEY&#39;, // 身份密钥
+});
+</code></pre>
+<blockquote>
+<p>到目前为止，我们上传图片准备的内容就已经OK，接下来，我们在**<code>src/componets</code>** 新建一个**<code>ImageUpload</code>** 组件</p>
+</blockquote>
+<p>该组件需要满足什么要求呢？</p>
+<ol>
+<li>可以显示传入的图片地址</li>
+<li>可以删除传入的图片地址</li>
+<li>可以上传图片到云服务器</li>
+<li>上传到腾讯云之后，可以返回图片地址，显示  </li>
+<li>上传成功之后，可以回调成功函数</li>
+</ol>
+<p>这个上传组件简单吗？</p>
+<p><strong><code>no ! ! !</code></strong></p>
+<p>看似需求很明确，但是它真正的实现很复杂，我们通过一个图来看一下</p>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200806174643390-1696348781168-250.png" alt="image-20200806174643390"></p>
+<p>从上图中，我们可以看到，实际上是有两种场景的，本地场景和已经上传的场景</p>
+<p>下个章节，针对这个场景我们进行开发</p>
+<h2 id="封装上传组件-代码实现"><a href="#封装上传组件-代码实现" class="headerlink" title="封装上传组件-代码实现"></a>封装上传组件-代码实现</h2><p>**<code>目标</code>**实现上传组件的代码部分</p>
+<blockquote>
+<p>JavaScript SDK 需浏览器支持基本的 HTML5 特性（支持 IE10 以上浏览器），以便支持 ajax 上传文件和计算文件 MD5 值。</p>
+</blockquote>
+<h3 id="新建文件上传组件"><a href="#新建文件上传组件" class="headerlink" title="新建文件上传组件"></a>新建文件上传组件</h3><p><strong>安装JavaScript SDK</strong></p>
+<pre><code class="bash">$ npm i cos-js-sdk-v5 --save
+</code></pre>
+<p><strong>新建上传图片组件</strong> <strong><code>src/components/ImageUpload/index.vue</code></strong></p>
+<blockquote>
+<p>上传组件，我们可以沿用element的el-upload组件,并且采用照片墙的模式 <strong><code>list-type=&quot;picture-card&quot;</code></strong></p>
+</blockquote>
+<p><strong>放置el-upload组件</strong></p>
+<pre><code class="vue">&lt;template&gt;
+  &lt;el-upload list-type=&quot;picture-card&quot;&gt;
+     &lt;i class=&quot;el-icon-plus&quot; /&gt;
+  &lt;/el-upload&gt;
+&lt;/template&gt;
+</code></pre>
+<p><strong>全局注册组件</strong></p>
+<pre><code class="js">import PageTools from &#39;./PageTools&#39;
+import UploadExcel from &#39;./UploadExcel&#39;
+import ImageUpload from &#39;./ImageUpload&#39;
+export default {
+  install(Vue) {
+    Vue.component(&#39;PageTools&#39;, PageTools) // 注册工具栏组件
+    Vue.component(&#39;UploadExcel&#39;, UploadExcel) // 注册导入excel组件
+    Vue.component(&#39;ImageUpload&#39;, ImageUpload) // 注册导入上传组件
+  }
+}
+</code></pre>
+<h3 id="点击图片进行预览"><a href="#点击图片进行预览" class="headerlink" title="点击图片进行预览"></a>点击图片进行预览</h3><p><strong>限定上传的图片数量和action</strong></p>
+<pre><code class="vue">&lt;template&gt;
+  &lt;el-upload list-type=&quot;picture-card&quot; :limit=&quot;1&quot; action=&quot;#&quot;&gt;
+  &lt;/el-upload&gt;
+&lt;/template&gt;
+</code></pre>
+<blockquote>
+<p>action为什么给#， 因为前面我们讲过了，我们要上传到腾讯云，需要自定义的上传方式,action给个#防止报错</p>
+</blockquote>
+<p><strong>预览</strong></p>
+<pre><code class="js">data() {
+    return {
+      fileList: [], // 图片地址设置为数组 
+      showDialog: false, // 控制显示弹层
+      imgUrl: &#39;&#39;
+    }
+  },
+</code></pre>
+<pre><code class="js">     preview(file) {
+      // 这里应该弹出一个层 层里是点击的图片地址
+      this.imgUrl = file.url
+      this.showDialog = true
+  },  
+</code></pre>
+<p><strong>预览弹层</strong></p>
+<pre><code class="vue">  &lt;el-dialog title=&quot;图片&quot; :visible.sync=&quot;showDialog&quot;&gt;
+      &lt;img :src=&quot;imgUrl&quot; style=&quot;width:100%&quot; alt=&quot;&quot;&gt;
+   &lt;/el-dialog&gt;
+</code></pre>
+<h3 id="根据上传数量控制上传按钮"><a href="#根据上传数量控制上传按钮" class="headerlink" title="根据上传数量控制上传按钮"></a>根据上传数量控制上传按钮</h3><p><strong>控制上传显示</strong></p>
+<pre><code class="js"> computed: {
+    // 设定一个计算属性 判断是否已经上传完了一张
+    fileComputed() {
+      return this.fileList.length === 1
+    }
+  },
+</code></pre>
+<pre><code class="css"> &lt;el-upload
+      :on-preview=&quot;preview&quot;
+      :on-remove=&quot;handleRemove&quot;
+      :on-change=&quot;changeFile&quot;
+      :file-list=&quot;fileList&quot;
+      list-type=&quot;picture-card&quot;
+      action=&quot;#&quot;
+      :limit=&quot;1&quot;
+      :class=&quot;{disabled: fileComputed }&quot;
+    &gt;
+
+&lt;style&gt;
+.disabled .el-upload--picture-card {
+  display: none
+}
+&lt;/style&gt;
+</code></pre>
+<h3 id="删除图片和添加图片"><a href="#删除图片和添加图片" class="headerlink" title="删除图片和添加图片"></a>删除图片和添加图片</h3><p><strong>删除文件</strong></p>
+<pre><code class="js">     handleRemove(file) {
+      // file是点击删除的文件
+    //   将原来的文件给排除掉了 剩下的就是最新的数组了
+      this.fileList = this.fileList.filter(item =&gt; item.uid !== file.uid)
+    },
+</code></pre>
+<p><strong>添加文件</strong></p>
+<pre><code class="js">    // 修改文件时触发
+    // 此时可以用fileList 因为该方法会进来很多遍 不能每次都去push
+    // fileList因为fileList参数是当前传进来的最新参数 我们只需要将其转化成数组即可 需要转化成一个新的数组
+    // [] =&gt; [...fileList] [] =&gt; fileList.map()
+    // 上传成功之后 还会进来 需要实现上传代码的逻辑 这里才会成功
+    changeFile(file, fileList) {
+      this.fileList = fileList.map(item =&gt; item)
+    }
+</code></pre>
+<h3 id="上传之前检查"><a href="#上传之前检查" class="headerlink" title="上传之前检查"></a>上传之前检查</h3><blockquote>
+<p>控制上传图片的类型和上传大小， 如果不满足条件 返回false上传就会停止</p>
+</blockquote>
+<pre><code class="js">    beforeUpload(file) {
+      // 要开始做文件上传的检查了
+      // 文件类型 文件大小
+      const types = [&#39;image/jpeg&#39;, &#39;image/gif&#39;, &#39;image/bmp&#39;, &#39;image/png&#39;]
+      if (!types.includes(file.type)) {
+        this.$message.error(&#39;上传图片只能是 JPG、GIF、BMP、PNG 格式!&#39;)
+        return false
+      }
+      //  检查大小
+      const maxSize = 5 * 1024 * 1024
+      if (maxSize &lt; file.size) {
+        this.$message.error(&#39;图片大小最大不能超过5M&#39;)
+        return false
+      }
+      return true
+    }
+</code></pre>
+<h3 id="上传动作调用上传腾讯云"><a href="#上传动作调用上传腾讯云" class="headerlink" title="上传动作调用上传腾讯云"></a>上传动作调用上传腾讯云</h3><p><strong>上传动作为el-upload的http-request属性</strong></p>
+<pre><code class="js"> :http-request=&quot;upload&quot;
+
+    // 自定义上传动作 有个参数 有个file对象，是我们需要上传到腾讯云服务器的内容
+    upload(params) {
+      console.log(params.file)
+    }
+</code></pre>
+<blockquote>
+<p>我们需要在该方法中，调用腾讯云的上传方法</p>
+</blockquote>
+<p><a href="https://cloud.tencent.com/document/product/436/35649#.E7.AE.80.E5.8D.95.E4.B8.8A.E4.BC.A0.E5.AF.B9.E8.B1.A1">腾讯云文档地址</a></p>
+<p>身份ID和密钥可以通过腾讯云平台获取</p>
+<p>登录 <a href="https://console.cloud.tencent.com/capi">访问管理控制台</a> ，获取您的项目 SecretId 和 SecretKey。</p>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200805211539544-1696348781168-251.png" alt="image-20200805211539544"></p>
+<p>实现代码</p>
+<pre><code class="js">    // 进行上传操作
+    upload(params) {
+    //   console.log(params.file)
+      if (params.file) {
+        // 执行上传操作
+        cos.putObject({
+          Bucket: &#39;shuiruohanyu-106-1302806742&#39;, // 存储桶
+          Region: &#39;ap-beijing&#39;, // 地域
+          Key: params.file.name, // 文件名
+          Body: params.file, // 要上传的文件对象
+          StorageClass: &#39;STANDARD&#39; // 上传的模式类型 直接默认 标准模式即可
+          // 上传到腾讯云 =》 哪个存储桶 哪个地域的存储桶 文件  格式  名称 回调
+        }, function(err, data) {
+          // data返回数据之后 应该如何处理
+          console.log(err || data)
+        })
+      }
+    }
+</code></pre>
+<h3 id="上传成功之后处理返回数据"><a href="#上传成功之后处理返回数据" class="headerlink" title="上传成功之后处理返回数据"></a>上传成功之后处理返回数据</h3><blockquote>
+<p>如何处理返回成功的返回数据</p>
+</blockquote>
+<p>确定要上传记录id</p>
+<pre><code class="js">  beforeUpload(file) {
+      //   先检查文件类型
+      const types = [&#39;image/jpeg&#39;, &#39;image/gif&#39;, &#39;image/bmp&#39;, &#39;image/png&#39;]
+      if (!types.some(item =&gt; item === file.type)) {
+        //   如果不存在
+        this.$message.error(&#39;上传图片只能是 JPG、GIF、BMP、PNG 格式!&#39;)
+        return false // 上传终止
+      }
+      // 检查文件大小  5M 1M = 1024KB 1KB = 1024B
+      const maxSize = 5 * 1024 * 1024
+      if (file.size &gt; maxSize) {
+        //   超过了限制的文件大小
+        this.$message.error(&#39;上传的图片大小不能大于5M&#39;)
+        return false
+      }
+      //   已经确定当前上传的就是当前的这个file了
+      this.currentFileUid = file.uid
+      return true // 最后一定要return  true
+    },
+</code></pre>
+<blockquote>
+<p>处理返回数据</p>
+</blockquote>
+<pre><code class="js">    // 进行上传操作
+    upload(params) {
+    //   console.log(params.file)
+      if (params.file) {
+        // 执行上传操作
+        cos.putObject({
+          Bucket: &#39;shuiruohanyu-106-1302806742&#39;, // 存储桶
+          Region: &#39;ap-beijing&#39;, // 地域
+          Key: params.file.name, // 文件名
+          Body: params.file, // 要上传的文件对象
+          StorageClass: &#39;STANDARD&#39; // 上传的模式类型 直接默认 标准模式即可
+          // 上传到腾讯云 =》 哪个存储桶 哪个地域的存储桶 文件  格式  名称 回调
+        }, (err, data) =&gt; {
+          // data返回数据之后 应该如何处理
+          console.log(err || data)
+          // data中有一个statusCode === 200 的时候说明上传成功
+          if (!err &amp;&amp; data.statusCode === 200) {
+            //   此时说明文件上传成功  要获取成功的返回地址
+            // fileList才能显示到上传组件上 此时我们要将fileList中的数据的url地址变成 现在上传成功的地址
+            // 目前虽然是一张图片 但是请注意 我们的fileList是一个数组
+            // 需要知道当前上传成功的是哪一张图片
+            this.fileList = this.fileList.map(item =&gt; {
+              // 去找谁的uid等于刚刚记录下来的id
+              if (item.uid === this.currentFileUid) {
+                // 将成功的地址赋值给原来的url属性
+                return { url: &#39;http://&#39; + data.Location, upload: true }
+                // upload 为true 表示这张图片已经上传完毕 这个属性要为我们后期应用的时候做标记
+                // 保存  =&gt; 图片有大有小 =&gt; 上传速度有快又慢 =&gt;要根据有没有upload这个标记来决定是否去保存
+              }
+              return item
+            })
+            // 将上传成功的地址 回写到了fileList中 fileList变化  =》 upload组件 就会根据fileList的变化而去渲染视图
+          }
+        })
+      }
+    }
+</code></pre>
+<blockquote>
+<p>我们在fileList中设置了属性为upload为true的属性，表示该图片已经上传成功了，如果fileList还有upload不为true的数据，那就表示该图片还没有上传完毕</p>
+</blockquote>
+<h3 id="上传的进度条显示"><a href="#上传的进度条显示" class="headerlink" title="上传的进度条显示"></a>上传的进度条显示</h3><blockquote>
+<p>为了再上传图片过程中显示进度条，我们可以使用element-ui的进度条显示当前的上传进度</p>
+</blockquote>
+<p><strong>放置进度条</strong></p>
+<pre><code class="vue"> &lt;el-progress v-if=&quot;showPercent&quot; style=&quot;width: 180px&quot; :percentage=&quot;percent&quot; /&gt;
+</code></pre>
+<p><strong>通过腾讯云sdk监听上传进度</strong></p>
+<pre><code class="js"> cos.putObject({
+          // 配置
+          Bucket: &#39;laogao-1302806742&#39;, // 存储桶名称
+          Region: &#39;ap-guangzhou&#39;, // 存储桶地域
+          Key: params.file.name, // 文件名作为key
+          StorageClass: &#39;STANDARD&#39;, // 此类写死
+          Body: params.file, // 将本地的文件赋值给腾讯云配置
+          // 进度条
+          onProgress: (params) =&gt; {
+            this.percent = params.percent * 100
+          }
+        }
+</code></pre>
+<p><strong>完整代码</strong></p>
+<pre><code class="vue">&lt;template&gt;
+  &lt;div&gt;
+    &lt;!-- 放置一个上传组件 --&gt;
+    &lt;!-- action这里不写上传地址 因为我们是调用腾讯云cos 不是一个地址可以搞定的 要用自定义的上传 --&gt;
+    &lt;el-upload
+      :on-preview=&quot;preview&quot;
+      :on-remove=&quot;handleRemove&quot;
+      :on-change=&quot;changeFile&quot;
+      :before-upload=&quot;beforeUpload&quot;
+      :file-list=&quot;fileList&quot;
+      :http-request=&quot;upload&quot;
+      list-type=&quot;picture-card&quot;
+      action=&quot;#&quot;
+      :limit=&quot;1&quot;
+      :class=&quot;{disabled: fileComputed }&quot;
+    &gt;
+      &lt;i class=&quot;el-icon-plus&quot; /&gt;
+    &lt;/el-upload&gt;
+    &lt;!-- 进度条 --&gt;
+    &lt;el-progress v-if=&quot;showPercent&quot; style=&quot;width: 180px&quot; :percentage=&quot;percent&quot; /&gt;
+    &lt;!-- 放置一个弹层 --&gt;
+    &lt;!-- sync修饰符自动将弹层关闭了 --&gt;
+    &lt;el-dialog title=&quot;图片&quot; :visible.sync=&quot;showDialog&quot;&gt;
+      &lt;img :src=&quot;imgUrl&quot; style=&quot;width:100%&quot; alt=&quot;&quot;&gt;
+    &lt;/el-dialog&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+import COS from &#39;cos-js-sdk-v5&#39; // 引入腾讯云的包
+// 需要实例化
+const cos = new COS({
+  SecretId: &#39;AKID0mqfEWqlUzIbeSkGRL6c7ML6c0B93To9&#39;,
+  SecretKey: &#39;JFwNZdeRF2iOp03FFsGNDm44vWFitmNF&#39;
+}) // 实例化的包 已经具有了上传的能力 可以上传到该账号里面的存储桶了
+export default {
+  data() {
+    return {
+      fileList: [],
+      showDialog: false, // 控制图片的显示或者隐藏
+      imgUrl: &#39;&#39;, // 存储点击的图片地址
+      currentFileUid: &#39;&#39;, // 用一个变量 记住当前上传的图片id
+      percent: 0,
+      showPercent: false // 默认不显示进度条
+    }
+  },
+  computed: {
+    // 设定一个计算属性 判断是否已经上传完了一张
+    fileComputed() {
+      return this.fileList.length === 1
+    }
+  },
+  methods: {
+    preview(file) {
+      // 这里应该弹出一个层 层里是点击的图片地址
+      this.imgUrl = file.url
+      this.showDialog = true
+    },
+    handleRemove(file) {
+      // file是点击删除的文件
+    //   将原来的文件给排除掉了 剩下的就是最新的数组了
+      this.fileList = this.fileList.filter(item =&gt; item.uid !== file.uid)
+    },
+    // 修改文件时触发
+    // 此时可以用fileList 因为该方法会进来很多遍 不能每次都去push
+    // fileList因为fileList参数是当前传进来的最新参数 我们只需要将其转化成数组即可 需要转化成一个新的数组
+    // [] =&gt; [...fileList] [] =&gt; fileList.map()
+    // 上传成功之后 还会进来 需要实现上传代码的逻辑 这里才会成功
+    changeFile(file, fileList) {
+      this.fileList = fileList.map(item =&gt; item)
+    },
+    beforeUpload(file) {
+      // 要开始做文件上传的检查了
+      // 文件类型 文件大小
+      const types = [&#39;image/jpeg&#39;, &#39;image/gif&#39;, &#39;image/bmp&#39;, &#39;image/png&#39;]
+      if (!types.includes(file.type)) {
+        this.$message.error(&#39;上传图片只能是 JPG、GIF、BMP、PNG 格式!&#39;)
+        return false
+      }
+      //  检查大小
+      const maxSize = 5 * 1024 * 1024
+      if (maxSize &lt; file.size) {
+        this.$message.error(&#39;图片大小最大不能超过5M&#39;)
+        return false
+      }
+      // file.uid
+      this.currentFileUid = file.uid // 记住当前的uid
+      this.showPercent = true
+      return true
+    },
+    // 自定义上传动作 有个参数 有个file对象，是我们需要上传到腾讯云服务器的内容
+    upload(params) {
+      if (params.file) {
+        //  上传文件到腾讯云
+        cos.putObject({
+          // 配置
+          Bucket: &#39;laogao-1302806742&#39;, // 存储桶名称
+          Region: &#39;ap-guangzhou&#39;, // 存储桶地域
+          Key: params.file.name, // 文件名作为key
+          StorageClass: &#39;STANDARD&#39;, // 此类写死
+          Body: params.file, // 将本地的文件赋值给腾讯云配置
+          // 进度条
+          onProgress: (params) =&gt; {
+            this.percent = params.percent * 100
+          }
+        }, (err, data) =&gt; {
+          // 需要判断错误与成功
+          if (!err &amp;&amp; data.statusCode === 200) {
+            // 如果没有失败表示成功了
+            // 此时认为上传成功了
+            // this.currentFileUid
+            // 仍然有个小问题， 比如此时我们正在上传，但是调用了保存，保存在上传过程中进行，
+            // 此时上传还没有完成  此时可以这样做 ： 给所有上传成功的图片 加一个属性 upload: true
+            this.fileList = this.fileList.map(item =&gt; {
+              if (item.uid === this.currentFileUid) {
+                //   upload为true表示 该图片已经成功上传到服务器，地址已经是腾讯云的地址了  就不可以执行保存了
+                return { url: &#39;http://&#39; + data.Location, upload: true } // 将本地的地址换成腾讯云地址
+              }
+              return item
+            })
+            setTimeout(() =&gt; {
+              this.showPercent = false // 隐藏进度条
+              this.percent = 0 // 进度归0
+            }, 2000)
+
+            // 将腾讯云地址写入到fileList上 ，保存的时候 就可以从fileList中直接获取图片地址
+
+            // 此时注意，我们应该记住 当前上传的是哪个图片  上传成功之后，将图片的地址赋值回去
+          }
+        })
+      }
+    }
+  }
+}
+&lt;/script&gt;
+
+&lt;style&gt;
+.disabled .el-upload--picture-card {
+  display: none
+}
+&lt;/style&gt;
+</code></pre>
+<blockquote>
+<p>上传动作中，用到了上个小节中，我们注册的腾讯云cos的**<code>存储桶名称</code><strong>和</strong><code>地域名称</code>**</p>
+</blockquote>
+<p>通过上面的代码，我们会发现，我们把上传之后的图片信息都给了**<code>fileList数据</code><strong>，那么在应用时，就可以直接获取该实例的</strong><code>fileList数据即可</code>**</p>
+<p><strong>提交代码</strong></p>
+<p><strong><code>本节任务</code></strong> 完成上传组件的封装</p>
+<h2 id="在员工详情中应用上传组件"><a href="#在员工详情中应用上传组件" class="headerlink" title="在员工详情中应用上传组件"></a>在员工详情中应用上传组件</h2><p>**<code>目标</code>**：应用封装好的上传组件</p>
+<h3 id="将员工的头像和证件照赋值给上传组件"><a href="#将员工的头像和证件照赋值给上传组件" class="headerlink" title="将员工的头像和证件照赋值给上传组件"></a>将员工的头像和证件照赋值给上传组件</h3><p>在**<code>user-info.vue</code>**中放置上传组件</p>
+<p><strong>员工头像</strong></p>
+<pre><code class="vue">  &lt;!-- 员工照片 --&gt;
+      &lt;el-row class=&quot;inline-info&quot;&gt;
+        &lt;el-col :span=&quot;12&quot;&gt;
+          &lt;el-form-item label=&quot;员工头像&quot;&gt;
+            &lt;!-- 放置上传图片 --&gt;
+            &lt;image-upload ref=&quot;staffPhoto&quot; /&gt;
+          &lt;/el-form-item&gt;
+        &lt;/el-col&gt;
+      &lt;/el-row&gt;
+</code></pre>
+<p><strong>读取时赋值头像</strong></p>
+<pre><code class="js"> // 读取上半部分的内容
+    async getUserDetailById() {
+      this.userInfo = await getUserDetailById(this.userId)
+      if (this.userInfo.staffPhoto) {
+        // 这里我们赋值，同时需要给赋值的地址一个标记 upload: true
+        this.$refs.staffPhoto.fileList = [{ url: this.userInfo.staffPhoto, upload: true }]
+      }
+    },
+</code></pre>
+<p><strong>员工证件照</strong></p>
+<pre><code class="vue">  &lt;el-form-item label=&quot;员工照片&quot;&gt;
+          &lt;!-- 放置上传图片 --&gt;
+          &lt;!-- ref不要重名 --&gt;
+          &lt;image-upload ref=&quot;myStaffPhoto&quot; /&gt;
+        &lt;/el-form-item&gt;
+</code></pre>
+<p><strong>读取时赋值照片</strong></p>
+<pre><code class="js"> // 读取下半部分内容
+    async  getPersonalDetail() {
+      this.formData = await getPersonalDetail(this.userId)
+      if (this.formData.staffPhoto) {
+        this.$refs.myStaffPhoto.fileList = [{ url: this.formData.staffPhoto, upload: true }]
+      }
+    },
+</code></pre>
+<h3 id="保存时处理头像和证件照的保存"><a href="#保存时处理头像和证件照的保存" class="headerlink" title="保存时处理头像和证件照的保存"></a>保存时处理头像和证件照的保存</h3><p><strong>当点击保存更新时，获取图片的内容</strong></p>
+<pre><code class="js">  async  saveUser() {
+      // 去读取 员工上传的头像
+      const fileList = this.$refs.staffPhoto.fileList // 读取上传组件的数据
+      if (fileList.some(item =&gt; !item.upload)) {
+        //  如果此时去找 upload为false的图片 找到了说明 有图片还没有上传完成
+        this.$message.warning(&#39;您当前还有图片没有上传完成！&#39;)
+        return
+      }
+      // 通过合并 得到一个新对象
+      await saveUserDetailById({ ...this.userInfo, staffPhoto: fileList &amp;&amp; fileList.length ? fileList[0].url : &#39;&#39; })
+      this.$message.success(&#39;保存基本信息成功&#39;)
+    },
+</code></pre>
+<blockquote>
+<p>上面代码中，upload如果为true，表示该图片已经完成上传，以此来判断图片是否已经上传完成</p>
+</blockquote>
+<p><strong>保存时读取头像</strong></p>
+<pre><code class="js">   async savePersonal() {
+      const fileList = this.$refs.myStaffPhoto.fileList
+      if (fileList.some(item =&gt; !item.upload)) {
+        //  如果此时去找 upload为false的图片 找到了说明 有图片还没有上传完成
+        this.$message.warning(&#39;您当前还有图片没有上传完成！&#39;)
+        return
+      }
+      await updatePersonal({ ...this.formData, staffPhoto: fileList &amp;&amp; fileList.length ? fileList[0].url : &#39;&#39; })
+      this.$message.success(&#39;保存基础信息成功&#39;)
+    }
+</code></pre>
+<p><strong>提交代码</strong></p>
+<p><strong><code>本节任务</code></strong> ： 在员工详情中应用上传组件</p>
+<h2 id="员工列表显示图片"><a href="#员工列表显示图片" class="headerlink" title="员工列表显示图片"></a>员工列表显示图片</h2><p>**<code>目标</code>**：在员工列表中心显示图片</p>
+<blockquote>
+<p>员工的头像可以在列表项中添加一列来进行显示</p>
+</blockquote>
+<pre><code class="vue">&lt;el-table-column label=&quot;头像&quot; align=&quot;center&quot;&gt;
+            &lt;template slot-scope=&quot;{row}&quot;&gt;
+              &lt;img
+                slot=&quot;reference&quot;
+                v-imageerror=&quot;require(&#39;@/assets/common/bigUserHeader.png&#39;)&quot;
+                :src=&quot;row.staffPhoto &quot;
+                style=&quot;border-radius: 50%; width: 100px; height: 100px; padding: 10px&quot;
+                alt=&quot;&quot;
+              &gt;
+            &lt;/template&gt;
+&lt;/el-table-column&gt;
+</code></pre>
+<blockquote>
+<p>我们尝试用之前的指令来处理图片的异常问题，但是发现只有两三张图片能显示</p>
+</blockquote>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20201028172654637-1696348781168-252.png" alt="image-20201028172654637"></p>
+<blockquote>
+<p>这是因为有的员工的头像的地址为空，给img赋值空的src不能触发错误事件，针对这一特点，我们需要对指令进行升级</p>
+</blockquote>
+<p>插入节点的钩子里面判断空， 然后在组件更新之后的钩子中同样判断空</p>
+<pre><code class="js">export const imageerror = {
+  inserted(dom, options) {
+    //   图片异常的逻辑
+    //  监听img标签的错误事件  因为图片加载失败 会触发  onerror事件
+    dom.src = dom.src || options.value
+
+    dom.onerror = function() {
+      // 图片失败  赋值一个默认的图片
+      dom.src = options.value
+    }
+  },
+  componentUpdated(dom, options) {
+    dom.src = dom.src || options.value
+  }
+}
+</code></pre>
+<p>这样我们可以看到每个用户的头像了，如果没有头像则显示默认图片</p>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20201028173333103-1696348781168-253.png" alt="image-20201028173333103"></p>
+<p>**<code>任务</code>**：员工列表显示图片</p>
+<h2 id="图片地址生成二维码"><a href="#图片地址生成二维码" class="headerlink" title="图片地址生成二维码"></a>图片地址生成二维码</h2><p><strong><code>目标</code></strong> 将图片地址生成二维码显示</p>
+<blockquote>
+<p>我们想完成这样一个功能，当我们拥有头像地址时，将头像地址生成一个二维码，用手机扫码来访问</p>
+</blockquote>
+<p>首先，需要安装生成二维码的插件</p>
+<pre><code class="bash">$ npm i qrcode
+</code></pre>
+<blockquote>
+<p>qrcode的用法是</p>
+</blockquote>
+<pre><code class="js">QrCode.toCanvas(dom, info)
+</code></pre>
+<blockquote>
+<p>dom为一个canvas的dom对象， info为转化二维码的信息</p>
+</blockquote>
+<p>我们尝试将canvas标签放到dialog的弹层中</p>
+<pre><code class="vue">    &lt;el-dialog title=&quot;二维码&quot; :visible.sync=&quot;showCodeDialog&quot; @opened=&quot;showQrCode&quot; @close=&quot;imgUrl=&#39;&#39;&quot;&gt;
+      &lt;el-row type=&quot;flex&quot; justify=&quot;center&quot;&gt;
+        &lt;canvas ref=&quot;myCanvas&quot; /&gt;
+      &lt;/el-row&gt;
+    &lt;/el-dialog&gt;
+</code></pre>
+<p>在点击员工的图片时，显示弹层，并将图片地址转化成二维码</p>
+<pre><code class="js">    showQrCode(url) {
+      // url存在的情况下 才弹出层
+      if (url) {
+        this.showCodeDialog = true // 数据更新了 但是我的弹层会立刻出现吗 ？页面的渲染是异步的！！！！
+        // 有一个方法可以在上一次数据更新完毕，页面渲染完毕之后
+        this.$nextTick(() =&gt; {
+          // 此时可以确认已经有ref对象了
+          QrCode.toCanvas(this.$refs.myCanvas, url) // 将地址转化成二维码
+          // 如果转化的二维码后面信息 是一个地址的话 就会跳转到该地址 如果不是地址就会显示内容
+        })
+      } else {
+        this.$message.warning(&#39;该用户还未上传头像&#39;)
+      }
+    }
+</code></pre>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20201028180651472-1696348781168-254.png" alt="image-20201028180651472"></p>
+<h2 id="打印员工信息"><a href="#打印员工信息" class="headerlink" title="打印员工信息"></a>打印员工信息</h2><p><strong><code>目标</code></strong> 完成个人信息和工作信息的打印功能</p>
+<h3 id="新建打印页面及路由"><a href="#新建打印页面及路由" class="headerlink" title="新建打印页面及路由"></a>新建打印页面及路由</h3><p><strong>创建页面组件</strong></p>
+<pre><code class="vue">&lt;template&gt;
+  &lt;div class=&quot;dashboard-container&quot; id=&quot;myPrint&quot;&gt;
+    &lt;div class=&quot;app-container&quot;&gt;
+      &lt;el-card&gt;
+        &lt;el-breadcrumb separator=&quot;/&quot; class=&quot;titInfo &quot;&gt;
+          &lt;el-breadcrumb-item :to=&quot;{ path: &#39;/&#39; }&quot;&gt;首页&lt;/el-breadcrumb-item&gt;
+          &lt;el-breadcrumb-item&gt;
+            &lt;router-link :to=&quot;{&#39;path&#39;:&#39;/employees&#39;}&quot;&gt;员工管理&lt;/router-link&gt;
+          &lt;/el-breadcrumb-item&gt;
+          &lt;el-breadcrumb-item&gt;打印&lt;/el-breadcrumb-item&gt;
+        &lt;/el-breadcrumb&gt;
+        &lt;div v-if=&quot;type === &#39;personal&#39;&quot;&gt;
+          &lt;h2 class=&quot;centInfo&quot;&gt;员工信息表&lt;/h2&gt;
+          &lt;table cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;tableList&quot;&gt;
+            &lt;tr class=&quot;title&quot;&gt;
+              &lt;td colspan=&quot;8&quot; class=&quot;centInfo&quot;&gt;基本信息&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th style=&quot;width:10%&quot;&gt;姓名&lt;/th&gt;
+              &lt;td colspan=&quot;6&quot; style=&quot;width:80%&quot;&gt;{{ formData.username }}&lt;/td&gt;
+              &lt;td rowspan=&quot;5&quot; style=&quot;width:10%&quot;&gt;&lt;img style=&quot;width:155px;height:218px&quot; :src=&quot;formData.staffPhoto&quot;&gt;&lt;/td&gt;
+
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;性别&lt;/th&gt;
+              &lt;td colspan=&quot;6&quot;&gt;{{ formData.sex }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;手机&lt;/th&gt;
+              &lt;td colspan=&quot;6&quot;&gt;{{ formData.mobile }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;出生日期&lt;/th&gt;
+              &lt;td colspan=&quot;6&quot;&gt;{{ formData.dateOfBirth | formatDate }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;最高学历&lt;/th&gt;
+              &lt;td colspan=&quot;6&quot;&gt;{{ formData.theHighestDegreeOfEducation }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th style=&quot;width:10%&quot;&gt;是否可编辑&lt;/th&gt;
+              &lt;td style=&quot;width:35%&quot;&gt;{{ formData.isItEditable }}&lt;/td&gt;
+              &lt;th style=&quot;width:10%&quot;&gt;是否隐藏号码&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot; style=&quot;width:45%&quot;&gt;{{ formData.doYouHideNumbers }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;国家地区&lt;/th&gt;
+              &lt;td&gt;{{ formData.nationalArea }}&lt;/td&gt;
+              &lt;th&gt;护照号&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.passportNo }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;身份证号&lt;/th&gt;
+              &lt;td&gt;{{ formData.idNumber }}&lt;/td&gt;
+              &lt;th&gt;身份证照片&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.iDCardPhoto }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;籍贯&lt;/th&gt;
+              &lt;td&gt;{{ formData.nativePlace }}&lt;/td&gt;
+              &lt;th&gt;民族&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.nation }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;英文名&lt;/th&gt;
+              &lt;td&gt;{{ formData.englishName }}&lt;/td&gt;
+              &lt;th&gt;婚姻状况&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.maritalStatus }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;员工照片&lt;/th&gt;
+              &lt;td&gt;{{ formData.staffPhoto }}&lt;/td&gt;
+              &lt;th&gt;生日&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.birthday }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;属相&lt;/th&gt;
+              &lt;td&gt;{{ formData.zodiac }}&lt;/td&gt;
+              &lt;th&gt;年龄&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.age }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;星座&lt;/th&gt;
+              &lt;td&gt;{{ formData.constellation }}&lt;/td&gt;
+              &lt;th&gt;血型&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.bloodType }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;户籍所在地&lt;/th&gt;
+              &lt;td&gt;{{ formData.domicile }}&lt;/td&gt;
+              &lt;th&gt;政治面貌&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.politicalOutlook }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;入党时间&lt;/th&gt;
+              &lt;td&gt;{{ formData.timeToJoinTheParty }}&lt;/td&gt;
+              &lt;th&gt;存档机构&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.archivingOrganization }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;子女状态&lt;/th&gt;
+              &lt;td&gt;{{ formData.stateOfChildren }}&lt;/td&gt;
+              &lt;th&gt;子女有无商业保险&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.doChildrenHaveCommercialInsurance }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;有无违法违纪行为&lt;/th&gt;
+              &lt;td&gt;{{ formData.isThereAnyViolationOfLawOrDiscipline }}&lt;/td&gt;
+              &lt;th&gt;有无重大病史&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.areThereAnyMajorMedicalHistories }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr class=&quot;title&quot;&gt;
+              &lt;td colspan=&quot;8&quot; class=&quot;centInfo&quot;&gt;通讯信息&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;QQ&lt;/th&gt;
+              &lt;td&gt;{{ formData.qQ }}&lt;/td&gt;
+              &lt;th&gt;微信&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.weChat }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;居住证城市&lt;/th&gt;
+              &lt;td&gt;{{ formData.residenceCardCity }}&lt;/td&gt;
+              &lt;th&gt;居住证办理日期&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.dateOfResidencePermit }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;居住证截止日期&lt;/th&gt;
+              &lt;td&gt;{{ formData.residencePermitDeadline }}&lt;/td&gt;
+              &lt;th&gt;现居住地&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.placeOfResidence }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;通讯地址&lt;/th&gt;
+              &lt;td&gt;{{ formData.postalAddress }}&lt;/td&gt;
+              &lt;th&gt;联系手机&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.contactTheMobilePhone }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;个人邮箱&lt;/th&gt;
+              &lt;td&gt;{{ formData.personalMailbox }}&lt;/td&gt;
+              &lt;th&gt;紧急联系人&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.emergencyContact }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;紧急联系电话&lt;/th&gt;
+              &lt;td colspan=&quot;7&quot;&gt;{{ formData.emergencyContactNumber }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr class=&quot;title&quot;&gt;
+              &lt;td colspan=&quot;8&quot; class=&quot;centInfo&quot;&gt;账号信息&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;社保电脑号&lt;/th&gt;
+              &lt;td&gt;{{ formData.socialSecurityComputerNumber }}&lt;/td&gt;
+              &lt;th&gt;公积金账号&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.providentFundAccount }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;银行卡号&lt;/th&gt;
+              &lt;td&gt;{{ formData.bankCardNumber }}&lt;/td&gt;
+              &lt;th&gt;开户行&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.openingBank }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr class=&quot;title&quot;&gt;
+              &lt;td colspan=&quot;8&quot; class=&quot;centInfo&quot;&gt;教育信息&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;学历类型&lt;/th&gt;
+              &lt;td&gt;{{ formData.educationalType }}&lt;/td&gt;
+              &lt;th&gt;毕业学校&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.graduateSchool }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;入学时间&lt;/th&gt;
+              &lt;td&gt;{{ formData.enrolmentTime }}&lt;/td&gt;
+              &lt;th&gt;毕业时间&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.graduationTime }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;专业&lt;/th&gt;
+              &lt;td&gt;{{ formData.major }}&lt;/td&gt;
+              &lt;th&gt;毕业证书&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.graduationCertificate }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;学位证书&lt;/th&gt;
+              &lt;td colspan=&quot;7&quot;&gt;{{ formData.certificateOfAcademicDegree }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr class=&quot;title&quot;&gt;
+              &lt;td colspan=&quot;8&quot; class=&quot;centInfo&quot;&gt;从业信息&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;上家公司&lt;/th&gt;
+              &lt;td&gt;{{ formData.homeCompany }}&lt;/td&gt;
+              &lt;th&gt;职称&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.title }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;简历&lt;/th&gt;
+              &lt;td&gt;{{ formData.resume }}&lt;/td&gt;
+              &lt;th&gt;有无竞业限制&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.isThereAnyCompetitionRestriction }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;前公司离职证明&lt;/th&gt;
+              &lt;td&gt;{{ formData.proofOfDepartureOfFormerCompany }}&lt;/td&gt;
+              &lt;th&gt;备注&lt;/th&gt;
+              &lt;td colspan=&quot;5&quot;&gt;{{ formData.remarks }}&lt;/td&gt;
+            &lt;/tr&gt;
+          &lt;/table&gt;
+          &lt;div class=&quot;foot&quot;&gt;签字：___________日期:___________&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div v-else&gt;
+          &lt;h2 class=&quot;centInfo&quot;&gt;岗位信息表&lt;/h2&gt;
+          &lt;table cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;tableList&quot;&gt;
+            &lt;tr class=&quot;title&quot;&gt;
+              &lt;td colspan=&quot;4&quot; class=&quot;centInfo&quot;&gt;基本信息&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th style=&quot;width:10%&quot;&gt;姓名&lt;/th&gt;
+              &lt;td style=&quot;width:40%&quot;&gt;{{ formData.username }}&lt;/td&gt;
+              &lt;th style=&quot;width:10%&quot;&gt;入职日期&lt;/th&gt;
+              &lt;td style=&quot;width:40%&quot;&gt;{{ formData.dateOfEntry }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;部门&lt;/th&gt;
+              &lt;td&gt;{{ formData.departmentName }}&lt;/td&gt;
+              &lt;th&gt;岗位&lt;/th&gt;
+              &lt;td&gt;{{ formData.post }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;工作邮箱&lt;/th&gt;
+              &lt;td&gt;{{ formData.workMailbox }}&lt;/td&gt;
+              &lt;th&gt;工号&lt;/th&gt;
+              &lt;td&gt;{{ formData.workNumber }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;转正日期&lt;/th&gt;
+              &lt;td&gt;{{ formData.dateOfCorrection }}&lt;/td&gt;
+              &lt;th&gt;转正状态&lt;/th&gt;
+              &lt;td&gt;{{ formData.stateOfCorrection }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;职级&lt;/th&gt;
+              &lt;td&gt;{{ formData.rank }}&lt;/td&gt;
+              &lt;th&gt;汇报对象&lt;/th&gt;
+              &lt;td&gt;{{ formData.reportName }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;HRBP&lt;/th&gt;
+              &lt;td&gt;{{ formData.hRBP }}&lt;/td&gt;
+              &lt;th&gt;聘用形式&lt;/th&gt;
+              &lt;td&gt;{{ formData.formOfEmployment }}&lt;/td&gt;
+            &lt;/tr&gt;
+
+            &lt;tr&gt;
+              &lt;th&gt;管理形式&lt;/th&gt;
+              &lt;td&gt;{{ formData.formOfManagement }}&lt;/td&gt;
+              &lt;th&gt;调整司龄&lt;/th&gt;
+              &lt;td&gt;{{ formData.adjustmentAgedays }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;司龄&lt;/th&gt;
+              &lt;td&gt;{{ formData.ageOfDivision }}&lt;/td&gt;
+              &lt;th&gt;首次参加工作时间&lt;/th&gt;
+              &lt;td&gt;{{ formData.workingTimeForTheFirstTime }}&lt;/td&gt;
+            &lt;/tr&gt;
+
+            &lt;tr&gt;
+              &lt;th&gt;调整工龄天&lt;/th&gt;
+              &lt;td&gt;{{ formData.adjustmentOfLengthOfService }}&lt;/td&gt;
+              &lt;th&gt;工龄&lt;/th&gt;
+              &lt;td&gt;{{ formData.workingYears }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;纳税城市&lt;/th&gt;
+              &lt;td&gt;{{ formData.taxableCity }}&lt;/td&gt;
+              &lt;th&gt;转正评价&lt;/th&gt;
+              &lt;td&gt;{{ formData.correctionEvaluation }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr class=&quot;title&quot;&gt;
+              &lt;td colspan=&quot;4&quot; class=&quot;centInfo&quot;&gt;合同信息&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;首次合同开始时间&lt;/th&gt;
+              &lt;td&gt;{{ formData.initialContractStartTime }}&lt;/td&gt;
+              &lt;th&gt;首次合同结束时间&lt;/th&gt;
+              &lt;td&gt;{{ formData.firstContractTerminationTime }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;现合同开始时间&lt;/th&gt;
+              &lt;td&gt;{{ formData.currentContractStartTime }}&lt;/td&gt;
+              &lt;th&gt;现合同结束时间&lt;/th&gt;
+              &lt;td&gt;{{ formData.closingTimeOfCurrentContract }}&lt;/td&gt;
+            &lt;/tr&gt;
+
+            &lt;tr&gt;
+              &lt;th&gt;合同期限&lt;/th&gt;
+              &lt;td&gt;{{ formData.contractPeriod }}&lt;/td&gt;
+              &lt;th&gt;合同文件&lt;/th&gt;
+              &lt;td&gt;{{ formData.contractDocuments }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;续签次数&lt;/th&gt;
+              &lt;td colspan=&quot;3&quot;&gt;{{ formData.renewalNumber }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr class=&quot;title&quot;&gt;
+              &lt;td colspan=&quot;4&quot; class=&quot;centInfo&quot;&gt;招聘信息&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;其他招聘渠道&lt;/th&gt;
+              &lt;td&gt;{{ formData.otherRecruitmentChannels }}&lt;/td&gt;
+              &lt;th&gt;招聘渠道&lt;/th&gt;
+              &lt;td&gt;{{ formData.recruitmentChannels }}&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th&gt;社招校招&lt;/th&gt;
+              &lt;td&gt;{{ formData.socialRecruitment }}&lt;/td&gt;
+              &lt;th&gt;推荐企业人&lt;/th&gt;
+              &lt;td&gt;{{ formData.recommenderBusinessPeople }}&lt;/td&gt;
+            &lt;/tr&gt;
+          &lt;/table&gt;
+          &lt;div class=&quot;foot&quot;&gt;签字：___________日期:___________&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/el-card&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+import { getPersonalDetail, getJobDetail } from &#39;@/api/employees&#39;
+import { getUserDetailById } from &#39;@/api/user&#39;
+export default {
+  data() {
+    return {
+      formData: {},
+      userId: this.$route.params.id,
+      type: this.$route.query.type // 打印类型
+    }
+  },
+  // 创建完毕状态
+  created() {
+    this.type === &#39;personal&#39; ? this.getPersonalDetail() : this.getJobDetail()
+  },
+  // 组件更新
+  methods: {
+    async getPersonalDetail() {
+      this.formData = await getPersonalDetail(this.userId) // 获取个人基本信息
+    },
+    async getJobDetail() {
+      const userInfo = await getUserDetailById(this.userId)
+      const jobInfo = await getJobDetail(this.userId) // 获取个人基本信息
+      this.formData = { ...userInfo, ...jobInfo }
+    }
+  }
+}
+&lt;/script&gt;
+
+&lt;style lang=&quot;scss&quot;&gt;
+.foot {
+  padding: 30px 0;
+  text-align: right;
+}
+&lt;/style&gt;
+
+</code></pre>
+<blockquote>
+<p>该页面内容实际上就是读取个人和详情的接口数据，根据传入的type类型决定显示个人还是岗位</p>
+</blockquote>
+<p>type为**<code>personal</code><strong>时显示个人，为</strong><code>job</code>**时显示岗位</p>
+<p><strong>新建打印页面路由</strong></p>
+<pre><code class="js">{
+    path: &#39;print/:id&#39;, // 二级默认路由
+    component: () =&gt; import(&#39;@/views/employees/print&#39;), // 按需加载
+    hidden: true,
+    meta: {
+      title: &#39;打印&#39;, // 标记当前路由规则的中文名称 后续在做左侧菜单时 使用
+      icon: &#39;people&#39;
+    }
+  }
+</code></pre>
+<p>完成详情到打印的跳转</p>
+<p><strong>个人</strong></p>
+<pre><code class="vue"> &lt;el-row type=&quot;flex&quot; justify=&quot;end&quot;&gt;
+            &lt;el-tooltip content=&quot;打印个人基本信息&quot;&gt;
+                &lt;router-link :to=&quot;`/employees/print/${userId}?type=personal`&quot;&gt;
+                  &lt;i class=&quot;el-icon-printer&quot; /&gt;
+                &lt;/router-link&gt;
+             &lt;/el-tooltip&gt;
+  &lt;/el-row&gt;
+</code></pre>
+<p><strong>岗位</strong></p>
+<pre><code class="vue">  &lt;el-row type=&quot;flex&quot; justify=&quot;end&quot;&gt;
+              &lt;el-tooltip content=&quot;打印岗位信息&quot;&gt;
+                &lt;router-link :to=&quot;`/employees/print/${userId}?type=job`&quot;&gt;
+                  &lt;i class=&quot;el-icon-printer&quot;  /&gt;
+                &lt;/router-link&gt;
+              &lt;/el-tooltip&gt;
+    &lt;/el-row&gt;
+</code></pre>
+<h3 id="利用vue-print-nb进行打印"><a href="#利用vue-print-nb进行打印" class="headerlink" title="利用vue-print-nb进行打印"></a>利用vue-print-nb进行打印</h3><p>首先，打印功能我们借助一个比较流行的插件</p>
+<pre><code class="bash">$ npm i vue-print-nb
+</code></pre>
+<blockquote>
+<p>它的用法是 </p>
+</blockquote>
+<p>首先注册该插件</p>
+<pre><code class="js">import Print from &#39;vue-print-nb&#39;
+Vue.use(Print);
+</code></pre>
+<p>使用v-print指令的方式进行打印</p>
+<pre><code class="vue">  &lt;el-row type=&quot;flex&quot; justify=&quot;end&quot;&gt;
+          &lt;el-button v-print=&quot;printObj&quot; size=&quot;small&quot; type=&quot;primary&quot;&gt;打印&lt;/el-button&gt;
+   &lt;/el-row&gt;
+   printObj: {
+        id: &#39;myPrint&#39;
+   }
+</code></pre>
+<p>最终，我们看到的效果</p>
+<p><img src="/./08_%E5%91%98%E5%B7%A5%E7%AE%A1%E7%90%86/image-20200728013006535-1696348781168-255.png" alt="image-20200728013006535"></p>
+<p><strong>提交代码</strong></p>
+<p>**<code>本节任务</code>**打印员工信息</p>

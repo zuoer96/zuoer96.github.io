@@ -1,0 +1,985 @@
+<hr>
+<h2 id="title-【项目系列】乐优商城项目（十七）：微信支付id-project-leyou-17-htmltags-项目categories-编程keywords-‘语法-基础-Java-微服务-编程-数据存储’description-项目实战date-2024-11-13-22-50-04"><a href="#title-【项目系列】乐优商城项目（十七）：微信支付id-project-leyou-17-htmltags-项目categories-编程keywords-‘语法-基础-Java-微服务-编程-数据存储’description-项目实战date-2024-11-13-22-50-04" class="headerlink" title="title: 【项目系列】乐优商城项目（十七）：微信支付id: project-leyou-17.htmltags:  - 项目categories:  - 编程keywords: ‘语法,基础,Java,微服务,编程,数据存储’description: 项目实战date: 2024-11-13 22:50:04"></a>title: 【项目系列】乐优商城项目（十七）：微信支付<br>id: project-leyou-17.html<br>tags:<br>  - 项目<br>categories:<br>  - 编程<br>keywords: ‘语法,基础,Java,微服务,编程,数据存储’<br>description: 项目实战<br>date: 2024-11-13 22:50:04</h2><h1 id="0-学习目标"><a href="#0-学习目标" class="headerlink" title="0.学习目标"></a>0.学习目标</h1><ul>
+<li>微信支付下单</li>
+<li>生成二维码</li>
+<li>实现支付回调</li>
+<li>实现支付状态查询</li>
+</ul>
+<h1 id="1-微信支付简介"><a href="#1-微信支付简介" class="headerlink" title="1.微信支付简介"></a>1.微信支付简介</h1><h2 id="1-1-介绍"><a href="#1-1-介绍" class="headerlink" title="1.1.介绍"></a>1.1.介绍</h2><p>微信支付官方文档：<a href="https://pay.weixin.qq.com/index.php/core/home/login?return_url=/">https://pay.weixin.qq.com/index.php/core/home/login?return_url=%2F</a></p>
+<p><img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1555642281129.png" alt="1555642281129"></p>
+<p>我们选择开发文档，而后进入选择页面：</p>
+<p><img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1555642332763.png" alt="1555642332763"></p>
+<p>选择native支付，就是扫码支付：</p>
+<p><img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1527848368179.png" alt="1527848368179"></p>
+<p>此处我们使用模式二来开发：</p>
+<h2 id="1-2-开发流程"><a href="#1-2-开发流程" class="headerlink" title="1.2.开发流程"></a>1.2.开发流程</h2><p>模式二与模式一相比，流程更为简单，不依赖设置的回调支付URL。</p>
+<p>商户后台系统先调用微信支付的统一下单接口，微信后台系统返回链接参数code_url；</p>
+<p>商户后台系统将code_url值生成二维码图片，用户使用微信客户端扫码后发起支付。</p>
+<p>注意：code_url有效期为2小时，过期后扫码不能再发起支付。 </p>
+<p>流程图：</p>
+<p><img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/chapter6_5_1.png" alt="2wa23131"></p>
+<p>这里我们把商户（我们）要做的事情总结一下：</p>
+<ul>
+<li>1、商户生成订单</li>
+<li>2、商户调用微信下单接口，获取预交易的链接</li>
+<li>3、商户将链接生成二维码图片，展示给用户；</li>
+<li>4、支付结果通知：<ul>
+<li>微信异步通知商户支付结果，商户告知微信支付接收情况</li>
+<li>商户如果没有收到通知，可以调用接口，查询支付状态</li>
+</ul>
+</li>
+<li>5、如果支付成功，发货，修改订单状态</li>
+</ul>
+<p>在前面的业务中，我们已经完成了：</p>
+<ul>
+<li>1、生成订单</li>
+</ul>
+<p>接下来，我们需要做的是：</p>
+<ul>
+<li>2、调用微信下单接口，生成链接。</li>
+<li>3、根据链接生成二维码图片</li>
+<li>4、支付成功后修改订单状态</li>
+</ul>
+<h1 id="2-统一下单（生成支付链接）"><a href="#2-统一下单（生成支付链接）" class="headerlink" title="2.统一下单（生成支付链接）"></a>2.统一下单（生成支付链接）</h1><p>按照上面的步骤分析，第一步是要生成支付链接。我们查看下微信官方文档</p>
+<h2 id="2-1-API说明"><a href="#2-1-API说明" class="headerlink" title="2.1.API说明"></a>2.1.API说明</h2><p>在微信支付文档中，可以查询到下面的信息：</p>
+<blockquote>
+<p>请求路径</p>
+</blockquote>
+<p>URL地址：<a href="https://api.mch.weixin.qq.com/pay/unifiedorder">https://api.mch.weixin.qq.com/pay/unifiedorder</a></p>
+<blockquote>
+<p>请求参数</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="left">字段名</th>
+<th>变量名</th>
+<th>必填</th>
+<th>类型</th>
+<th>示例值</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">公众账号ID</td>
+<td>appid</td>
+<td>是</td>
+<td>String(32)</td>
+<td>wxd678efh56</td>
+<td>微信支付分配的公众账号ID</td>
+</tr>
+<tr>
+<td align="left">商户号</td>
+<td>mch_id</td>
+<td>是</td>
+<td>String(32)</td>
+<td>1230000109</td>
+<td>微信支付分配的商户号</td>
+</tr>
+<tr>
+<td align="left">随机字符串</td>
+<td>nonce_str</td>
+<td>是</td>
+<td>String(32)</td>
+<td>5K8264ILT</td>
+<td>随机字符串，长度要求在32位以内。推荐<a href="https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=4_3">随机数生成算法</a></td>
+</tr>
+<tr>
+<td align="left">签名</td>
+<td>sign</td>
+<td>是</td>
+<td>String(32)</td>
+<td>C380BEC2B</td>
+<td>通过签名算法计算得出的签名值，详见<a href="https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=4_3">签名生成算法</a></td>
+</tr>
+<tr>
+<td align="left">商品描述</td>
+<td>body</td>
+<td>是</td>
+<td>String(128)</td>
+<td>乐优手机</td>
+<td>商品简单描述，该字段请按照规范传递，具体请见<a href="https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=4_2">参数规定</a></td>
+</tr>
+<tr>
+<td align="left">商户订单号</td>
+<td>out_trade_no</td>
+<td>是</td>
+<td>String(32)</td>
+<td>20150806125</td>
+<td>商户系统内部订单号，要求32个字符内，只能是数字、大小写字母_-|* 且在同一个商户号下唯一。详见<a href="https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=4_2">商户订单号</a></td>
+</tr>
+<tr>
+<td align="left">标价金额</td>
+<td>total_fee</td>
+<td>是</td>
+<td>Int</td>
+<td>88</td>
+<td>订单总金额，单位为分，详见<a href="https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=4_2">支付金额</a></td>
+</tr>
+<tr>
+<td align="left">终端IP</td>
+<td>spbill_create_ip</td>
+<td>是</td>
+<td>String(16)</td>
+<td>123.12.12.123</td>
+<td>APP和网页支付提交用户端ip，Native支付填调用微信支付API的机器IP。</td>
+</tr>
+<tr>
+<td align="left">通知地址</td>
+<td>notify_url</td>
+<td>是</td>
+<td>String(256)</td>
+<td><a href="http://www.weixin.qq.com/wxpay/pay.php">http://www.weixin.qq.com/wxpay/pay.php</a></td>
+<td>异步接收微信支付结果通知的回调地址，通知url必须为外网可访问的url，不能携带参数。</td>
+</tr>
+<tr>
+<td align="left">交易类型</td>
+<td>trade_type</td>
+<td>是</td>
+<td>String(16)</td>
+<td>JSAPI</td>
+<td>JSAPI 公众号支付；NATIVE 扫码支付；APP APP支付说明详见<a href="https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=4_2">参数规定</a></td>
+</tr>
+</tbody></table>
+<p>这些参数大致分成3类：</p>
+<ul>
+<li><p>appid、mch_id、spbill_create_ip、notify_url、trade_type：是商家自己的信息或固定数据，可以提前配置，因此无需每次请求单独配置，而是统一设置好即可，</p>
+</li>
+<li><p>nonce_str、sign：是为了保证数据安全而添加的验证数据，根据算法去生成，每次请求自动生成即可。</p>
+</li>
+<li><p>body、out_trade_no、total_fee：订单相关信息，需要我们自己填写。</p>
+</li>
+</ul>
+<h2 id="2-2-微信SDK"><a href="#2-2-微信SDK" class="headerlink" title="2.2.微信SDK"></a>2.2.微信SDK</h2><h3 id="2-2-1-下载"><a href="#2-2-1-下载" class="headerlink" title="2.2.1.下载"></a>2.2.1.下载</h3><p>虽然请求参数比较复杂，但官方已经提供了SDK，供我们使用：<img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1535979973318.png" alt="1535979973318"></p>
+<p>我也已经在课前资料提供：</p>
+<p> <img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1535980012593.png" alt="1535980012593"></p>
+<p>微信没有提供maven仓库坐标，因此我们必须下载使用，建议使用课前资料中，我提供给大家的SDK，其中做了一些必要的设置：</p>
+<p><img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1555646853775.png" alt="1555646853775"> </p>
+<h3 id="2-2-2-WXPay工具"><a href="#2-2-2-WXPay工具" class="headerlink" title="2.2.2.WXPay工具"></a>2.2.2.WXPay工具</h3><p>微信SDK提供了一个统一的微信支付工具类：WXPay：</p>
+<p><img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1555646424254.png" alt="1555646424254"></p>
+<p>其中包含这样一些方法：</p>
+<p>com.github.wxpay.sdk.WXPay类下提供了对应的方法：</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>microPay</td>
+<td>刷卡支付</td>
+</tr>
+<tr>
+<td><code>unifiedOrder</code></td>
+<td><strong>统一下单</strong></td>
+</tr>
+<tr>
+<td>orderQuery</td>
+<td>查询订单</td>
+</tr>
+<tr>
+<td>reverse</td>
+<td>撤销订单</td>
+</tr>
+<tr>
+<td>closeOrder</td>
+<td>关闭订单</td>
+</tr>
+<tr>
+<td>refund</td>
+<td>申请退款</td>
+</tr>
+<tr>
+<td>refundQuery</td>
+<td>查询退款</td>
+</tr>
+<tr>
+<td>downloadBill</td>
+<td>下载对账单</td>
+</tr>
+<tr>
+<td>report</td>
+<td>交易保障</td>
+</tr>
+<tr>
+<td>shortUrl</td>
+<td>转换短链接</td>
+</tr>
+<tr>
+<td>authCodeToOpenid</td>
+<td>授权码查询openid</td>
+</tr>
+</tbody></table>
+<ul>
+<li>注意:<ul>
+<li>参数为<code>Map&lt;String, String&gt;</code>对象，返回类型也是<code>Map&lt;String, String&gt;</code></li>
+<li>方法内部会将参数转换成含有<code>appid</code>、<code>mch_id</code>、<code>nonce_str</code>、<code>sign_type</code>和<code>sign</code>的XML</li>
+<li>通过HTTPS请求得到返回数据后会对其做必要的处理（例如验证签名，签名错误则抛出异常）</li>
+</ul>
+</li>
+</ul>
+<p>我们主要关注其中的unifiedOrder方法，统一下单：</p>
+<pre><code class="java">/**
+     * 作用：统一下单&lt;br&gt;
+     * 场景：公共号支付、扫码支付、APP支付
+     * @param reqData 向wxpay post的请求数据
+     * @return API返回数据
+     * @throws Exception
+     */
+public Map&lt;String, String&gt; unifiedOrder(Map&lt;String, String&gt; reqData) throws Exception {
+    return this.unifiedOrder(reqData, config.getHttpConnectTimeoutMs(), this.config.getHttpReadTimeoutMs());
+}
+</code></pre>
+<p>这里的请求参数是：Map&lt;String, String&gt; reqData，就是官方API说明中的请求参数了，不过并不需要我们填写所有参数，而只需要下面的：</p>
+<ul>
+<li>body：商品描述</li>
+<li>out_trade_no：订单编号</li>
+<li>total_fee：订单应支付金额</li>
+<li>spbill_create_ip：设备IP</li>
+<li>notify_url：回调地址</li>
+<li>trade_type：交易类型</li>
+</ul>
+<p>剩下的：<code>appid</code>、<code>mch_id</code>、<code>nonce_str</code>、<code>sign_type</code>和<code>sign</code>参数都有WXPay对象帮我们设置，那么问题来了：这些参数数据WXPay是怎么拿到的呢？</p>
+<p>其中，</p>
+<ul>
+<li>nonce_str：是随机字符串，因此由WXPay随机生成，</li>
+<li>sign_type：是签名算法，由WXPay指定，默认是HMACSHA256；</li>
+<li>sign：是签名，由签名算法结合密钥加密而来，因此这里的关键是密钥：key</li>
+<li>appid、mch_id是商家信息，需要配置</li>
+</ul>
+<p>也就是说，这例需要配置的包括：appid、mch_id、密钥key。这些从哪里来呢？</p>
+<p>看下WXPay的构造函数：</p>
+<pre><code class="java">public WXPay(final WXPayConfig config) throws Exception {
+    this(config, null, true, false);
+}
+</code></pre>
+<p>这里需要一个WXPayConfig对象，显然是配置对象。</p>
+<h3 id="2-2-3-WXPayConfig配置"><a href="#2-2-3-WXPayConfig配置" class="headerlink" title="2.2.3..WXPayConfig配置"></a>2.2.3..WXPayConfig配置</h3><p>WXPay依赖于WXPayConfig进行配置，那么WXPayConfig是什么呢？</p>
+<p>看下源码中的关键部分：</p>
+<pre><code class="java">public abstract class WXPayConfig {
+    /**
+     * 获取 App ID
+     *
+     * @return App ID
+     */
+    abstract String getAppID();
+    /**
+     * 获取 Mch ID
+     *
+     * @return Mch ID
+     */
+    abstract String getMchID();
+    /**
+     * 获取 API 密钥
+     *
+     * @return API密钥
+     */
+    abstract String getKey();
+    
+    // 。。。省略
+}
+</code></pre>
+<p>这不就是WXPay中需要配置的3个属性嘛，当我们实现这个类，并且给出其中的值，把WXPayConfig传递给WXPay时，WXPay就会获取到这些数据:</p>
+<p><img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1555647829543.png" alt="1555647829543"> </p>
+<p>当我们利用WXPay发送请求时，WXPay就会帮我们封装到请求参数中：</p>
+<p><img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1555647879979.png" alt="1555647879979"></p>
+<p>而在我提供给大家的SDK中，就编写了一个WXPayConfig的实现：</p>
+<pre><code class="java">package com.github.wxpay.sdk;
+
+import lombok.Data;
+
+import java.io.InputStream;
+
+
+@Data
+public class WXPayConfigImpl extends WXPayConfig {
+    /**
+     * 公众账号ID
+     */
+    private String appID;
+    /**
+     * 商户号
+     */
+    private String mchID;
+    /**
+     * 生成签名的密钥
+     */
+    private String key;
+    /**
+     * 支付回调地址
+     */
+    private String notifyUrl;
+    /**
+     * 支付方式
+     */
+    private String payType;
+
+    public InputStream getCertStream(){
+        return null;
+    }
+
+    public IWXPayDomain getWXPayDomain(){
+        return WXPayDomainSimpleImpl.instance();
+    }
+}
+</code></pre>
+<p>将来我们只需要new出这个实现类对象，并且给这3个参数赋值即可。</p>
+<h2 id="2-3-整合到项目中"><a href="#2-3-整合到项目中" class="headerlink" title="2.3.整合到项目中"></a>2.3.整合到项目中</h2><h3 id="2-3-1-打包SDK"><a href="#2-3-1-打包SDK" class="headerlink" title="2.3.1.打包SDK"></a>2.3.1.打包SDK</h3><p>首先，把我提供的SDK打包并安装到本地的maven仓库，方便在项目中使用。</p>
+<p>进入我提供的SDK的项目目录，然后打开黑窗口，输入命令：</p>
+<pre><code>mvn source:jar install -Dmaven.test.skip=true
+</code></pre>
+<p><img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1555648127151.png" alt="1555648127151"></p>
+<p>然后进入本地仓库查看：</p>
+<p><img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1555648204589.png" alt="1555648204589"> </p>
+<h3 id="2-3-2-配置WXPay"><a href="#2-3-2-配置WXPay" class="headerlink" title="2.3.2.配置WXPay"></a>2.3.2.配置WXPay</h3><p>在ly-order中引入坐标：</p>
+<pre><code class="xml">&lt;dependency&gt;
+    &lt;groupId&gt;com.github.wxpay&lt;/groupId&gt;
+    &lt;artifactId&gt;wxpay-sdk&lt;/artifactId&gt;
+    &lt;version&gt;3.0.9&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p>我们将这些WXPayConfig中的属性定义到application.yml中</p>
+<pre><code class="yaml">ly:
+  pay:
+    wx:
+      appID: wx8397f8696b538317
+      mchID: 1473426802
+      key: T6m9iK73b0kn9g5v426MKfHQH7X8rKwb
+      notifyUrl: 127.0.0.1
+      tradeType: NATIVE
+</code></pre>
+<p>将这些属性注入到PayConfig中：</p>
+<pre><code class="java">package com.leyou.order.config;
+
+import com.github.wxpay.sdk.WXPayConfigImpl;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class PayConfiguration {
+
+    @Bean
+    @ConfigurationProperties(prefix = &quot;ly.pay.wx&quot;)
+    public WXPayConfigImpl payConfig(){
+        return new WXPayConfigImpl();
+    }
+}
+</code></pre>
+<h3 id="2-3-4-支付工具类"><a href="#2-3-4-支付工具类" class="headerlink" title="2.3.4.支付工具类"></a>2.3.4.支付工具类</h3><p>我们先初始化WXPay对象，并注入到Spring容器中：</p>
+<pre><code class="java">package com.leyou.order.config;
+
+import com.github.wxpay.sdk.WXPay;
+import com.github.wxpay.sdk.WXPayConfigImpl;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class PayConfiguration {
+
+    @Bean
+    @ConfigurationProperties(prefix = &quot;ly.pay.wx&quot;)
+    public WXPayConfigImpl payConfig(){
+        return new WXPayConfigImpl();
+    }
+
+    /**
+     * 注册WXPay对象
+     * @param payConfig 支付相关配置
+     * @return WXPay对象
+     * @throws Exception 连结WX失败时用到
+     */
+    @Bean
+    public WXPay wxPay(WXPayConfigImpl payConfig) throws Exception {
+        return new WXPay(payConfig);
+    }
+}
+</code></pre>
+<p>我们定义支付工具类，完成后续操作：</p>
+<pre><code class="java">package com.leyou.order.utils;
+
+import com.github.wxpay.sdk.WXPay;
+import com.github.wxpay.sdk.WXPayConfigImpl;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Slf4j
+@Component
+public class PayHelper {
+
+    @Autowired
+    private WXPay wxPay;
+
+    @Autowired
+    private WXPayConfigImpl payConfig;
+
+    public String createOrder(Long orderId, Long totalPay, String desc){
+        Map&lt;String, String&gt; data = new HashMap&lt;&gt;();
+        // 商品描述
+        data.put(&quot;body&quot;, desc);
+        // 订单号
+        data.put(&quot;out_trade_no&quot;, orderId.toString());
+        //金额，单位是分
+        data.put(&quot;total_fee&quot;, totalPay.toString());
+        //调用微信支付的终端IP
+        data.put(&quot;spbill_create_ip&quot;, &quot;127.0.0.1&quot;);
+        //回调地址
+        data.put(&quot;notify_url&quot;, payConfig.getNotifyUrl());
+        // 交易类型为扫码支付
+        data.put(&quot;trade_type&quot;, payConfig.getTradeType());
+
+        // 利用wxPay工具,完成下单
+        Map&lt;String, String&gt; result = null;
+        try {
+            result = wxPay.unifiedOrder(data);
+        } catch (Exception e) {
+            log.error(&quot;【微信下单】创建预交易订单异常失败&quot;, e);
+            throw new RuntimeException(&quot;微信下单失败&quot;, e);
+        }
+        // 校验业务状态
+        checkResultCode(result);
+
+        // 下单成功，获取支付链接
+        String url = result.get(&quot;code_url&quot;);
+        if (StringUtils.isBlank(url)) {
+            throw new RuntimeException(&quot;微信下单失败，支付链接为空&quot;);
+        }
+        return url;
+    }
+
+    public void checkResultCode(Map&lt;String, String&gt; result) {
+        // 检查业务状态
+        String resultCode = result.get(&quot;result_code&quot;);
+        if (&quot;FAIL&quot;.equals(resultCode)) {
+            log.error(&quot;【微信支付】微信支付业务失败，错误码：{}，原因：{}&quot;, result.get(&quot;err_code&quot;), result.get(&quot;err_code_des&quot;));
+            throw new RuntimeException(&quot;【微信支付】微信支付业务失败&quot;);
+        }
+    }
+}
+</code></pre>
+<h2 id="2-4-下单并生成支付链接"><a href="#2-4-下单并生成支付链接" class="headerlink" title="2.4.下单并生成支付链接"></a>2.4.下单并生成支付链接</h2><p>在订单支付页面，会向后台发起请求，查询支付的URL地址：</p>
+<p><img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1555651440971.png" alt="1555651440971"> </p>
+<p>我们需要编写controller，来实现这个功能：</p>
+<ul>
+<li>请求方式：GET</li>
+<li>请求路径：&#x2F;order&#x2F;url&#x2F;{id}</li>
+<li>请求参数：id，订单的编号</li>
+<li>返回结果：url地址</li>
+</ul>
+<p>代码如下：</p>
+<p>controller：</p>
+<pre><code class="java">@GetMapping(&quot;url/{id}&quot;)
+public ResponseEntity&lt;String&gt; getPayUrl(@PathVariable(&quot;id&quot;) Long orderId) {
+    return ResponseEntity.ok(orderService.createPayUrl(orderId));
+}
+</code></pre>
+<p>service，订单支付url的有效期是2小时，因此我们可以获取url后存入redis缓存：</p>
+<ul>
+<li>先检查redis是否已经有url，有则返回</li>
+<li>没有，则查询订单信息，校验订单状态是否为已经支付，是则抛出异常</li>
+<li>如果没有支付，调用PayHelper，生成url</li>
+<li>将url存入redis，设置有效期为2小时</li>
+</ul>
+<p>引入redis依赖：</p>
+<pre><code class="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p>配置：</p>
+<pre><code class="yaml">spring:
+  redis:
+    host: 192.168.206.66
+</code></pre>
+<p>代码：</p>
+<pre><code class="java">@Autowired
+private PayHelper payHelper;
+@Autowired
+private StringRedisTemplate redisTemplate;
+
+public String createPayUrl(Long orderId) {
+    // 先看是否已经生成过：
+    String key = &quot;ly.pay.url.&quot; + orderId;
+    String cacheUrl = redisTemplate.opsForValue().get(key);
+    if (StringUtils.isNoneBlank(cacheUrl)) {
+        return cacheUrl;
+    }
+    // 查询订单
+    Order order = orderMapper.selectByPrimaryKey(orderId);
+    if(order == null){
+        throw new LyException(ExceptionEnum.ORDER_NOT_FOUND);
+    }
+    // 判断订单状态
+    Integer status = order.getStatus();
+    if(!status.equals(OrderStatusEnum.INIT.value())){
+        // 订单已经支付过了，订单状态异常
+        throw new LyException(ExceptionEnum.INVALID_ORDER_STATUS);
+    }
+    // 支付金额，测试时写1
+    Long actualPay = /*order.getActualPay()*/ 1L;
+
+    // 商品描述
+    String desc = &quot;【乐优商城】商品信息&quot;;
+    String url = payHelper.createOrder(orderId, actualPay, desc);
+
+    // 存入redis，设置有效期为 2小时
+    redisTemplate.opsForValue().set(key, url, 2, TimeUnit.HOURS);
+    return url;
+}
+</code></pre>
+<p>页面响应结果：</p>
+<p> <img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1536017643922.png" alt="1536017643922"></p>
+<h1 id="3-生成支付二维码"><a href="#3-生成支付二维码" class="headerlink" title="3.生成支付二维码"></a>3.生成支付二维码</h1><h2 id="3-1-什么是二维码"><a href="#3-1-什么是二维码" class="headerlink" title="3.1.什么是二维码"></a>3.1.什么是二维码</h2><p>二维码又称QR Code，QR全称Quick Response，是一个近几年来移动设备上超流行的一种编码方式，它比传统的Bar Code条形码能存更多的信息，也能表示更多的数据类型。</p>
+<p>二维条码&#x2F;二维码（2-dimensional bar code）是用某种特定的几何图形按一定规律在平面（二维方向上）分布的黑白相间的图形记录数据符号信息的；在代码编制上巧妙地利用构成计算机内部逻辑基础的“0”、“1”比特流的概念，使用若干个与二进制相对应的几何形体来表示文字数值信息，通过图象输入设备或光电扫描设备自动识读以实现信息自动处理：它具有条码技术的一些共性：每种码制有其特定的字符集；每个字符占有一定的宽度；具有一定的校验功能等。同时还具有对不同行的信息自动识别功能、及处理图形旋转变化点。</p>
+<h2 id="3-2-二维码优势"><a href="#3-2-二维码优势" class="headerlink" title="3.2.二维码优势"></a>3.2.二维码优势</h2><ul>
+<li><p>信息容量大, 可以容纳多达1850个大写字母或2710个数字或500多个汉字</p>
+</li>
+<li><p>应用范围广, 支持文字,声音,图片,指纹等等…</p>
+</li>
+<li><p>容错能力强, 即使图片出现部分破损也能使用</p>
+</li>
+<li><p>成本低, 容易制作</p>
+</li>
+</ul>
+<h2 id="3-3-二维码容错级别"><a href="#3-3-二维码容错级别" class="headerlink" title="3.3.二维码容错级别"></a>3.3.二维码容错级别</h2><ul>
+<li><p>L级（低） 7％的码字可以被恢复。</p>
+</li>
+<li><p>M级（中） 15％的码字可以被恢复。</p>
+</li>
+<li><p>Q级（四分）25％的码字可以被恢复。</p>
+</li>
+<li><p>H级（高）30％ 的码字可以被恢复。</p>
+</li>
+</ul>
+<h2 id="3-4-二维码生成插件qrious"><a href="#3-4-二维码生成插件qrious" class="headerlink" title="3.4.二维码生成插件qrious"></a>3.4.二维码生成插件qrious</h2><p>qrious是一款基于HTML5 Canvas的纯JS二维码生成插件。通过qrious.js可以快速生成各种二维码，你可以控制二维码的尺寸颜色，还可以将生成的二维码进行Base64编码。<a href="https://github.com/davidshimjs/qrcodejs">官网</a></p>
+<p>qrious.js二维码插件的可用配置参数如下：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>默认值</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>background</td>
+<td>String</td>
+<td>“white”</td>
+<td>二维码的背景颜色。</td>
+</tr>
+<tr>
+<td>foreground</td>
+<td>String</td>
+<td>“black”</td>
+<td>二维码的前景颜色。</td>
+</tr>
+<tr>
+<td>level</td>
+<td>String</td>
+<td>“L”</td>
+<td>二维码的误差校正级别(L, M, Q, H)。</td>
+</tr>
+<tr>
+<td>mime</td>
+<td>String</td>
+<td>“image&#x2F;png”</td>
+<td>二维码输出为图片时的MIME类型。</td>
+</tr>
+<tr>
+<td>size</td>
+<td>Number</td>
+<td>100</td>
+<td>二维码的尺寸，单位像素。</td>
+</tr>
+<tr>
+<td>value</td>
+<td>String</td>
+<td>“”</td>
+<td>需要编码为二维码的值</td>
+</tr>
+</tbody></table>
+<p>课前资料中给出的案例可以直接生成二维码：</p>
+<p> <img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1535987680862.png" alt="1535987680862"></p>
+<h2 id="3-5-生成二维码"><a href="#3-5-生成二维码" class="headerlink" title="3.5.生成二维码"></a>3.5.生成二维码</h2><p>我们把课前资料中的这个js脚本引入到项目中：</p>
+<p> <img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1528362348399.png" alt="1528362348399"></p>
+<p>然后在页面引用：</p>
+<p> <img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1528362377494.png" alt="1528362377494"></p>
+<p>页面定义一个div，用于展示二维码：</p>
+<p> <img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1528362023061.png" alt="1528362023061"></p>
+<p>然后获取到付款链接后，根据链接生成二维码：</p>
+<p> <img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1528362420151.png" alt="1528362420151"></p>
+<p>刷新页面，查看效果：</p>
+<p> <img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1528362464276-1696636368837-1351.png" alt="1528362464276"></p>
+<p>此时，客户用手机扫描二维码，可以看到付款页面。</p>
+<h1 id="4-支付结果通知"><a href="#4-支付结果通知" class="headerlink" title="4.支付结果通知"></a>4.支付结果通知</h1><p>支付以后，我们后台需要修改订单状态。我们怎么得知有没有支付成功呢？</p>
+<p>在我们的请求参数中，有一个notify_url的参数，是支付的回调地址。当用户支付成功后，<strong>微信会主动访问这个地址</strong>，并携带支付结果信息。</p>
+<p>那么，这个notify_url该怎么用呢？</p>
+<h2 id="4-1-notify-url"><a href="#4-1-notify-url" class="headerlink" title="4.1.notify_url"></a>4.1.notify_url</h2><h3 id="1）什么是notify-url"><a href="#1）什么是notify-url" class="headerlink" title="1）什么是notify_url"></a>1）什么是notify_url</h3><p>参数中有一个非常重要的，叫做notify_url的：</p>
+<p><img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1535981510532.png" alt="1535981510532"></p>
+<p>基于上文的介绍我们知道，这个地址是在支付成功后的异步结果通知。官网介绍如下：</p>
+<p>支付完成后，微信会把相关支付结果和用户信息发送给商户，商户需要接收处理，并返回应答。</p>
+<p>所以，此处的地址必须是一个外网可访问地址，而且我们要定义好回调的处理接口。</p>
+<p><a href="http://api.leyou.com/api/order-service/notify">http://api.leyou.com/api/order-service/notify</a></p>
+<h3 id="2）内网穿透"><a href="#2）内网穿透" class="headerlink" title="2）内网穿透"></a>2）内网穿透</h3><p>此处我们肯定不能写：<a href="http://api.leyou.com/api/order/%EF%BC%8C%E8%BF%99%E4%B8%AA%E5%9F%9F%E5%90%8D%E6%9C%AA%E7%BB%8F%E5%A4%87%E6%A1%88%EF%BC%8C%E6%98%AF%E4%B8%8D%E8%A2%AB%E8%AF%86%E5%88%AB%E7%9A%84%E3%80%82%E5%A6%82%E4%BD%95%E6%89%8D%E8%83%BD%E8%8E%B7%E5%8F%96%E4%B8%80%E4%B8%AA%E8%83%BD%E5%A4%9F%E5%A4%96%E7%BD%91%E8%AE%BF%E9%97%AE%E7%9A%84%E5%9F%9F%E5%90%8D%E5%91%A2%EF%BC%9F">http://api.leyou.com/api/order/，这个域名未经备案，是不被识别的。如何才能获取一个能够外网访问的域名呢？</a></p>
+<p>我们可以通过内网穿透来实现，那么什么是内网穿透呢？</p>
+<p><img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1535984453478.png" alt="1535984453478"></p>
+<p><strong>简单来说内网穿透的目的是：让外网能访问你本地的应用，例如在外网打开你本地<a href="http://127.0.0.1指向的web站点./">http://127.0.0.1指向的Web站点。</a></strong></p>
+<p>在这里有一篇播客，详细介绍了几种内网穿透策略：<a href="https://blog.csdn.net/zhangguo5/article/details/77848658?utm_source=5ibc.net&utm_medium=referral">一分钟了解内网穿透</a></p>
+<p>这里我们使用一个免费的内网穿透工具：Natapp：<a href="https://natapp.cn/">NATAPP官网</a></p>
+<p><img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1535984650173.png" alt="1535984650173"></p>
+<p>详细教程在这里：<a href="https://natapp.cn/article/natapp_newbie">一分钟的natapp快速新手教程</a></p>
+<p>启动后的样子：</p>
+<p> <img src="/./17_%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/1555650481104.png" alt="1555650481104"></p>
+<p>比如此处，我使用的natapp得到的域名是：<a href="http://ff7hgc.natappfree.cc，并且我设置指向到`127.0.0.1:10010`位置，也就是我的网关服务。">http://ff7hgc.natappfree.cc，并且我设置指向到`127.0.0.1:10010`位置，也就是我的网关服务。</a></p>
+<h3 id="3）配置回调地址"><a href="#3）配置回调地址" class="headerlink" title="3）配置回调地址"></a>3）配置回调地址</h3><p>设置内网穿透地址到配置文件application.yml：</p>
+<pre><code class="yaml">ly:
+  pay:
+    appId: wx8397f8696b538317
+    mchId: 1473426802
+    key: T6m9iK73b0kn9g5v426MKfHQH7X8rKwb
+    notifyUrl: http://ff7hgc.natappfree.cc/api/pay/wx/notify
+    tradeType: NATIVE
+</code></pre>
+<h3 id="4）网关白名单"><a href="#4）网关白名单" class="headerlink" title="4）网关白名单"></a>4）网关白名单</h3><p>因为异步回调是微信来访问我们的，因此不应该对登录做校验，我们把这个地址配置到白名单，修改ly-gateway中的application.yml</p>
+<pre><code class="yaml">ly:
+  filter:
+    allowPaths:
+      - /api/pay
+</code></pre>
+<p>然后，将&#x2F;api&#x2F;pay映射到订单微服务：</p>
+<pre><code class="yaml">zuul:
+  prefix: /api # 添加路由前缀
+  routes:
+    pay-service:
+      path: /pay/**
+      serviceId: order-service
+      strip-prefix: false
+</code></pre>
+<h2 id="4-2-支付结果通知API"><a href="#4-2-支付结果通知API" class="headerlink" title="4.2.支付结果通知API"></a>4.2.支付结果通知API</h2><p>来看官网关于结果通知的介绍：<a href="https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=9_7&index=8">https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=9_7&amp;index=8</a></p>
+<blockquote>
+<p>应用场景</p>
+</blockquote>
+<p>支付完成后，微信会把相关支付结果和用户信息发送给商户，商户需要接收处理，并返回应答。</p>
+<p>对后台通知交互时，如果微信收到商户的应答不是成功或超时，微信认为通知失败，微信会通过一定的策略定期重新发起通知，尽可能提高通知的成功率，但微信不保证通知最终能成功。 （通知频率为15&#x2F;15&#x2F;30&#x2F;180&#x2F;1800&#x2F;1800&#x2F;1800&#x2F;1800&#x2F;3600，单位：秒）</p>
+<p><strong>注意：同样的通知可能会多次发送给商户系统。商户系统必须能够正确处理重复的通知。</strong></p>
+<p>推荐的做法是，当收到通知进行处理时，首先检查对应业务数据的状态，判断该通知是否已经处理过，如果没有处理过再进行处理，如果处理过直接返回结果成功。在对业务数据进行状态检查和处理之前，要采用数据锁进行并发控制，以避免函数重入造成的数据混乱。</p>
+<p><strong>特别提醒：商户系统对于支付结果通知的内容一定要做<code>签名验证,并校验返回的订单金额是否与商户侧的订单金额一致</code>，防止数据泄漏导致出现“假通知”，造成资金损失。</strong></p>
+<p>支付完成后，微信服务会自动向<code>notify_url</code>地址发起POST请求，请求参数是xml格式：</p>
+<table>
+<thead>
+<tr>
+<th>字段名</th>
+<th>变量名</th>
+<th>必填</th>
+<th>类型</th>
+<th>示例值</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>返回状态码</td>
+<td>return_code</td>
+<td>是</td>
+<td>String(16)</td>
+<td>SUCCESS</td>
+<td>SUCCESS&#x2F;FAIL此字段是通信标识，非交易标识，交易是否成功需要查看trade_state来判断</td>
+</tr>
+<tr>
+<td>返回信息</td>
+<td>return_msg</td>
+<td>是</td>
+<td>String(128)</td>
+<td>OK</td>
+<td>当return_code为FAIL时返回信息为错误原因 ，例如签名失败参数格式校验错误</td>
+</tr>
+</tbody></table>
+<p>通信成功，会返回下面信息：</p>
+<table>
+<thead>
+<tr>
+<th>签名</th>
+<th>sign</th>
+<th>是</th>
+<th>String(32)</th>
+<th>C380BEC2BFD..</th>
+<th>名，详见<a href="https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=4_3">签名算法</a></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>签名类型</td>
+<td>sign_type</td>
+<td>否</td>
+<td>String(32)</td>
+<td>HMAC-SHA256</td>
+<td>签名类型，目前支持HMAC-SHA256和MD5，默认为MD5</td>
+</tr>
+<tr>
+<td>业务结果</td>
+<td>result_code</td>
+<td>是</td>
+<td>String(16)</td>
+<td>SUCCESS</td>
+<td>SUCCESS&#x2F;FAIL</td>
+</tr>
+<tr>
+<td>错误代码</td>
+<td>err_code</td>
+<td>否</td>
+<td>String(32)</td>
+<td>SYSTEMERROR</td>
+<td>错误返回的信息描述</td>
+</tr>
+<tr>
+<td>错误代码描述</td>
+<td>err_code_des</td>
+<td>否</td>
+<td>String(128)</td>
+<td>系统错误</td>
+<td>错误返回的信息描述</td>
+</tr>
+<tr>
+<td>用户标识</td>
+<td>openid</td>
+<td>是</td>
+<td>String(128)</td>
+<td>wxd930ea54f</td>
+<td>用户在商户appid下的唯一标识</td>
+</tr>
+<tr>
+<td>交易类型</td>
+<td>trade_type</td>
+<td>是</td>
+<td>String(16)</td>
+<td>JSAPI</td>
+<td>JSAPI、NATIVE、APP</td>
+</tr>
+<tr>
+<td>订单金额</td>
+<td>total_fee</td>
+<td>是</td>
+<td>Int</td>
+<td>100</td>
+<td>订单总金额，单位为分</td>
+</tr>
+<tr>
+<td>现金支付金额</td>
+<td>cash_fee</td>
+<td>是</td>
+<td>Int</td>
+<td>100</td>
+<td>现金支付金额订单现金支付金额，详见<a href="https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=4_2">支付金额</a></td>
+</tr>
+<tr>
+<td>微信支付订单号</td>
+<td>transaction_id</td>
+<td>是</td>
+<td>String(32)</td>
+<td>121775250120</td>
+<td>微信支付订单号</td>
+</tr>
+<tr>
+<td>商户订单号</td>
+<td>out_trade_no</td>
+<td>是</td>
+<td>String(32)</td>
+<td>12123212112</td>
+<td>商户系统内部订单号，要求32个字符内，只能是数字、大小写字母_-|*@ ，且在同一个商户号下唯一。</td>
+</tr>
+</tbody></table>
+<p>我们需要返回给微信的结果：</p>
+<pre><code class="xml">&lt;xml&gt;
+  &lt;return_code&gt;&lt;![CDATA[SUCCESS]]&gt;&lt;/return_code&gt;
+  &lt;return_msg&gt;&lt;![CDATA[OK]]&gt;&lt;/return_msg&gt;
+&lt;/xml&gt;
+</code></pre>
+<h2 id="4-3-编写回调接口"><a href="#4-3-编写回调接口" class="headerlink" title="4.3.编写回调接口"></a>4.3.编写回调接口</h2><p>先分析接口需要的四个数据：</p>
+<ul>
+<li>请求方式：官方文档虽然没有明说，但是测试得出是POST请求</li>
+<li>请求路径：我们之前指定的notify_url的路径是：&#x2F;pay&#x2F;wx&#x2F;notify</li>
+<li>请求参数：是xml格式数据，包括支付的结果和状态</li>
+<li>返回结果：也是xml，表明是否成功</li>
+</ul>
+<p>因为要接收xml格式数据，因此我们需要引入解析xml的依赖：</p>
+<pre><code class="xml">&lt;dependency&gt;
+    &lt;groupId&gt;com.fasterxml.jackson.dataformat&lt;/groupId&gt;
+    &lt;artifactId&gt;jackson-dataformat-xml&lt;/artifactId&gt;
+    &lt;version&gt;2.9.6&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p>然后编写controller：</p>
+<pre><code class="java">package com.leyou.order.web;
+
+import com.leyou.order.service.OrderService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
+
+
+@Slf4j
+@RestController
+@RequestMapping(&quot;pay&quot;)
+public class PayController {
+
+
+    @Autowired
+    private OrderService orderService;
+
+    /**
+     * 微信支付成功回调
+     * @param result
+     * @return
+     */
+    @PostMapping(value = &quot;/wx/notify&quot;, produces = &quot;application/xml&quot;)
+    public Map&lt;String, String&gt; hello(@RequestBody Map&lt;String,String&gt; result){
+        // 处理回调
+        log.info(&quot;[支付回调] 接收微信支付回调, 结果:{}&quot;, result);
+        orderService.handleNotify(result);
+
+        // 返回成功
+        Map&lt;String, String&gt; msg = new HashMap&lt;&gt;();
+        msg.put(&quot;return_code&quot;, &quot;SUCCESS&quot;);
+        msg.put(&quot;return_msg&quot;, &quot;OK&quot;);
+        return msg;
+    }
+}
+</code></pre>
+<p>因为需要对结果的签名进行验证，所以在<code>PayHelper</code>中定义一个校验签名的算法：</p>
+<pre><code class="java">public void isValidSign(Map&lt;String, String&gt; result) throws Exception {
+    boolean boo1 = WXPayUtil.isSignatureValid(result, payConfig.getKey(), WXPayConstants.SignType.MD5);
+    boolean boo2 = WXPayUtil.isSignatureValid(result, payConfig.getKey(), WXPayConstants.SignType.HMACSHA256);
+    if (!boo1 &amp;&amp; !boo2) {
+        throw new RuntimeException(&quot;【微信支付回调】签名有误&quot;);
+    }
+}
+</code></pre>
+<p>另外，支付是否成功，需要校验业务状态才知道，我们在<code>PayHelper</code>编写一个校验业务状态的方法：</p>
+<pre><code class="java">public void checkResultCode(Map&lt;String, String&gt; result) {
+    // 检查业务状态
+    String resultCode = result.get(&quot;result_code&quot;);
+    if (&quot;FAIL&quot;.equals(resultCode)) {
+        log.error(&quot;【微信支付】微信支付业务失败，错误码：{}，原因：{}&quot;, result.get(&quot;err_code&quot;), result.get(&quot;err_code_des&quot;));
+        throw new RuntimeException(&quot;【微信支付】微信支付业务失败&quot;);
+    }
+}
+</code></pre>
+<p>Service 代码：</p>
+<p>service中需要完成下列代码；</p>
+<ul>
+<li>签名校验</li>
+<li>数据校验<ul>
+<li>订单号码校验</li>
+<li>订单金额校验</li>
+</ul>
+</li>
+<li>更新订单状态</li>
+</ul>
+<pre><code class="java">@Transactional
+public void handleNotify(Map&lt;String, String&gt; result) {
+    // 1 签名校验
+    try {
+        payHelper.isValidSign(result);
+    }catch (Exception e){
+        log.error(&quot;【微信回调】微信签名有误！, result: {}&quot;,result, e);
+        throw new LyException(ExceptionEnum.INVALID_NOTIFY_SIGN, e);
+    }
+    // 2、业务校验
+    payHelper.checkResultCode(result);
+
+    // 3 校验金额数据
+    String totalFeeStr = result.get(&quot;total_fee&quot;);
+    String tradeNo = result.get(&quot;out_trade_no&quot;);
+    if(StringUtils.isEmpty(totalFeeStr) || StringUtils.isEmpty(tradeNo)){
+        // 回调参数中必须包含订单编号和订单金额
+        throw new LyException(ExceptionEnum.INVALID_NOTIFY_PARAM);
+    }
+    // 3.1 获取结果中的金额
+    long totalFee = Long.valueOf(totalFeeStr);
+    // 3.2 获取订单
+    Long orderId = Long.valueOf(tradeNo);
+    Order order = orderMapper.selectByPrimaryKey(orderId);
+    // 3.3.判断订单的状态，保证幂等
+    if(!order.getStatus().equals(OrderStatusEnum.INIT.value())){
+        // 订单已经支付，返回成功
+        return;
+    }
+    // 3.4.判断金额是否一致
+    if(totalFee != /*order.getActualPay()*/ 1){
+        // 金额不符
+        throw new LyException(ExceptionEnum.INVALID_NOTIFY_PARAM);
+    }
+
+    // 4 修改订单状态
+    Order orderStatus = new Order();
+    orderStatus.setStatus(OrderStatusEnum.PAY_UP.value());
+    orderStatus.setOrderId(orderId);
+    orderStatus.setPayTime(new Date());
+    int count = orderMapper.updateByPrimaryKeySelective(orderStatus);
+    if(count != 1){
+        log.error(&quot;【微信回调】更新订单状态失败，订单id：{}&quot;, orderId);
+        throw new LyException(ExceptionEnum.UPDATE_OPERATION_FAIL);
+    }
+    log.info(&quot;【微信回调】, 订单支付成功! 订单编号:{}&quot;, orderId);
+}
+</code></pre>
+<h1 id="5-支付状态查询"><a href="#5-支付状态查询" class="headerlink" title="5.支付状态查询"></a>5.支付状态查询</h1><p>当用户扫码支付成功，会自动调用回调接口，从而修改订单状态，完成订单支付。</p>
+<p>但是，页面上并不知道支付是否成功。怎么办？</p>
+<h2 id="5-1-页面查询支付状态"><a href="#5-1-页面查询支付状态" class="headerlink" title="5.1.页面查询支付状态"></a>5.1.页面查询支付状态</h2><p>因为不知道用户什么时候会支付，也不知道支付有没有成功，因此页面会采用定时任务，不断查询订单支付的状态：</p>
+<pre><code class="js">// 开启定时任务，查询付款状态
+const taskId = setInterval(() =&gt; {
+    ly.http.get(&quot;/order/state/&quot; + id)
+        .then(resp =&gt; {
+        let i = resp.data;
+        if (i !== 1) {
+            // 付款成功
+            clearInterval(taskId);
+            // 跳转到付款成功页
+            location.href = &quot;/paysuccess.html?orderId=&quot; + id;
+        }
+    }).catch((e) =&gt; {
+        alert(&quot;支付状态查询失败，请刷新页面重试。&quot;);
+        clearInterval(taskId);
+    })
+}, 3000);
+// 同时设置一个定时任务，10分钟后，终止查询，认为付款失败
+setTimeout(() =&gt; {
+    clearInterval(taskId);
+    location.href = &quot;/payfail.html?orderId=&quot; + id;
+}, 600000)
+</code></pre>
+<p>每隔5秒就会查询一次，为了防止用户一直不支付的情况，又设置了一个定时任务，10分钟后跳转到支付失败页面。</p>
+<h2 id="5-2-支付状态查询接口"><a href="#5-2-支付状态查询接口" class="headerlink" title="5.2.支付状态查询接口"></a>5.2.支付状态查询接口</h2><p>上面的查询请求 分析：</p>
+<ul>
+<li>请求方式：Get</li>
+<li>请求路径 ：&#x2F;state&#x2F;{id}</li>
+<li>请求参数：订单id</li>
+<li>返回结果：1或者其它，1代表未支付，其它是已经支付</li>
+</ul>
+<p>controller：</p>
+<pre><code class="java">@GetMapping(&quot;/state/{id}&quot;)
+public ResponseEntity&lt;Integer&gt; queryPayState(@PathVariable(&quot;id&quot;) Long orderId) {
+    return ResponseEntity.ok(orderService.queryPayStatus(orderId));
+}
+</code></pre>
+<p>service：</p>
+<pre><code class="java">public Integer queryPayStatus(Long orderId) {
+    Order order = orderMapper.selectByPrimaryKey(orderId);
+    if(order == null){
+        throw new LyException(ExceptionEnum.ORDER_NOT_FOUND);
+    }
+    return order.getStatus();
+}
+</code></pre>

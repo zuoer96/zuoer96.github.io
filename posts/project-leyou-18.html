@@ -1,0 +1,985 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>【项目系列】乐优商城项目（十八）：定时清理 | 左耳</title><meta name="author" content="左耳"><meta name="copyright" content="左耳"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="项目实战">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【项目系列】乐优商城项目（十八）：定时清理">
+<meta property="og:url" content="https://nbchen.com/posts/project-leyou-18.html">
+<meta property="og:site_name" content="左耳">
+<meta property="og:description" content="项目实战">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbchen.com/img/cover/post_cover_1.png">
+<meta property="article:published_time" content="2024-11-13T14:50:16.000Z">
+<meta property="article:modified_time" content="2024-11-13T15:24:00.740Z">
+<meta property="article:author" content="左耳">
+<meta property="article:tag" content="项目">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbchen.com/img/cover/post_cover_1.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://nbchen.com/posts/project-leyou-18.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lWO9QTcbfhCMrpHW2Iz8w1cT6iVDffApIJepQIhimJU"/><meta name="baidu-site-verification" content="17911f388d35a0ab926c0cfff1ca6ea7"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?17911f388d35a0ab926c0cfff1ca6ea7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-3FC1C6JTVL"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-3FC1C6JTVL')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-3FC1C6JTVL', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":100,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【项目系列】乐优商城项目（十八）：定时清理',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-11-13 23:24:00'
+}</script><link rel="stylesheet" href="/css/equipment.css?1"><link rel="stylesheet" href="/css/movies.css?1"><link rel="stylesheet" href="/css/webstack.css?1"><link rel="stylesheet" href="/css/flag.css?1"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/logo/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">241</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">191</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover/post_cover_1.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">左耳</span></a><a class="nav-page-title" href="/"><span class="site-name">【项目系列】乐优商城项目（十八）：定时清理</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">【项目系列】乐优商城项目（十八）：定时清理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-11-13T14:50:16.000Z" title="发表于 2024-11-13 22:50:16">2024-11-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-13T15:24:00.740Z" title="更新于 2024-11-13 23:24:00">2024-11-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">10.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>38分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="0-学习目标"><a href="#0-学习目标" class="headerlink" title="0.学习目标"></a>0.学习目标</h1><ul>
+<li>定时任务</li>
+<li>清理超时未支付的订单</li>
+</ul>
+<h1 id="1-SpringSchedule"><a href="#1-SpringSchedule" class="headerlink" title="1.SpringSchedule"></a>1.SpringSchedule</h1><p>我们完成了订单的创建，并且生成了支付的二维码，但是如果用户一直不支付，就会导致商品库存被占用，而不能形成有效交易。在商品资源有限时，会损害商家的利益。</p>
+<p>比较常见的做法，是定时统计，对于超时未支付的订单，自动关闭并释放库存。</p>
+<p>这就需要定时任务的支持了。</p>
+<h2 id="1-1-常见的定时任务框架"><a href="#1-1-常见的定时任务框架" class="headerlink" title="1.1.常见的定时任务框架"></a>1.1.常见的定时任务框架</h2><p>目前常用的定时任务实现:</p>
+<table>
+<thead>
+<tr>
+<th>实现方式</th>
+<th>cron表达式</th>
+<th>固定时间执行</th>
+<th>固定频率执行</th>
+<th>开发难易程度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>JDK 的TimeTask</td>
+<td>不支持</td>
+<td>支持</td>
+<td>支持</td>
+<td>复杂</td>
+</tr>
+<tr>
+<td>Spring Schedule</td>
+<td>支持</td>
+<td>支持</td>
+<td>支持</td>
+<td>简单</td>
+</tr>
+<tr>
+<td>Quartz</td>
+<td>支持</td>
+<td>支持</td>
+<td>支持</td>
+<td>难</td>
+</tr>
+</tbody></table>
+<p>从以上表格可以看出，Spring Schedule框架功能完善，简单易用。对于中小型项目需求，Spring Schedule是完全可以胜任的。</p>
+<h2 id="1-2-简介"><a href="#1-2-简介" class="headerlink" title="1.2.简介"></a>1.2.简介</h2><p>Spring Schedule是Spring  Framework的其中一部分功能：</p>
+<p><img src="/posts/project-leyou-18/1555666217625.png" alt="1555666217625"></p>
+<p>并且在SpringBoot中已经默认对Spring的Schedule实现了自动配置，使用时只需要简单注解和部分属性设置即可。</p>
+<h2 id="1-3-快速入门"><a href="#1-3-快速入门" class="headerlink" title="1.3.快速入门"></a>1.3.快速入门</h2><p>我们新建一个Demo工程，完成入门案例的测试：</p>
+<h3 id="1-3-1-创建项目"><a href="#1-3-1-创建项目" class="headerlink" title="1.3.1.创建项目"></a>1.3.1.创建项目</h3><p>使用Spring的 initializr来搭建项目：</p>
+<p><img src="/posts/project-leyou-18/1555667071529.png" alt="1555667071529"></p>
+<p><img src="/posts/project-leyou-18/1555666991890.png" alt="1555666991890"></p>
+<p>选择依赖：</p>
+<p><img src="/posts/project-leyou-18/1555667023874.png" alt="1555667023874"></p>
+<h3 id="1-3-2-开启定时任务"><a href="#1-3-2-开启定时任务" class="headerlink" title="1.3.2.开启定时任务"></a>1.3.2.开启定时任务</h3><p>要开启定时任务功能，只需要在启动类上加载一个<code>@EnableScheduling</code>注解即可：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableScheduling</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TaskDemoApplication</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        SpringApplication.run(TaskDemoApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-3-3-定义任务"><a href="#1-3-3-定义任务" class="headerlink" title="1.3.3.定义任务"></a>1.3.3.定义任务</h3><p>定义任务，需要散步：</p>
+<ul>
+<li>声明类，通过<code>@Component</code>注解注册到Spring容器</li>
+<li>类中定义方法，方法内部编写任务逻辑</li>
+<li>方法上添加注解<code>@Scheduled(fixedRate = 1000)</code>来定义任务执行频率，<ul>
+<li>这里的fiexRate&#x3D;1000，代表是每隔1000毫秒执行一次</li>
+</ul>
+</li>
+</ul>
+<p><img src="/posts/project-leyou-18/1556163899025.png" alt="1556163899025"> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.leyou.task.job;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.scheduling.annotation.Scheduled;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HelloJob</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Scheduled(fixedRate = 1000)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">hello</span><span class="params">()</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;hello spring schedule!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-3-4-启动测试"><a href="#1-3-4-启动测试" class="headerlink" title="1.3.4.启动测试"></a>1.3.4.启动测试</h3><p>启动项目，可以在控制台看到任务执行情况：</p>
+<p><img src="/posts/project-leyou-18/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1555667399323.png" alt="1555667399323"></p>
+<h2 id="1-4-配置"><a href="#1-4-配置" class="headerlink" title="1.4.配置"></a>1.4.配置</h2><p>定时任务有许多可以自定义的配置属性：</p>
+<h3 id="1-4-1-任务线程池大小"><a href="#1-4-1-任务线程池大小" class="headerlink" title="1.4.1.任务线程池大小"></a>1.4.1.任务线程池大小</h3><p>默认情况下，定时任务的线程池大小只有1，<strong>当任务较多执行频繁时，会出现阻塞等待的情况</strong>，任务调度器就会出现<strong>时间漂移</strong>，任务执行时间将不确定。</p>
+<p>为了避免这样的情况发生，我们需要自定义线程池的大小：</p>
+<p>修改application.yml即可实现：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">task:</span></span><br><span class="line">    <span class="attr">scheduling:</span></span><br><span class="line">      <span class="attr">pool:</span></span><br><span class="line">        <span class="attr">size:</span> <span class="number">10</span></span><br></pre></td></tr></table></figure>
+
+<p>重启项目后测试：</p>
+<p><img src="/posts/project-leyou-18/%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1555667762439.png" alt="1555667762439"></p>
+<p>可以看到执行时会切换到不同的线程执行。</p>
+<h3 id="1-4-2-定时策略"><a href="#1-4-2-定时策略" class="headerlink" title="1.4.2.定时策略"></a>1.4.2.定时策略</h3><p>在方法上添加注解<code>@Scheduled</code>可以控制定时执行的频率，有三种策略：</p>
+<ul>
+<li>fixedRate：按照固定时间频率执行，单位毫秒，即每xx毫秒执行一次。<ul>
+<li>如果上一个任务阻塞导致任务积压，则会在当前任务执行后，一次把多个积压的任务都执行完成</li>
+<li>举例：假如任务执行每秒1次，而第一个任务执行耗时4秒，会导致4个任务积压，在第一个任务执行后，积压的4个任务会立即执行，不再等待</li>
+</ul>
+</li>
+<li>fixedDelay：固定延迟执行，单位毫秒，即前一个任务执行结束后xx毫秒执行第二个任务。<ul>
+<li>如果上一个任务阻塞导致任务积压，则会在当前任务执行后xx毫秒执行下一个任务</li>
+</ul>
+</li>
+<li>cron：知名的cron表达式，使用表达式规则来定义任务执行策略，与fixedDelay类似的。</li>
+</ul>
+<h3 id="1-4-3-cron表达式"><a href="#1-4-3-cron表达式" class="headerlink" title="1.4.3.cron表达式"></a>1.4.3.cron表达式</h3><p>什么是cron表达式呢？</p>
+<p>Cron表达式是一个字符串，字符串包含6或7个域，每一个域代表一个含义，例如秒、分。域和域之间以空格隔开，有如下两种语法格式：</p>
+<ul>
+<li>Seconds Minutes Hours DayofMonth Month DayofWeek Year</li>
+<li>Seconds Minutes Hours DayofMonth Month DayofWeek</li>
+</ul>
+<p>cron表达式规则：</p>
+<table>
+<thead>
+<tr>
+<th>域</th>
+<th>允许值</th>
+<th>允许的特殊字符</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>秒（Seconds）</td>
+<td>0~59的整数</td>
+<td>,   -   *   &#x2F;</td>
+</tr>
+<tr>
+<td>分（<em>Minutes</em>）</td>
+<td>0~59的整数</td>
+<td>,   -   *   &#x2F;</td>
+</tr>
+<tr>
+<td>小时（<em>Hours</em>）</td>
+<td>0~23的整数</td>
+<td>,   -   *   &#x2F;</td>
+</tr>
+<tr>
+<td>日期（<em>DayofMonth</em>）</td>
+<td>1~31的整数（但是你需要考虑你月的天数）</td>
+<td>,   -   *  ?   &#x2F;  L W C</td>
+</tr>
+<tr>
+<td>月份（<em>Month</em>）</td>
+<td>1~12的整数或者 JAN-DEC</td>
+<td>,   -   *   &#x2F;</td>
+</tr>
+<tr>
+<td>星期（<em>DayofWeek</em>）</td>
+<td>1~7的整数或者 SUN-SAT （1&#x3D;SUN）</td>
+<td>,   -   *  ?   &#x2F;  L C  #</td>
+</tr>
+<tr>
+<td>年(可选，留空)（<em>Year</em>）</td>
+<td>1970~2099</td>
+<td>,   -   *   &#x2F;</td>
+</tr>
+</tbody></table>
+<p>每个域上一般都是数字，或者指定允许的特殊字符：</p>
+<table>
+<thead>
+<tr>
+<th>特殊字符</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>*</td>
+<td>表示匹配该域的任意值。假如在Minutes域使用, 即表示每分钟都会触发事件</td>
+</tr>
+<tr>
+<td>?</td>
+<td>只能用在DayofMonth和DayofWeek两个域中的一个。它表示不确定的值</td>
+</tr>
+<tr>
+<td>-</td>
+<td>表示范围。例如在Hours域使用5-8，表示从5点、6点、7点、8点各执行一次</td>
+</tr>
+<tr>
+<td>,</td>
+<td>表示列出枚举值。例如：在week域使用FRI,SUN，表示星期五和星期六执行</td>
+</tr>
+<tr>
+<td>&#x2F;</td>
+<td>一般用法：x&#x2F;y，从x开始，每次递增y。如果放在minutes域，5&#x2F;15，表示每小时的第5分钟开始，每隔15分钟一次，即：5分钟、20分钟、35分钟、50分钟时执行</td>
+</tr>
+<tr>
+<td>L</td>
+<td>表示最后，只能出现在DayofWeek和DayofMonth域。如果在DayOfMonth中，代表每个月的最后一天。如果是在DayOfWeek域，表示每周最后一天（周六），但是如果是：数字+L，如6L表示每月的 最后一个周五</td>
+</tr>
+<tr>
+<td>W</td>
+<td>表示最近的有效工作日(周一到周五),只能出现在DayofMonth域，系统将在离指定日期的最近的有效工作日触发事件。例如：在 DayofMonth使用5W，如果5日是星期六，则将在最近的工作日：星期五，即4日触发。如果5日是星期天，则在6日(周一)触发；如果5日在星期一到星期五中的一天，则就在5日触发。另外一点，W的最近寻找不会跨过月份 。</td>
+</tr>
+<tr>
+<td>LW</td>
+<td>两个字符可以连用，表示在某个月最后一个工作日，即最后一个星期五</td>
+</tr>
+<tr>
+<td>#</td>
+<td>用在DayOfMonth中，确定每个月第几个星期几。例如在4#2，表示某月的第二个星期三（2表示当月的第二周，4表示这周的第4天，即星期三）。</td>
+</tr>
+</tbody></table>
+<p>示例：</p>
+<table>
+<thead>
+<tr>
+<th>表达式</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>0 0 2 1 * ?  *</code></td>
+<td>表示在每月的1日的凌晨2点执行任务</td>
+</tr>
+<tr>
+<td><code>0 15 10 ?  * MON-FRI</code></td>
+<td>表示周一到周五每天上午10:15执行作</td>
+</tr>
+<tr>
+<td><code>0 15 10 ? * 6L 2002-2020</code></td>
+<td>表示2002-2006年的每个月的最后一个星期五上午10:15执行</td>
+</tr>
+<tr>
+<td><code>0 0 9-21 * * 2-6</code></td>
+<td>996 每小时</td>
+</tr>
+</tbody></table>
+<p>我们把代码修改一下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HelloJob</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Scheduled(cron = &quot;0/2 * * * * ?&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">hello</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        log.info(<span class="string">&quot;hello spring schedule!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试：</p>
+<p><img src="/posts/project-leyou-18/1555684079046.png" alt="1555684079046"></p>
+<h1 id="2-分布式任务调度"><a href="#2-分布式任务调度" class="headerlink" title="2.分布式任务调度"></a>2.分布式任务调度</h1><p>现在，假设我们在订单系统中已经引入了定时任务，并且定时去清理那些超时未付款的订单，而后恢复商品库存。如果是单机部署没有什么问题，但是，如果我们的订单系统搭建成集群呢？</p>
+<p>当任务触发时，可能订单服务集群的每个节点都会去执行定时任务，有可能对同一个订单执行多次操作，因此也会导致库存增加多次，这样就出事了。</p>
+<p>而且，扫描和清理订单，也不需要让每一个订单服务都去执行，只要一个服务节点执行就可以了。</p>
+<p>因此，如何解决分布式集群下的定时任务分配，就是<strong>分布式任务调度</strong>了。</p>
+<h2 id="2-1-解决方案分析"><a href="#2-1-解决方案分析" class="headerlink" title="2.1.解决方案分析"></a>2.1.解决方案分析</h2><p>解决方案有多种，利用我们现有的知识就可以解决，大家可以思考一下。</p>
+<ul>
+<li>方案一：<ul>
+<li>利用锁限制任务串行执行，同一时刻只能有一个节点执行任务。</li>
+</ul>
+</li>
+<li>方案二：<ul>
+<li>创建分布式任务调度中心，记录定时任务，触发时不执行业务，而是通知微服务集群，利用负载均衡算法，实现任务调度。有许多的开源框架实现了这样的功能，比如：Quartz、Elastic-Job、XXL-Job等</li>
+</ul>
+</li>
+</ul>
+<p>两种方案各有自己的优缺点，我们先尝试方案一。</p>
+<h2 id="2-2-分布式锁方案"><a href="#2-2-分布式锁方案" class="headerlink" title="2.2.分布式锁方案"></a>2.2.分布式锁方案</h2><p>方案一的思路是利用锁，把多线程并发执行变成只有线程串行执行。大家可能会觉得，我们直接使用Synchronized来把要执行的任务锁定不就好了吗。</p>
+<p>但是，在分布式系统，因为是多服务器部署，跨虚拟机，传统锁机制是不管用的。此时就必须使用分布式锁了。为什么呢？</p>
+<blockquote>
+<p>传统锁</p>
+</blockquote>
+<p>当存在多个线程可以同时修改某个共享变量时，因为有并发写的情况，可能会出现丢失更新、数据不一致等情况，出现线程安全问题。此时我们就需要理由锁或同步机制，保证多线程串行执行，避免安全问题发生。</p>
+<p>锁的本质是一个标记，为了保证多个线程在一个时刻同一个代码块只能有一个线程可执行，那么需要在某个地方做个标记，<strong>这个标记必须每个线程都能看到</strong>，当标记不存在时可以设置该标记，其余后续线程发现已经有标记了则等待拥有标记的线程结束同步代码块取消标记后再去尝试设置标记。这个标记可以理解为锁。</p>
+<blockquote>
+<p>分布式锁</p>
+</blockquote>
+<p>在单机系统中，因为只有一个JVM进程，进程中有多线程。因此多个线程可以共享内存空间，每个线程都可以看到这个内存标记，从而实现锁的效果。</p>
+<p>但是，在分布式系统中，因为每个系统部署都是独立的JVM进程，多进程之间不共享内存， 写在内存中的标记只对自己可见，锁就失效了。</p>
+<p>因此，分布式系统下，如果能够把锁的标记放到一个多进程共享的内存中，<strong>保证多进程可见</strong>，那么就可以实现与单进程锁一样的效果了，这样的锁就是<strong>分布式锁</strong>。</p>
+<p>多进程共享的内存实现有多种方式，例如<code>Redis</code>、<code>Memcache</code>、<code>Zookeeper</code>等，其原理都基本类似，只要满足下列要求即可：</p>
+<ul>
+<li>多进程可见：多进程可见，否则就无法实现分布式效果</li>
+<li>避免死锁：死锁的情况有很多，我们要思考各种异常导致死锁的情况，保证锁可以被释放</li>
+<li>排它（互斥）：同一时刻，只能有一个进程获得锁</li>
+<li>高可用：避免锁服务宕机或处理好宕机的补救措施</li>
+</ul>
+<p>这种实现方案的特点：</p>
+<ul>
+<li>实现<strong>简单</strong></li>
+<li>功能单一，只能实现竞争式的分布式锁，</li>
+<li>多个竞争的服务往往只有某几个在执行任务，没有负载均衡，效率较差</li>
+<li>缺乏任务管理的统计和UI交互</li>
+</ul>
+<p>不过，目前就订单的定时清理业务而言，分布式锁方案非常适合。</p>
+<h2 id="2-3-任务调度中心方案"><a href="#2-3-任务调度中心方案" class="headerlink" title="2.3.任务调度中心方案"></a>2.3.任务调度中心方案</h2><p>基于任务调度中心的分布式任务框架有很多，比如：</p>
+<ul>
+<li>Quartz：Java上的定时任务标准。但Quartz关注点在于定时任务而非数据，并无一套根据数据处理而定制化的流程。虽然Quartz可以基于数据库实现作业的高可用，但缺少分布式并行调度的功能</li>
+<li>TBSchedule：阿里早期开源的分布式任务调度系统。代码略陈旧，使用timer而非线程池执行任务调度。众所周知，timer在处理异常状况时是有缺陷的。而且TBSchedule作业类型较为单一，只能是获取&#x2F;处理数据一种模式。还有就是文档缺失比较严重</li>
+<li>elastic-job：当当开发的弹性分布式任务调度系统，功能丰富强大，采用zookeeper实现分布式协调，实现任务高可用以及分片，目前是版本2.15，并且可以支持云开发</li>
+<li>Saturn：是唯品会自主研发的分布式的定时任务的调度平台，基于当当的elastic-job 版本1开发，并且可以很好的部署到docker容器上。</li>
+<li>xxl-job: 是大众点评员工许雪里于2015年发布的分布式任务调度平台，是一个轻量级分布式任务调度框架，其核心设计目标是开发迅速、学习简单、轻量级、易扩展。</li>
+</ul>
+<p>以上框架中，目前比较流行的主要是两个：elastic-job和xxl-job</p>
+<p>elastic-job，目前在GitHub上有4.8K的start：</p>
+<p><img src="/posts/project-leyou-18/1556184684736.png" alt="1556184684736"></p>
+<p>最后一次提交的时间是在：2018年的5月28日</p>
+<p>xxl-job，目前的GitHub星数是：7.8K</p>
+<p><img src="/posts/project-leyou-18/1556184786479.png" alt="1556184786479"></p>
+<p>最后一次提交日期是：2019年6月11日</p>
+<p>由此对比可知：xxl-job的热度更高，也更活跃，推荐使用xxl-job</p>
+<p>官网：<a target="_blank" rel="noopener" href="http://www.xuxueli.com/xxl-job/#/">http://www.xuxueli.com/xxl-job/#/</a></p>
+<p><img src="/posts/project-leyou-18/1556184931545.png" alt="1556184931545"></p>
+<h1 id="3-Redis分布式锁"><a href="#3-Redis分布式锁" class="headerlink" title="3.Redis分布式锁"></a>3.Redis分布式锁</h1><p>因为Redis具备高性能、高可用、高并发的特性，这里，我们会采用Redis来实现分布式锁。</p>
+<h2 id="3-1-Redis分布式锁原理"><a href="#3-1-Redis分布式锁原理" class="headerlink" title="3.1.Redis分布式锁原理"></a>3.1.Redis分布式锁原理</h2><p>上面讲过，分布式锁的关键是<strong>多进程共享的内存标记</strong>，因此只要我们在Redis中放置一个这样的标记就可以了。不过在实现过程中，不要忘了我们需要实现下列目标：</p>
+<ul>
+<li>多进程可见：多进程可见，否则就无法实现分布式效果</li>
+<li>避免死锁：死锁的情况有很多，我们要思考各种异常导致死锁的情况，保证锁可以被释放</li>
+<li>排它：同一时刻，只能有一个进程获得锁</li>
+<li>高可用：避免锁服务宕机或处理好宕机的补救措施</li>
+</ul>
+<p>在Redis中我们可以用下面的方式来解决上述问题：</p>
+<ul>
+<li><p><strong>多进程可见</strong>：多进程可见，否则就无法实现分布式效果</p>
+<ul>
+<li>redis本身就是多服务共享的，因此自然满足</li>
+</ul>
+</li>
+<li><p><strong>排它</strong>：同一时刻，只能有一个进程获得锁</p>
+<ul>
+<li>我们需要利用Redis的setnx命令来实现，setnx是set when not exits的意思。当多次执行setnx命令时，只有第一次执行的才会成功并返回1，其它情况返回0：</li>
+<li><img src="/posts/project-leyou-18/1555935393771.png" alt="1555935393771"> </li>
+<li>我们定义一个固定的key，多个进程都执行setnx，设置这个key的值，返回1的服务获取锁，0则没有获取</li>
+</ul>
+</li>
+<li><p><strong>避免死锁</strong>：死锁的情况有很多，我们要思考各种异常导致死锁的情况</p>
+<ul>
+<li><p>比如服务宕机后的锁释放问题，我们设置锁时最好设置锁的有效期，如果服务宕机，有效期到时自动删除锁。</p>
+<p><img src="/posts/project-leyou-18/1555935852042.png" alt="1555935852042"></p>
+</li>
+</ul>
+</li>
+<li><p><strong>高可用</strong>：避免锁服务宕机或处理好宕机的补救措施</p>
+<ul>
+<li>利用Redis的主从、哨兵、集群，保证高可用</li>
+</ul>
+</li>
+</ul>
+<h2 id="3-2-分布式锁版本1"><a href="#3-2-分布式锁版本1" class="headerlink" title="3.2.分布式锁版本1"></a>3.2.分布式锁版本1</h2><h3 id="3-2-1-流程"><a href="#3-2-1-流程" class="headerlink" title="3.2.1.流程"></a>3.2.1.流程</h3><p>按照上面所述的理论，分布式锁的流程大概如下：</p>
+<p><img src="/posts/project-leyou-18/1555942085021.png" alt="1555942085021"> </p>
+<p>基本流程：</p>
+<ul>
+<li>1、通过set命令设置锁</li>
+<li>2、判断返回结果是否是OK<ul>
+<li>1）Nil，获取失败，结束或重试（自旋锁）</li>
+<li>2）OK，获取锁成功<ul>
+<li>执行业务</li>
+<li>释放锁，DEL 删除key即可</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>3、异常情况，服务宕机。超时时间EX结束，会自动释放锁</li>
+</ul>
+<h3 id="3-2-2-代码实现"><a href="#3-2-2-代码实现" class="headerlink" title="3.2.2.代码实现"></a>3.2.2.代码实现</h3><p>定义一个锁接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.leyou.task.utils;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">RedisLock</span> &#123;</span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">lock</span><span class="params">(<span class="type">long</span> releaseTime)</span>;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">unlock</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>添加依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-data-redis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>添加依赖：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">redis:</span></span><br><span class="line">    <span class="attr">host:</span> <span class="number">192.168</span><span class="number">.206</span><span class="number">.66</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>先定义一个锁工具：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.leyou.task.utils;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.core.StringRedisTemplate;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SimpleRedisLock</span> <span class="keyword">implements</span> <span class="title class_">RedisLock</span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> StringRedisTemplate redisTemplate;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 设定好锁对应的 key</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String key;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 锁对应的值，无意义，写为1</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">value</span> <span class="operator">=</span> <span class="string">&quot;1&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">SimpleRedisLock</span><span class="params">(StringRedisTemplate redisTemplate, String key)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.redisTemplate = redisTemplate;</span><br><span class="line">        <span class="built_in">this</span>.key = key;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">lock</span><span class="params">(<span class="type">long</span> releaseTime)</span> &#123;</span><br><span class="line">        <span class="comment">// 尝试获取锁</span></span><br><span class="line">        <span class="type">Boolean</span> <span class="variable">boo</span> <span class="operator">=</span> redisTemplate.opsForValue().setIfAbsent(key, value, releaseTime, TimeUnit.SECONDS);</span><br><span class="line">        <span class="comment">// 判断结果</span></span><br><span class="line">        <span class="keyword">return</span> boo != <span class="literal">null</span> &amp;&amp; boo;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">unlock</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="comment">// 删除key即可释放锁</span></span><br><span class="line">        redisTemplate.delete(key);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在定时任务中使用锁：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.leyou.task.job;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.leyou.task.utils.SimpleRedisLock;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.core.StringRedisTemplate;</span><br><span class="line"><span class="keyword">import</span> org.springframework.scheduling.annotation.Scheduled;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HelloJob</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> StringRedisTemplate redisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Scheduled(cron = &quot;0/10 * * * * ?&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">hello</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 创建锁对象</span></span><br><span class="line">        <span class="type">RedisLock</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleRedisLock</span>(redisTemplate, <span class="string">&quot;lock&quot;</span>);</span><br><span class="line">        <span class="comment">// 获取锁,设置自动失效时间为50s</span></span><br><span class="line">        <span class="type">boolean</span> <span class="variable">isLock</span> <span class="operator">=</span> lock.lock(<span class="number">50</span>);</span><br><span class="line">        <span class="comment">// 判断是否获取锁</span></span><br><span class="line">        <span class="keyword">if</span> (!isLock) &#123;</span><br><span class="line">            <span class="comment">// 获取失败</span></span><br><span class="line">            log.info(<span class="string">&quot;获取锁失败，停止定时任务&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 执行业务</span></span><br><span class="line">            log.info(<span class="string">&quot;获取锁成功，执行定时任务。&quot;</span>);</span><br><span class="line">            <span class="comment">// 模拟任务耗时</span></span><br><span class="line">            Thread.sleep(<span class="number">500</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;任务执行异常&quot;</span>, e);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// 释放锁</span></span><br><span class="line">            lock.unlock();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/project-leyou-18/1556163989735.png" alt="1556163989735"> </p>
+<h2 id="3-3-分布式锁版本2"><a href="#3-3-分布式锁版本2" class="headerlink" title="3.3.分布式锁版本2"></a>3.3.分布式锁版本2</h2><p>刚才的锁有没有什么问题？</p>
+<h3 id="3-3-1-释放锁的问题"><a href="#3-3-1-释放锁的问题" class="headerlink" title="3.3.1.释放锁的问题"></a>3.3.1.释放锁的问题</h3><p>大家思考一下，释放锁就是用DEL语句把锁对应的key给删除，有没有这么一种可能性：</p>
+<ol>
+<li>两个进程：A和B和C，在执行任务，并争抢锁，此时A获取了锁，并设置自动过期时间为10s</li>
+<li>A开始执行业务，因为某种原因，业务阻塞，耗时超过了10秒，此时锁自动释放了</li>
+<li>B恰好此时开始尝试获取锁，因为锁已经自动释放，成功获取锁</li>
+<li>A此时业务执行完毕，执行释放锁逻辑（删除key），于是B的锁被释放了，而B其实还在执行业务</li>
+<li>此时进程C尝试获取锁，也成功了，因为A把B的锁删除了。</li>
+</ol>
+<p>问题出现了：B和C同时获取了锁，违反了排它性！</p>
+<p>如何解决这个问题呢？我们应该在删除锁之前，判断这个锁是否是自己设置的锁，如果不是（例如自己的锁已经超时释放），那么就不要删除了。</p>
+<p>那么问题来了：<strong>如何得知当前获取锁的是不是自己</strong>呢？</p>
+<p>对了，我们可以在set 锁时，存入自己的信息！删除锁前，判断下里面的值是不是与自己相等，如果不等，就不要删除了。</p>
+<h3 id="3-3-2-流程图"><a href="#3-3-2-流程图" class="headerlink" title="3.3.2.流程图"></a>3.3.2.流程图</h3><p>来看下流程的变化：</p>
+<p><img src="/posts/project-leyou-18/1555944884321.png" alt="1555944884321"> </p>
+<p>在释放锁之前，多了一步根据判断，判断锁的value释放跟自己存进去的一致。</p>
+<h3 id="3-3-3-代码实现"><a href="#3-3-3-代码实现" class="headerlink" title="3.3.3.代码实现"></a>3.3.3.代码实现</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.leyou.task.utils;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.core.StringRedisTemplate;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.UUID;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SimpleRedisLock</span> <span class="keyword">implements</span> <span class="title class_">RedisLock</span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> StringRedisTemplate redisTemplate;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 设定好锁对应的 key</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String key;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 存入的线程信息的前缀，防止与其它JVM中线程信息冲突</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">ID_PREFIX</span> <span class="operator">=</span> UUID.randomUUID().toString();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">SimpleRedisLock</span><span class="params">(StringRedisTemplate redisTemplate, String key)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.redisTemplate = redisTemplate;</span><br><span class="line">        <span class="built_in">this</span>.key = key;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">lock</span><span class="params">(<span class="type">long</span> releaseTime)</span> &#123;</span><br><span class="line">        <span class="comment">// 获取线程信息作为值，方便判断是否是自己的锁</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">value</span> <span class="operator">=</span> ID_PREFIX + Thread.currentThread().getId();</span><br><span class="line">        <span class="comment">// 尝试获取锁</span></span><br><span class="line">        <span class="type">Boolean</span> <span class="variable">boo</span> <span class="operator">=</span> redisTemplate.opsForValue().setIfAbsent(key, value, releaseTime, TimeUnit.SECONDS);</span><br><span class="line">        <span class="comment">// 判断结果</span></span><br><span class="line">        <span class="keyword">return</span> boo != <span class="literal">null</span> &amp;&amp; boo;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">unlock</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="comment">// 获取线程信息作为值，方便判断是否是自己的锁</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">value</span> <span class="operator">=</span> ID_PREFIX + Thread.currentThread().getId();</span><br><span class="line">        <span class="comment">// 获取现在的锁的值</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">val</span> <span class="operator">=</span> redisTemplate.opsForValue().get(key);</span><br><span class="line">        <span class="comment">// 判断是否是自己</span></span><br><span class="line">        <span class="keyword">if</span>(value.equals(val)) &#123;</span><br><span class="line">            <span class="comment">// 删除key即可释放锁</span></span><br><span class="line">            redisTemplate.delete(key);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="3-4-分布式锁版本3"><a href="#3-4-分布式锁版本3" class="headerlink" title="3.4.分布式锁版本3"></a>3.4.分布式锁版本3</h2><p>刚才的锁有没有什么问题？</p>
+<p>如果我们在获取锁以后，执行代码的过程中，再次尝试获取锁，执行setnx肯定会失败，因为锁已经存在了。这样就是<strong>不可重入锁</strong>，有可能导致死锁。</p>
+<p>如何解决呢？</p>
+<p>当然是想办法改造成<strong>可重入锁</strong>。</p>
+<h3 id="3-4-1-重入锁"><a href="#3-4-1-重入锁" class="headerlink" title="3.4.1.重入锁"></a>3.4.1.重入锁</h3><p>什么叫做可重入锁呢？</p>
+<blockquote>
+<p>可重入锁，也叫做递归锁，指的是在同一线程内，外层函数获得锁之后，内层递归函数仍然可以获取到该锁。换一种说法：<strong>同一个线程再次进入同步代码时，可以使用自己已获取到的锁。</strong></p>
+</blockquote>
+<p>可重入锁可以避免因同一线程中多次获取锁而导致死锁发生。</p>
+<p>那么，如何实现可重入锁呢？</p>
+<p>其中的关键，就是<strong>在锁已经被使用时，判断这个锁是否是自己的，如果是则再次获取</strong>。</p>
+<p>我们可以在set锁的值是，<strong>存入获取锁的线程的信息</strong>，这样下次再来时，就能知道当前持有锁的是不是自己，如果是就允许再次获取锁。</p>
+<p>要注意，因为锁的获取是<strong>可重入</strong>的，因此<strong>必须记录重入的次数</strong>，这样不至于在释放锁时一下就释放掉，而是逐层释放。</p>
+<p>因此，不能再使用简单的key-value结构，这里推荐使用hash结构：</p>
+<ul>
+<li>key：lock</li>
+<li>hashKey：线程信息</li>
+<li>hashValue：重入次数，默认1</li>
+</ul>
+<p>释放锁时，每次都把<strong>重入次数减一</strong>，减到0说明多次获取锁的逻辑都执行完毕，才可以删除key，释放锁</p>
+<h3 id="3-4-2-流程图"><a href="#3-4-2-流程图" class="headerlink" title="3.4.2.流程图"></a>3.4.2.流程图</h3><p>这里重点是获取锁的流程：</p>
+<p><img src="/posts/project-leyou-18/1556164092317.png" alt="1556164092317"></p>
+<p>下面我们假设锁的key为“<code>lock</code>”，hashKey是当前线程的id：“<code>threadId</code>”，锁自动释放时间假设为20</p>
+<p>获取锁的步骤：</p>
+<ul>
+<li>1、判断lock是否存在 <code>EXISTS lock</code><ul>
+<li>存在，说明有人获取锁了，下面判断是不是自己的锁<ul>
+<li>判断当前线程id作为hashKey是否存在：<code>HEXISTS lock threadId</code><ul>
+<li>不存在，说明锁已经有了，且不是自己获取的，锁获取失败，end</li>
+<li>存在，说明是自己获取的锁，重入次数+1：<code>HINCRBY lock threadId 1</code>，去到步骤3</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>2、不存在，说明可以获取锁，<code>HSET key threadId 1</code></li>
+<li>3、设置锁自动释放时间，<code>EXPIRE lock 20</code></li>
+</ul>
+</li>
+</ul>
+<p>释放锁的步骤：</p>
+<ul>
+<li>1、判断当前线程id作为hashKey是否存在：<code>HEXISTS lock threadId</code><ul>
+<li>不存在，说明锁已经失效，不用管了</li>
+<li>存在，说明锁还在，重入次数减1：<code>HINCRBY lock threadId -1</code>，获取新的重入次数</li>
+</ul>
+</li>
+<li>2、判断重入次数是否为0：<ul>
+<li>为0，说明锁全部释放，删除key：<code>DEL lock</code></li>
+<li>大于0，说明锁还在使用，重置有效时间：<code>EXPIRE lock 20</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="3-4-3-实现分析"><a href="#3-4-3-实现分析" class="headerlink" title="3.4.3.实现分析"></a>3.4.3.实现分析</h3><p>上述流程有一个最大的问题，就是有大量的判断，这样在多线程运行时，会有线程安全问题，除非能保证<strong>执行</strong></p>
+<p><strong>命令的原子性</strong>。</p>
+<p>因此，这里使用java代码无法实现，那该怎么办呢？</p>
+<p>Redis支持一种特殊的执行方式：lua脚本执行，lua脚本中可以定义多条语句，语句执行具备原子性。</p>
+<h2 id="3-5-Redis的Lua脚本"><a href="#3-5-Redis的Lua脚本" class="headerlink" title="3.5.Redis的Lua脚本"></a>3.5.Redis的Lua脚本</h2><p>其实实现Redis的原子操作有多种方式，比如Redis事务，但是相比而言，使用Redis的Lua脚本更加优秀，具有不可替代的好处：</p>
+<ul>
+<li>原子性：redis会将整个脚本作为一个整体执行，不会被其他命令插入。</li>
+<li>复用：客户端发送的脚本会永久存在redis中，以后可以重复使用，而且各个Redis客户端可以共用。</li>
+<li>高效：Lua脚本解析后会形成缓存，不用每次执行都解析。</li>
+<li>减少网络开销：Lua脚步缓存后，可以形成SHA值，作为缓存的key，以后调用可以直接根据SHA值来调用脚本，不用每次发送完整脚本，较少网络占用和时延</li>
+</ul>
+<h3 id="3-5-1-Redis脚本命令："><a href="#3-5-1-Redis脚本命令：" class="headerlink" title="3.5.1.Redis脚本命令："></a>3.5.1.Redis脚本命令：</h3><p>通过下面这个命令，可以看到所有脚本相关命令：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/local/bin</span><br><span class="line">redis<span class="literal">-cli</span></span><br><span class="line">help @scripting</span><br></pre></td></tr></table></figure>
+
+
+
+<p>我们看一些常用命令</p>
+<blockquote>
+<p>EVAL命令：</p>
+</blockquote>
+<p><img src="/posts/project-leyou-18/1556029159652.png" alt="1556029159652"> </p>
+<p>直接执行一段脚本，参数包括：</p>
+<ul>
+<li>script：脚本内容，或者脚本地址</li>
+<li>numkeys：脚本中用到的key的数量，接下来的numkeys个参数会作为key参数，剩下的作为arg参数</li>
+<li>key：作为key的参数，会被存入脚本环境中的KEYS数组，角标从1开始</li>
+<li>arg：其它参数，会被存入脚本环境中的ARGV数组，角标从1开始</li>
+</ul>
+<p>示例：<code>EVAL &quot;return &#39;hello world!&#39;&quot; 0</code>，其中：</p>
+<ul>
+<li><code>&quot;return &#39;hello world!&#39;&quot;</code>：就是脚本的内容，直接返回字符串，没有别的命令</li>
+<li><code>0</code>：就是说没有用key参数，直接返回</li>
+</ul>
+<p>效果：</p>
+<p><img src="/posts/project-leyou-18/1556030139226.png" alt="1556030139226"> </p>
+<blockquote>
+<p>SCRIPT LOAD命令</p>
+</blockquote>
+<p><img src="/posts/project-leyou-18/1556029464469.png" alt="1556029464469"> </p>
+<p>将一段脚本编译并缓存起来，生成一个SHA1值并返回，作为脚本字典的key，方便下次使用。</p>
+<p>参数script就是脚本内容或地址。</p>
+<p>以之前案例中的的脚本为例：</p>
+<p><img src="/posts/project-leyou-18/1556030196610.png" alt="1556030196610"> </p>
+<p>此处返回的<code>ada0bc9efe2392bdcc0083f7f8deaca2da7f32ec</code>就是脚本缓存后得到的sha1值。</p>
+<p>在脚本字典中，每一个这样的sha1值，对应一段解析好的脚本：</p>
+<p><img src="/posts/project-leyou-18/1556030293491.png" alt="1556030293491"> </p>
+<blockquote>
+<p>EVALSHA 命令：</p>
+</blockquote>
+<p><img src="/posts/project-leyou-18/1556029524238.png" alt="1556029524238"> </p>
+<p>与EVAL类似，执行一段脚本，区别是通过脚本的sha1值，去脚本缓存中查找，然后执行，参数：</p>
+<ul>
+<li>sha1：就是脚本对应的sha1值</li>
+</ul>
+<p>我们用刚刚缓存的脚本为例：</p>
+<p><img src="/posts/project-leyou-18/1556030354363.png" alt="1556030354363"> </p>
+<h3 id="3-5-2-Lua基本语法"><a href="#3-5-2-Lua基本语法" class="headerlink" title="3.5.2.Lua基本语法"></a>3.5.2.Lua基本语法</h3><p>Lua脚本遵循Lua的基本语法，这里我们简单介绍几个常用的：</p>
+<blockquote>
+<p>redis.call()和redis.pcall()</p>
+</blockquote>
+<p>这两个函数是调用redis命令的函数，区别在于call执行过程中出现错误会直接返回错误；pcall则在遇到错误后，会继续向下执行。基本语法类似：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis.call(<span class="string">&quot;命令名称&quot;</span>, 参数<span class="number">1</span>， 参数<span class="number">2</span> ...)</span><br></pre></td></tr></table></figure>
+
+<p>例如这样的脚本：<code>return redis.call(&#39;set&#39;, KEYS[1], ARGV[1])</code></p>
+<ul>
+<li>‘set’：就是执行set 命令</li>
+<li>KEYS[1]：从脚本环境中KEYS数组里取第一个key参数</li>
+<li>ARGV[1]：从脚本环境中ARGV数组里取第一个arg参数</li>
+</ul>
+<p>完整示例：</p>
+<p>set(“name”,”Jack”)</p>
+<p><img src="/posts/project-leyou-18/1556031114634.png" alt="1556031114634"> </p>
+<p>执行这段脚本时传入的参数：</p>
+<ul>
+<li>1：声明key只有一个，接下来的第一个参数作为key参数</li>
+<li>name：key参数，会被存入到KEYS数组</li>
+<li>Jack：arg参数，会被存入ARGV数组</li>
+</ul>
+<blockquote>
+<p>条件判断和变量</p>
+</blockquote>
+<p>条件判断语法：<code>if (条件语句) then ...; else ...; end;</code></p>
+<p>变量接收语法：<code>local num = 123;</code></p>
+<p>示例：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> val = redis.call(<span class="string">&#x27;get&#x27;</span>, KEYS[<span class="number">1</span>]);</span><br><span class="line"><span class="keyword">if</span> (val &gt; ARGV[<span class="number">1</span>]) <span class="keyword">then</span> </span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>; </span><br><span class="line"><span class="keyword">else</span> </span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>; </span><br><span class="line"><span class="keyword">end</span>;</span><br></pre></td></tr></table></figure>
+
+<p>基本逻辑：获取指定key的值，判断是否大于指定参数，如果大于则返回1，否则返回0</p>
+<p>执行：</p>
+<p><img src="/posts/project-leyou-18/1556032181883.png" alt="1556032181883"></p>
+<ul>
+<li><p>可以看到num一开始是321。</p>
+</li>
+<li><p>我们保存脚本，</p>
+</li>
+<li><p>然后执行并传递num，400。判断num是否大于400，</p>
+</li>
+<li><p>结果返回0.</p>
+</li>
+</ul>
+<h3 id="3-5-3-编写分布式锁脚本"><a href="#3-5-3-编写分布式锁脚本" class="headerlink" title="3.5.3.编写分布式锁脚本"></a>3.5.3.编写分布式锁脚本</h3><p>这里我们假设有3个参数：</p>
+<ul>
+<li>KEYS[1]：就是锁的key</li>
+<li>ARGV[1]：就是线程id信息</li>
+<li>ARGV[2]：锁过期时长</li>
+</ul>
+<p>MAP&lt;固定锁的key，线程id，重入的计数器+1&gt; 并设置过期时间</p>
+<p>首先是获取锁：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (redis.call(<span class="string">&#x27;EXISTS&#x27;</span>, KEYS[<span class="number">1</span>]) == <span class="number">0</span>) <span class="keyword">then</span></span><br><span class="line">    redis.call(<span class="string">&#x27;HSET&#x27;</span>, KEYS[<span class="number">1</span>], ARGV[<span class="number">1</span>], <span class="number">1</span>);</span><br><span class="line">    redis.call(<span class="string">&#x27;EXPIRE&#x27;</span>, KEYS[<span class="number">1</span>], ARGV[<span class="number">2</span>]);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"><span class="keyword">end</span>;</span><br><span class="line"><span class="keyword">if</span> (redis.call(<span class="string">&#x27;HEXISTS&#x27;</span>, KEYS[<span class="number">1</span>], ARGV[<span class="number">1</span>]) == <span class="number">1</span>) <span class="keyword">then</span></span><br><span class="line">    redis.call(<span class="string">&#x27;HINCRBY&#x27;</span>, KEYS[<span class="number">1</span>], ARGV[<span class="number">1</span>], <span class="number">1</span>);</span><br><span class="line">    redis.call(<span class="string">&#x27;EXPIRE&#x27;</span>, KEYS[<span class="number">1</span>], ARGV[<span class="number">2</span>]);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"><span class="keyword">end</span>;</span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+<p>然后是释放锁：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (redis.call(<span class="string">&#x27;HEXISTS&#x27;</span>, KEYS[<span class="number">1</span>], ARGV[<span class="number">1</span>]) == <span class="number">0</span>) <span class="keyword">then</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line"><span class="keyword">end</span>;</span><br><span class="line"><span class="keyword">local</span> count = redis.call(<span class="string">&#x27;HINCRBY&#x27;</span>, KEYS[<span class="number">1</span>], ARGV[<span class="number">1</span>], <span class="number">-1</span>);</span><br><span class="line"><span class="keyword">if</span> (count &gt; <span class="number">0</span>) <span class="keyword">then</span></span><br><span class="line">    redis.call(<span class="string">&#x27;EXPIRE&#x27;</span>, KEYS[<span class="number">1</span>], ARGV[<span class="number">2</span>]);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    redis.call(<span class="string">&#x27;DEL&#x27;</span>, KEYS[<span class="number">1</span>]);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line"><span class="keyword">end</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-5-4-Java执行Lua脚本"><a href="#3-5-4-Java执行Lua脚本" class="headerlink" title="3.5.4.Java执行Lua脚本"></a>3.5.4.Java执行Lua脚本</h3><p><code>RedisTemplate</code>中提供了一个方法，用来执行Lua脚本：</p>
+<p><img src="/posts/project-leyou-18/1556162076875.png" alt="1556162076875"></p>
+<p>包含3个参数：</p>
+<ul>
+<li><code>RedisScript&lt;T&gt; script</code>：封装了Lua脚本的对象</li>
+<li><code>List&lt;K&gt; keys</code>：脚本中的key的值</li>
+<li><code>Object ... args</code>：脚本中的参数的值</li>
+</ul>
+<p>因此，要执行Lua脚本，我们需要先把脚本封装到<code>RedisScript</code>对象中，有两种方式来构建<code>RedisScript</code>对象：</p>
+<blockquote>
+<p>方式1：</p>
+</blockquote>
+<p>通过RedisScript中的静态方法：</p>
+<p><img src="/posts/project-leyou-18/1556162311151.png" alt="1556162311151"></p>
+<p>这个方法接受两个参数：</p>
+<ul>
+<li><code>String script</code>：Lua脚本</li>
+<li><code>Class&lt;T&gt; resultType</code>：返回值类型</li>
+</ul>
+<p>需要把脚本内容写到代码中，作为参数传递，不够优雅。</p>
+<blockquote>
+<p>方式二</p>
+</blockquote>
+<p>另一种方式，就是自己去创建<code>RedisScript</code>的实现类<code>DefaultRedisScript</code>的对象：</p>
+<p><img src="/posts/project-leyou-18/1556162540499.png" alt="1556162540499"></p>
+<p>可以把脚本文件写到classpath下的某个位置，然后通过加载这个文件来获取脚本内容，并设置给<code>DefaultRedisScript</code>实例。</p>
+<p>此处我们选择方式二。</p>
+<h3 id="3-5-5-可重入分布式锁的实现"><a href="#3-5-5-可重入分布式锁的实现" class="headerlink" title="3.5.5.可重入分布式锁的实现"></a>3.5.5.可重入分布式锁的实现</h3><p>首先在classpath中编写两个Lua脚本文件：</p>
+<p><img src="/posts/project-leyou-18/1556162696842.png" alt="1556162696842"> </p>
+<p>然后编写一个新的RedisLock实现：ReentrantRedisLock，利用静态代码块来加载脚本并初始化：</p>
+<p><img src="/posts/project-leyou-18/1556163851408.png" alt="1556163851408"> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ReentrantRedisLock</span> &#123;</span><br><span class="line">    <span class="comment">// 获取锁的脚本</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> DefaultRedisScript&lt;Long&gt; LOCK_SCRIPT;</span><br><span class="line">    <span class="comment">// 释放锁的脚本</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> DefaultRedisScript&lt;Object&gt; UNLOCK_SCRIPT;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="comment">// 加载释放锁的脚本</span></span><br><span class="line">        LOCK_SCRIPT = <span class="keyword">new</span> <span class="title class_">DefaultRedisScript</span>&lt;&gt;();</span><br><span class="line">        LOCK_SCRIPT.setScriptSource(<span class="keyword">new</span> <span class="title class_">ResourceScriptSource</span>(<span class="keyword">new</span> <span class="title class_">ClassPathResource</span>(<span class="string">&quot;lock.lua&quot;</span>)));</span><br><span class="line">        LOCK_SCRIPT.setResultType(Long.class);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 加载释放锁的脚本</span></span><br><span class="line">        UNLOCK_SCRIPT = <span class="keyword">new</span> <span class="title class_">DefaultRedisScript</span>&lt;&gt;();</span><br><span class="line">        UNLOCK_SCRIPT.setScriptSource(<span class="keyword">new</span> <span class="title class_">ResourceScriptSource</span>(<span class="keyword">new</span> <span class="title class_">ClassPathResource</span>(<span class="string">&quot;unlock.lua&quot;</span>)));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 其它代码略</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后实现RedisLock并实现lock和unlock方法，完整代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.itcast.demo.task.utils;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.itcast.demo.task.utils.RedisLock;</span><br><span class="line"><span class="keyword">import</span> org.springframework.core.io.ClassPathResource;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.core.StringRedisTemplate;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.core.script.DefaultRedisScript;</span><br><span class="line"><span class="keyword">import</span> org.springframework.scripting.support.ResourceScriptSource;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Collections;</span><br><span class="line"><span class="keyword">import</span> java.util.UUID;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ReentrantRedisLock</span> <span class="keyword">implements</span> <span class="title class_">RedisLock</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> StringRedisTemplate redisTemplate;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 设定好锁对应的 key</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String key;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 存入的线程信息的前缀，防止与其它JVM中线程信息冲突</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">ID_PREFIX</span> <span class="operator">=</span> UUID.randomUUID().toString();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ReentrantRedisLock</span><span class="params">(StringRedisTemplate redisTemplate, String key)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.redisTemplate = redisTemplate;</span><br><span class="line">        <span class="built_in">this</span>.key = key;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> DefaultRedisScript&lt;Long&gt; LOCK_SCRIPT;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> DefaultRedisScript&lt;Object&gt; UNLOCK_SCRIPT;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="comment">// 加载释放锁的脚本</span></span><br><span class="line">        LOCK_SCRIPT = <span class="keyword">new</span> <span class="title class_">DefaultRedisScript</span>&lt;&gt;();</span><br><span class="line">        LOCK_SCRIPT.setScriptSource(<span class="keyword">new</span> <span class="title class_">ResourceScriptSource</span>(<span class="keyword">new</span> <span class="title class_">ClassPathResource</span>(<span class="string">&quot;lock.lua&quot;</span>)));</span><br><span class="line">        LOCK_SCRIPT.setResultType(Long.class);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 加载释放锁的脚本</span></span><br><span class="line">        UNLOCK_SCRIPT = <span class="keyword">new</span> <span class="title class_">DefaultRedisScript</span>&lt;&gt;();</span><br><span class="line">        UNLOCK_SCRIPT.setScriptSource(<span class="keyword">new</span> <span class="title class_">ResourceScriptSource</span>(<span class="keyword">new</span> <span class="title class_">ClassPathResource</span>(<span class="string">&quot;unlock.lua&quot;</span>)));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 锁释放时间</span></span><br><span class="line">    <span class="keyword">private</span> String releaseTime;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">lock</span><span class="params">(<span class="type">long</span> releaseTime)</span> &#123;</span><br><span class="line">        <span class="comment">// 记录释放时间</span></span><br><span class="line">        <span class="built_in">this</span>.releaseTime = String.valueOf(releaseTime);</span><br><span class="line">        <span class="comment">// 执行脚本</span></span><br><span class="line">        <span class="type">Long</span> <span class="variable">result</span> <span class="operator">=</span> redisTemplate.execute(</span><br><span class="line">                LOCK_SCRIPT,</span><br><span class="line">                Collections.singletonList(key),</span><br><span class="line">                ID_PREFIX + Thread.currentThread().getId(), <span class="built_in">this</span>.releaseTime);</span><br><span class="line">        <span class="comment">// 判断结果</span></span><br><span class="line">        <span class="keyword">return</span> result != <span class="literal">null</span> &amp;&amp; result.intValue() == <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">unlock</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 执行脚本</span></span><br><span class="line">        redisTemplate.execute(</span><br><span class="line">                UNLOCK_SCRIPT,</span><br><span class="line">                Collections.singletonList(key),</span><br><span class="line">                ID_PREFIX + Thread.currentThread().getId(), <span class="built_in">this</span>.releaseTime);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>完成！</p>
+<h3 id="3-5-6-测试"><a href="#3-5-6-测试" class="headerlink" title="3.5.6.测试"></a>3.5.6.测试</h3><p>新建一个定时任务，测试重入锁：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.itcast.demo.task.job;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.itcast.demo.task.utils.RedisLock;</span><br><span class="line"><span class="keyword">import</span> cn.itcast.demo.task.utils.ReentrantRedisLock;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.core.StringRedisTemplate;</span><br><span class="line"><span class="keyword">import</span> org.springframework.scheduling.annotation.Scheduled;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ReentrantJob</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> StringRedisTemplate redisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="variable">max</span> <span class="operator">=</span> <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Scheduled(cron = &quot;0/10 * * * * ?&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">hello</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 创建锁对象</span></span><br><span class="line">        <span class="type">RedisLock</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ReentrantRedisLock</span>(redisTemplate, <span class="string">&quot;lock&quot;</span>);</span><br><span class="line">        <span class="comment">// 执行任务</span></span><br><span class="line">        runTaskWithLock(lock, <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">runTaskWithLock</span><span class="params">(RedisLock lock, <span class="type">int</span> count)</span> &#123;</span><br><span class="line">        <span class="comment">// 获取锁,设置自动失效时间为50s</span></span><br><span class="line">        <span class="type">boolean</span> <span class="variable">isLock</span> <span class="operator">=</span> lock.lock(<span class="number">50</span>);</span><br><span class="line">        <span class="comment">// 判断是否获取锁</span></span><br><span class="line">        <span class="keyword">if</span> (!isLock) &#123;</span><br><span class="line">            <span class="comment">// 获取失败</span></span><br><span class="line">            log.info(<span class="string">&quot;&#123;&#125;层 获取锁失败，停止定时任务&quot;</span>, count);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 执行业务</span></span><br><span class="line">            log.info(<span class="string">&quot;&#123;&#125;层 获取锁成功，执行定时任务。&quot;</span>, count);</span><br><span class="line">            Thread.sleep(<span class="number">500</span>);</span><br><span class="line">            <span class="keyword">if</span>(count &lt; max)&#123;</span><br><span class="line">                runTaskWithLock(lock, count + <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;&#123;&#125;层 任务执行失败&quot;</span>, count, e);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// 释放锁</span></span><br><span class="line">            lock.unlock();</span><br><span class="line">            log.info(<span class="string">&quot;&#123;&#125;层 任务执行完毕，释放锁&quot;</span>, count);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>DEBUG运行，打断点在获取锁后，执行任务前。</p>
+<h2 id="3-6-Redission"><a href="#3-6-Redission" class="headerlink" title="3.6.Redission"></a>3.6.Redission</h2><p>虽然我们已经实现了分布式锁，能够满足大多数情况下的需求，不过我们的代码并不是万无一失。</p>
+<p>某些场景下，可能需要实现分布式的不同类型锁，比如：公平锁、互斥锁、可重入锁、读写锁、红锁等等。实现起来比较麻烦。</p>
+<p>而开源框架Redission就帮我们实现了上述的这些 锁功能，而且还有很多其它的强大功能。</p>
+<h3 id="3-6-1-什么是Redission"><a href="#3-6-1-什么是Redission" class="headerlink" title="3.6.1.什么是Redission"></a>3.6.1.什么是Redission</h3><p>来自官网的一段介绍：</p>
+<p>Redisson是一个在Redis的基础上实现的Java驻内存数据网格（In-Memory Data Grid）。它不仅提供了一系列的分布式的Java常用对象，还提供了许多分布式服务。其中包括(<code>BitSet</code>, <code>Set</code>, <code>Multimap</code>, <code>SortedSet</code>, <code>Map</code>, <code>List</code>, <code>Queue</code>, <code>BlockingQueue</code>, <code>Deque</code>, <code>BlockingDeque</code>, <code>Semaphore</code>, <code>Lock</code>, <code>AtomicLong</code>, <code>CountDownLatch</code>, <code>Publish / Subscribe</code>, <code>Bloom filter</code>, <code>Remote service</code>, <code>Spring cache</code>, <code>Executor service</code>, <code>Live Object service</code>, <code>Scheduler service</code>) Redisson提供了使用Redis的最简单和最便捷的方法。Redisson的宗旨是促进使用者对Redis的关注分离（Separation of Concern），从而让使用者能够将精力更集中地放在处理业务逻辑上。</p>
+<p><a target="_blank" rel="noopener" href="https://redisson.org/">官网地址</a>：<a target="_blank" rel="noopener" href="https://redisson.org/">https://redisson.org/</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/redisson/redisson">GitHub地址</a>：<a target="_blank" rel="noopener" href="https://github.com/redisson/redisson">https://github.com/redisson/redisson</a></p>
+<p>看看Redission能实现的功能：</p>
+<p><img src="/posts/project-leyou-18/1556163395067.png" alt="1556163395067"> </p>
+<p><img src="/posts/project-leyou-18/1556163419648.png" alt="1556163419648"> </p>
+<p> <img src="/posts/project-leyou-18/1556163437101.png" alt="1556163437101"></p>
+<p><img src="/posts/project-leyou-18/1556163483872.png" alt="1556163483872"> </p>
+<p>非常强大而且丰富！</p>
+<h3 id="3-6-2-使用Redission分布式锁"><a href="#3-6-2-使用Redission分布式锁" class="headerlink" title="3.6.2.使用Redission分布式锁"></a>3.6.2.使用Redission分布式锁</h3><p>Redission中的分布式锁种类丰富，功能强大，因此使用Redission的分布式锁功能是开发时的首选方案。我们一起来试一下。</p>
+<h4 id="1）依赖"><a href="#1）依赖" class="headerlink" title="1）依赖"></a>1）依赖</h4><p>引入Redission依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.redisson<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>redisson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.10.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2）配置"><a href="#2）配置" class="headerlink" title="2）配置"></a>2）配置</h4><p>配置Redission客户端：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.leyou.task.config;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.redisson.Redisson;</span><br><span class="line"><span class="keyword">import</span> org.redisson.api.RedissonClient;</span><br><span class="line"><span class="keyword">import</span> org.redisson.config.Config;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.data.redis.RedisProperties;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RedisConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> RedissonClient <span class="title function_">redissonClient</span><span class="params">(RedisProperties prop)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">address</span> <span class="operator">=</span> <span class="string">&quot;redis://%s:%d&quot;</span>;</span><br><span class="line">        <span class="type">Config</span> <span class="variable">config</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Config</span>();</span><br><span class="line">        config.useSingleServer()</span><br><span class="line">                .setAddress(String.format(address, prop.getHost(), prop.getPort()));</span><br><span class="line">        <span class="keyword">return</span> Redisson.create(config);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意：这里读取了一个名为RedisProperties的属性，因为我们引入了SpringDataRedis，Spring已经自动加载了RedisProperties，并且读取了配置文件中的Redis信息。</p>
+<h4 id="3）常用API"><a href="#3）常用API" class="headerlink" title="3）常用API"></a>3）常用API</h4><p>RedissClient中定义了常见的锁：</p>
+<p><img src="/posts/project-leyou-18/1556169332323.png" alt="1556169332323"> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建锁对象，并制定锁的名称</span></span><br><span class="line"><span class="type">RLock</span> <span class="variable">lock</span> <span class="operator">=</span> redissonClient.getLock(<span class="string">&quot;taskLock&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+
+
+<p>获取锁对象后，可以通过<code>tryLock()</code>方法获取锁：</p>
+<p><img src="/posts/project-leyou-18/1556169690541.png" alt="1556169690541"></p>
+<p>有3个重载的方法：</p>
+<ul>
+<li><p>三个参数：获取锁，设置锁等待时间<code>waitTime</code>、释放时间<code>leaseTime</code>，时间单位<code>unit</code>。</p>
+<ul>
+<li>如果获取锁失败后，会在<code>waitTime  </code>减去获取锁用时的剩余时间段内继续尝试获取锁，如果依然获取失败，则认为获取锁失败；</li>
+<li>获取锁后，如果超过<code>leaseTime</code>未释放，为避免死锁会自动释放。</li>
+</ul>
+</li>
+<li><p>两个参数：获取锁，设置锁等待时间<code>time</code>、时间单位<code>unit</code>。释放时间<code>leaseTime</code>按照默认的30s</p>
+</li>
+<li><p>空参：获取锁，<code>waitTime</code>默认0s，即获取锁失败不重试，<code>leaseTime</code>默认30s</p>
+</li>
+</ul>
+<p>任务执行完毕，使用<code>unlock()</code>方法释放锁：</p>
+<p><img src="/posts/project-leyou-18/1556170353278.png" alt="1556170353278"> </p>
+<h4 id="4）完整测试代码"><a href="#4）完整测试代码" class="headerlink" title="4）完整测试代码"></a>4）完整测试代码</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.leyou.task.job;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.redisson.api.RLock;</span><br><span class="line"><span class="keyword">import</span> org.redisson.api.RedissonClient;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.scheduling.annotation.Scheduled;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RedsssionJob</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedissonClient redissonClient;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Scheduled(cron = &quot;0/10 * * * * ?&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">hello</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 创建锁对象，并制定锁的名称</span></span><br><span class="line">        <span class="type">RLock</span> <span class="variable">lock</span> <span class="operator">=</span> redissonClient.getLock(<span class="string">&quot;taskLock&quot;</span>);</span><br><span class="line">        <span class="comment">// 获取锁,设置自动失效时间为30s</span></span><br><span class="line">        <span class="type">boolean</span> <span class="variable">isLock</span> <span class="operator">=</span> lock.tryLock();</span><br><span class="line">        <span class="comment">// 判断是否获取锁</span></span><br><span class="line">        <span class="keyword">if</span> (!isLock) &#123;</span><br><span class="line">            <span class="comment">// 获取失败</span></span><br><span class="line">            log.info(<span class="string">&quot;获取锁失败，停止定时任务&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 执行业务</span></span><br><span class="line">            log.info(<span class="string">&quot;获取锁成功，执行定时任务。&quot;</span>);</span><br><span class="line">            <span class="comment">// 模拟任务耗时</span></span><br><span class="line">            Thread.sleep(<span class="number">500</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;任务执行异常&quot;</span>, e);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// 释放锁</span></span><br><span class="line">            lock.unlock();</span><br><span class="line">            log.info(<span class="string">&quot;任务执行完毕，释放锁&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="4-定时清理订单"><a href="#4-定时清理订单" class="headerlink" title="4.定时清理订单"></a>4.定时清理订单</h1><p>回到我们今天开始时提出的需求：我们需要定时清理那些超时未支付的订单，并且保证多个订单微服务执行任务时不要重复，而是只有一个服务执行。用我们刚刚学习的分布式任务调度方案，恰好可以实现。</p>
+<h2 id="4-1-业务分析"><a href="#4-1-业务分析" class="headerlink" title="4.1.业务分析"></a>4.1.业务分析</h2><p>业务主要有下列部分组成：</p>
+<ul>
+<li>定时任务：每隔一定时间，尝试执行清理订单的任务</li>
+<li>清理订单任务：<ul>
+<li>1）设置一个超时时间限制，例如1小时，超过1小时未付款则取消订单</li>
+<li>2）查询当前以及超时未支付的订单（状态为1，创建时间是1小时以前）</li>
+<li>3）修改这些订单的状态为5，交易取消并关闭</li>
+<li>4）查询这些订单对应的商品信息</li>
+<li>5）恢复库存</li>
+</ul>
+</li>
+</ul>
+<p>其中，1~4的步骤都是在订单微服务完成，而步骤5是在商品微服务完成，需要远程调用。</p>
+<h2 id="4-2-商品服务加库存接口"><a href="#4-2-商品服务加库存接口" class="headerlink" title="4.2.商品服务加库存接口"></a>4.2.商品服务加库存接口</h2><p>我们先完成商品微服务的恢复库存接口，与减库存非常相似。</p>
+<blockquote>
+<p>定义API接口</p>
+</blockquote>
+<p>在<code>ly-item-interface</code>中的<code>ItemClient</code>中添加新的接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 加库存</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> skuMap 商品id及数量的map</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"><span class="meta">@PutMapping(&quot;/stock/plus&quot;)</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">plusStock</span><span class="params">(<span class="meta">@RequestBody</span> Map&lt;Long, Integer&gt; skuMap)</span>;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>业务实现</p>
+</blockquote>
+<p>然后在GoodsController中定义handler：</p>
+<p>注意，因为一个订单中有多个商品，因此这里接收的参数是一个map，key是商品的id，值是对应的数量num</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 加库存</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> skuMap 商品id及数量的map</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"><span class="meta">@PutMapping(&quot;/stock/plus&quot;)</span></span><br><span class="line"><span class="keyword">public</span> ResponseEntity&lt;Void&gt; <span class="title function_">plusStock</span><span class="params">(<span class="meta">@RequestBody</span> Map&lt;Long, Integer&gt; skuMap)</span>&#123;</span><br><span class="line">    goodsService.plusStock(skuMap);</span><br><span class="line">    <span class="keyword">return</span> ResponseEntity.status(HttpStatus.NO_CONTENT).build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在GoodsService中添加新业务：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">plusStock</span><span class="params">(Map&lt;Long, Integer&gt; skuMap)</span> &#123;</span><br><span class="line">    <span class="keyword">for</span> (Map.Entry&lt;Long, Integer&gt; entry : skuMap.entrySet()) &#123;</span><br><span class="line">        <span class="type">Long</span> <span class="variable">skuId</span> <span class="operator">=</span> entry.getKey();</span><br><span class="line">        <span class="type">Integer</span> <span class="variable">num</span> <span class="operator">=</span> entry.getValue();</span><br><span class="line">        <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> skuMapper.plusStock(skuId, num);</span><br><span class="line">        <span class="keyword">if</span>(count != <span class="number">1</span>)&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;恢复库存异常！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>修改GoodsMapper接口，添加新功能：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Update(&quot;UPDATE tb_sku SET stock = stock + #&#123;num&#125; WHERE id = #&#123;id&#125;&quot;)</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">plusStock</span><span class="params">(<span class="meta">@Param(&quot;id&quot;)</span> Long id, <span class="meta">@Param(&quot;num&quot;)</span> Integer num)</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-3-清理订单-作业"><a href="#4-3-清理订单-作业" class="headerlink" title="4.3.清理订单(作业)"></a>4.3.清理订单(作业)</h2><p>我们在<code>ly-order</code>的<code>OrderService</code>中，添加一个清理订单的业务，基本流程如下：</p>
+<ul>
+<li>查询已经超时的订单</li>
+<li>更新这些订单的状态</li>
+<li>查询订单详情，并获取商品相关信息</li>
+<li>调用商品服务更新库存</li>
+</ul>
+<h3 id="4-3-1-查询超时订单"><a href="#4-3-1-查询超时订单" class="headerlink" title="4.3.1.查询超时订单"></a>4.3.1.查询超时订单</h3><p>其中，查询超时订单业务的查询条件包括两点：</p>
+<ul>
+<li>未付款</li>
+<li>超过了1个小时</li>
+</ul>
+<p>因此我们的sql查询条件不能通过通用mapper来实现，需要自己定义，我们在<code>OrderMapper</code>中定义接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">OrderMapper</span> <span class="keyword">extends</span> <span class="title class_">BaseMapper</span>&lt;Order&gt; &#123;</span><br><span class="line">    <span class="meta">@Select(&quot;SELECT id FROM tb_order WHERE `status` = 1 AND `create_time` &lt;= #&#123;deadline&#125;&quot;)</span></span><br><span class="line">    List&lt;Long&gt; <span class="title function_">queryOverdueUnpaidOrder</span><span class="params">(Date deadline)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里查询的条件是status和create_time，这两个字段在数据库中我们添加了联合索引：</p>
+<p><img src="/posts/project-leyou-18/1556177384689.png" alt="1556177384689"></p>
+<p>因此查询时依然会走索引，可以通过mysql的执行计划证实这一点。</p>
+<p>另外，这里只查询了order_id，因为得到id后，我们再根据id更新数据库表就可以了，无需其它信息。</p>
+<h3 id="4-3-2-订单中的商品及数量"><a href="#4-3-2-订单中的商品及数量" class="headerlink" title="4.3.2.订单中的商品及数量"></a>4.3.2.订单中的商品及数量</h3><p>要恢复库存，必须获取订单对应的商品及数量，而这些数据都在订单详情表：<code>tb_order_detail</code>中。我们根据orderId查询出OrderDetail的集合后，还需要整理出其中的商品及数量信息。</p>
+<p>我们需要知道订单详情中包含的商品的**<code>skuId</code><strong>和数量</strong><code>num</code>**，因此可以把数据整理成一个Map，map的key是skuId，value就是num的值。</p>
+<p>这里我们通过JDK8中的Stream流的分组功能和求和功能来实现：</p>
+<p><img src="/posts/project-leyou-18/1556180487105.png" alt="1556180487105"></p>
+<h3 id="4-3-3-清理订单"><a href="#4-3-3-清理订单" class="headerlink" title="4.3.3.清理订单"></a>4.3.3.清理订单</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">closeOverdueOrders</span><span class="params">(Date deadline)</span> &#123;</span><br><span class="line">    <span class="comment">// 查询超时订单</span></span><br><span class="line">    List&lt;Long&gt; orderIds = orderMapper.queryOverdueUnpaidOrder(deadline);</span><br><span class="line">    <span class="keyword">if</span>(CollectionUtils.isEmpty(orderIds))&#123;</span><br><span class="line">        log.info(<span class="string">&quot;【订单服务】没有需要清理的订单&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 关闭超时订单</span></span><br><span class="line">    <span class="type">Order</span> <span class="variable">record</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Order</span>();</span><br><span class="line">    record.setCloseTime(<span class="keyword">new</span> <span class="title class_">Date</span>());</span><br><span class="line">    record.setStatus(OrderStatusEnum.CLOSED.value());</span><br><span class="line">    <span class="comment">// 更新订单的条件</span></span><br><span class="line">    <span class="type">Example</span> <span class="variable">example</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Example</span>(Order.class);</span><br><span class="line">    example.createCriteria().andIn(<span class="string">&quot;orderId&quot;</span>, orderIds);</span><br><span class="line">    <span class="comment">// 更新</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> orderMapper.updateByExampleSelective(record, example);</span><br><span class="line">    log.info(<span class="string">&quot;【订单服务】定时关闭订单数量：&#123;&#125;&quot;</span>, count);</span><br><span class="line">    <span class="keyword">if</span> (count != orderIds.size()) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">LyException</span>(ExceptionEnum.UPDATE_OPERATION_FAIL);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 恢复订单中的商品库存</span></span><br><span class="line">    <span class="type">Example</span> <span class="variable">detailExample</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Example</span>(OrderDetail.class);</span><br><span class="line">    detailExample.createCriteria().andIn(<span class="string">&quot;orderId&quot;</span>, orderIds);</span><br><span class="line">    <span class="comment">// 查询订单对应的订单详情</span></span><br><span class="line">    List&lt;OrderDetail&gt; orderDetails = detailMapper.selectByExample(detailExample);</span><br><span class="line">    <span class="keyword">if</span> (CollectionUtils.isEmpty(orderDetails)) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">LyException</span>(ExceptionEnum.ORDER_DETAIL_NOT_FOUND);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 把以商品skuId为key，取出其中对应的库存数据，并叠加求和作为值</span></span><br><span class="line">    Map&lt;Long, Integer&gt; skuMap = orderDetails.stream()</span><br><span class="line">        .collect(Collectors.groupingBy(</span><br><span class="line">            OrderDetail::getSkuId,</span><br><span class="line">            Collectors.summingInt(OrderDetail::getNum)));</span><br><span class="line">    <span class="comment">// 调用加库存功能</span></span><br><span class="line">    itemClient.plusStock(skuMap);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-4-定时任务"><a href="#4-4-定时任务" class="headerlink" title="4.4.定时任务"></a>4.4.定时任务</h2><p>最后，我们通过定时任务，调用OrderService中的业务即可。</p>
+<blockquote>
+<p>引入依赖</p>
+</blockquote>
+<p>在ly-order中引入Redisson的依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.redisson<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>redisson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.10.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>配置Redisson</p>
+</blockquote>
+<p>在ly-order中添加配置类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.leyou.order.config;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.redisson.Redisson;</span><br><span class="line"><span class="keyword">import</span> org.redisson.api.RedissonClient;</span><br><span class="line"><span class="keyword">import</span> org.redisson.config.Config;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.data.redis.RedisProperties;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RedissonConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> RedissonClient <span class="title function_">redissonClient</span><span class="params">(RedisProperties prop)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">address</span> <span class="operator">=</span> <span class="string">&quot;redis://%s:%d&quot;</span>;</span><br><span class="line">        <span class="type">Config</span> <span class="variable">config</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Config</span>();</span><br><span class="line">        config.useSingleServer()</span><br><span class="line">                .setAddress(String.format(address, prop.getHost(), prop.getPort()));</span><br><span class="line">        <span class="keyword">return</span> Redisson.create(config);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>编写定时任务</p>
+</blockquote>
+<p>这里约定好任务的一些参数：</p>
+<ul>
+<li>任务执行频率：30分钟一次</li>
+<li>订单超时未付款的期限：1小时</li>
+<li>任务锁的自动释放时间：2分钟</li>
+<li>任务锁等待时长：0</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.leyou.order.task;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.leyou.order.service.OrderService;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.joda.time.DateTime;</span><br><span class="line"><span class="keyword">import</span> org.redisson.api.RLock;</span><br><span class="line"><span class="keyword">import</span> org.redisson.api.RedissonClient;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.scheduling.annotation.Scheduled;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Date;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CloseOrderTask</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedissonClient redissonClient;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> OrderService orderService;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 定时任务的频率，30分钟</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">TASK_INTERVAL</span> <span class="operator">=</span> <span class="number">1800000</span>;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 定时任务的锁自动释放时间。 \r\n</span></span><br><span class="line"><span class="comment">     * 一般只要大于各服务器的时钟飘移时长+任务执行时长即可。\r\n</span></span><br><span class="line"><span class="comment">     * 此处默认120秒。\r\n</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">TASK_LEASE_TIME</span> <span class="operator">=</span> <span class="number">120</span>;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 订单超时的期限，1小时</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">OVERDUE_SECONDS</span> <span class="operator">=</span> <span class="number">3600</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">LOCK_KEY</span> <span class="operator">=</span> <span class="string">&quot;close:order:task:lock&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Scheduled(fixedDelay = TASK_INTERVAL)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">closeOrder</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 0.创建锁对象</span></span><br><span class="line">        <span class="type">RLock</span> <span class="variable">lock</span> <span class="operator">=</span> redissonClient.getLock(LOCK_KEY);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 1.获取锁</span></span><br><span class="line">            <span class="type">boolean</span> <span class="variable">isLock</span> <span class="operator">=</span> lock.tryLock(<span class="number">0</span>, TASK_LEASE_TIME, TimeUnit.SECONDS);</span><br><span class="line">            <span class="keyword">if</span>(!isLock)&#123;</span><br><span class="line">                <span class="comment">// 获取锁失败，结束任务</span></span><br><span class="line">                log.info(<span class="string">&quot;【清理订单任务】未能获取任务锁，结束任务。&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 2.开始执行任务</span></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 2.1计算订单清理截止时间</span></span><br><span class="line">                <span class="type">Date</span> <span class="variable">deadline</span> <span class="operator">=</span> DateTime.now().minusSeconds(OVERDUE_SECONDS).toDate();</span><br><span class="line">                <span class="comment">// 2.2清理订单</span></span><br><span class="line">                orderService.closeOverdueOrders(deadline);</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                <span class="comment">// 任务结束，释放锁</span></span><br><span class="line">                lock.unlock();</span><br><span class="line">                log.info(<span class="string">&quot;【清理订单任务】任务执行完毕，释放锁。&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;【清理订单任务】获取任务锁异常，原因：&#123;&#125;&quot;</span>, e.getMessage(), e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbchen.com">左耳</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbchen.com/posts/project-leyou-18.html">https://nbchen.com/posts/project-leyou-18.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbchen.com" target="_blank">左耳</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%A1%B9%E7%9B%AE/">项目</a></div><div class="post-share"><div class="social-share" data-image="/img/cover/post_cover_1.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赛博打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/site/wechat.png" target="_blank"><img class="post-qr-code-img" src="/img/site/wechat.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/site/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/site/alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><a class="prev-post pull-left" href="/posts/project-leyou-19.html" title="【项目系列】乐优商城项目（十九）：接口说明"><img class="cover" src="/img/cover/post_cover_2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【项目系列】乐优商城项目（十九）：接口说明</div></div></a><a class="next-post pull-right" href="/posts/project-leyou-17.html" title="【项目系列】乐优商城项目（十七）：微信支付"><img class="cover" src="/img/cover/post_cover_2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【项目系列】乐优商城项目（十七）：微信支付</div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a href="/posts/project-hrm-14.html" title="【项目系列】人力资源项目（十四）：表单校验"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【项目系列】人力资源项目（十四）：表单校验</div></div></a><a href="/posts/project-hrm-13.html" title="【项目系列】人力资源项目（十三）：打包上线"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【项目系列】人力资源项目（十三）：打包上线</div></div></a><a href="/posts/project-hrm-12.html" title="【项目系列】人力资源项目（十二）：多语言tab页全屏主题"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【项目系列】人力资源项目（十二）：多语言tab页全屏主题</div></div></a><a href="/posts/project-hrm-11.html" title="【项目系列】人力资源项目（十一）：主页审批图表"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【项目系列】人力资源项目（十一）：主页审批图表</div></div></a><a href="/posts/project-hrm-10.html" title="【项目系列】人力资源项目（十）：其他模块集成"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【项目系列】人力资源项目（十）：其他模块集成</div></div></a><a href="/posts/project-hrm-9.html" title="【项目系列】人力资源项目（九）：权限设计和管理"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【项目系列】人力资源项目（九）：权限设计和管理</div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info is-center"><div class="avatar-img"><img src="/img/logo/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">左耳</div><div class="author-info-description">一夜鱼龙舞</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">241</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">191</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/zuoer96"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/zuoer96" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:1745233303@gmail.com" target="_blank" title="QQ邮箱"><i class="fas fa-envelope" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎光临小站，这里是我日常收集和整理的总结，希望能对你有所帮助：）<br/><br/>本站的内容经过个人加工总结而来，也参考了网友们分享的资料，如有侵权，请第一时间联系我，我将及时进行修改和删除😊</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0-%E5%AD%A6%E4%B9%A0%E7%9B%AE%E6%A0%87"><span class="toc-number">1.</span> <span class="toc-text">0.学习目标</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-SpringSchedule"><span class="toc-number">2.</span> <span class="toc-text">1.SpringSchedule</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-%E5%B8%B8%E8%A7%81%E7%9A%84%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%A1%86%E6%9E%B6"><span class="toc-number">2.1.</span> <span class="toc-text">1.1.常见的定时任务框架</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-%E7%AE%80%E4%BB%8B"><span class="toc-number">2.2.</span> <span class="toc-text">1.2.简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8"><span class="toc-number">2.3.</span> <span class="toc-text">1.3.快速入门</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-1-%E5%88%9B%E5%BB%BA%E9%A1%B9%E7%9B%AE"><span class="toc-number">2.3.1.</span> <span class="toc-text">1.3.1.创建项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-2-%E5%BC%80%E5%90%AF%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1"><span class="toc-number">2.3.2.</span> <span class="toc-text">1.3.2.开启定时任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-3-%E5%AE%9A%E4%B9%89%E4%BB%BB%E5%8A%A1"><span class="toc-number">2.3.3.</span> <span class="toc-text">1.3.3.定义任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-4-%E5%90%AF%E5%8A%A8%E6%B5%8B%E8%AF%95"><span class="toc-number">2.3.4.</span> <span class="toc-text">1.3.4.启动测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-%E9%85%8D%E7%BD%AE"><span class="toc-number">2.4.</span> <span class="toc-text">1.4.配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-1-%E4%BB%BB%E5%8A%A1%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%A4%A7%E5%B0%8F"><span class="toc-number">2.4.1.</span> <span class="toc-text">1.4.1.任务线程池大小</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-2-%E5%AE%9A%E6%97%B6%E7%AD%96%E7%95%A5"><span class="toc-number">2.4.2.</span> <span class="toc-text">1.4.2.定时策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-3-cron%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-number">2.4.3.</span> <span class="toc-text">1.4.3.cron表达式</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6"><span class="toc-number">3.</span> <span class="toc-text">2.分布式任务调度</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E5%88%86%E6%9E%90"><span class="toc-number">3.1.</span> <span class="toc-text">2.1.解决方案分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E6%96%B9%E6%A1%88"><span class="toc-number">3.2.</span> <span class="toc-text">2.2.分布式锁方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E4%B8%AD%E5%BF%83%E6%96%B9%E6%A1%88"><span class="toc-number">3.3.</span> <span class="toc-text">2.3.任务调度中心方案</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="toc-number">4.</span> <span class="toc-text">3.Redis分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-Redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%8E%9F%E7%90%86"><span class="toc-number">4.1.</span> <span class="toc-text">3.1.Redis分布式锁原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%89%88%E6%9C%AC1"><span class="toc-number">4.2.</span> <span class="toc-text">3.2.分布式锁版本1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-1-%E6%B5%81%E7%A8%8B"><span class="toc-number">4.2.1.</span> <span class="toc-text">3.2.1.流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-2-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-number">4.2.2.</span> <span class="toc-text">3.2.2.代码实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%89%88%E6%9C%AC2"><span class="toc-number">4.3.</span> <span class="toc-text">3.3.分布式锁版本2</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-1-%E9%87%8A%E6%94%BE%E9%94%81%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">4.3.1.</span> <span class="toc-text">3.3.1.释放锁的问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-2-%E6%B5%81%E7%A8%8B%E5%9B%BE"><span class="toc-number">4.3.2.</span> <span class="toc-text">3.3.2.流程图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-3-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-number">4.3.3.</span> <span class="toc-text">3.3.3.代码实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%89%88%E6%9C%AC3"><span class="toc-number">4.4.</span> <span class="toc-text">3.4.分布式锁版本3</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-1-%E9%87%8D%E5%85%A5%E9%94%81"><span class="toc-number">4.4.1.</span> <span class="toc-text">3.4.1.重入锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-2-%E6%B5%81%E7%A8%8B%E5%9B%BE"><span class="toc-number">4.4.2.</span> <span class="toc-text">3.4.2.流程图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-3-%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90"><span class="toc-number">4.4.3.</span> <span class="toc-text">3.4.3.实现分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-5-Redis%E7%9A%84Lua%E8%84%9A%E6%9C%AC"><span class="toc-number">4.5.</span> <span class="toc-text">3.5.Redis的Lua脚本</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-1-Redis%E8%84%9A%E6%9C%AC%E5%91%BD%E4%BB%A4%EF%BC%9A"><span class="toc-number">4.5.1.</span> <span class="toc-text">3.5.1.Redis脚本命令：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-2-Lua%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="toc-number">4.5.2.</span> <span class="toc-text">3.5.2.Lua基本语法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-3-%E7%BC%96%E5%86%99%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E8%84%9A%E6%9C%AC"><span class="toc-number">4.5.3.</span> <span class="toc-text">3.5.3.编写分布式锁脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-4-Java%E6%89%A7%E8%A1%8CLua%E8%84%9A%E6%9C%AC"><span class="toc-number">4.5.4.</span> <span class="toc-text">3.5.4.Java执行Lua脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-5-%E5%8F%AF%E9%87%8D%E5%85%A5%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">4.5.5.</span> <span class="toc-text">3.5.5.可重入分布式锁的实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-6-%E6%B5%8B%E8%AF%95"><span class="toc-number">4.5.6.</span> <span class="toc-text">3.5.6.测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-6-Redission"><span class="toc-number">4.6.</span> <span class="toc-text">3.6.Redission</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-1-%E4%BB%80%E4%B9%88%E6%98%AFRedission"><span class="toc-number">4.6.1.</span> <span class="toc-text">3.6.1.什么是Redission</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-2-%E4%BD%BF%E7%94%A8Redission%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="toc-number">4.6.2.</span> <span class="toc-text">3.6.2.使用Redission分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1%EF%BC%89%E4%BE%9D%E8%B5%96"><span class="toc-number">4.6.2.1.</span> <span class="toc-text">1）依赖</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2%EF%BC%89%E9%85%8D%E7%BD%AE"><span class="toc-number">4.6.2.2.</span> <span class="toc-text">2）配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3%EF%BC%89%E5%B8%B8%E7%94%A8API"><span class="toc-number">4.6.2.3.</span> <span class="toc-text">3）常用API</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4%EF%BC%89%E5%AE%8C%E6%95%B4%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81"><span class="toc-number">4.6.2.4.</span> <span class="toc-text">4）完整测试代码</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E5%AE%9A%E6%97%B6%E6%B8%85%E7%90%86%E8%AE%A2%E5%8D%95"><span class="toc-number">5.</span> <span class="toc-text">4.定时清理订单</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-%E4%B8%9A%E5%8A%A1%E5%88%86%E6%9E%90"><span class="toc-number">5.1.</span> <span class="toc-text">4.1.业务分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-%E5%95%86%E5%93%81%E6%9C%8D%E5%8A%A1%E5%8A%A0%E5%BA%93%E5%AD%98%E6%8E%A5%E5%8F%A3"><span class="toc-number">5.2.</span> <span class="toc-text">4.2.商品服务加库存接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-3-%E6%B8%85%E7%90%86%E8%AE%A2%E5%8D%95-%E4%BD%9C%E4%B8%9A"><span class="toc-number">5.3.</span> <span class="toc-text">4.3.清理订单(作业)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-1-%E6%9F%A5%E8%AF%A2%E8%B6%85%E6%97%B6%E8%AE%A2%E5%8D%95"><span class="toc-number">5.3.1.</span> <span class="toc-text">4.3.1.查询超时订单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-2-%E8%AE%A2%E5%8D%95%E4%B8%AD%E7%9A%84%E5%95%86%E5%93%81%E5%8F%8A%E6%95%B0%E9%87%8F"><span class="toc-number">5.3.2.</span> <span class="toc-text">4.3.2.订单中的商品及数量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-3-%E6%B8%85%E7%90%86%E8%AE%A2%E5%8D%95"><span class="toc-number">5.3.3.</span> <span class="toc-text">4.3.3.清理订单</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-4-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1"><span class="toc-number">5.4.</span> <span class="toc-text">4.4.定时任务</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-14.html" title="【项目系列】人力资源项目（十四）：表单校验"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十四）：表单校验"/></a><div class="content"><a class="title" href="/posts/project-hrm-14.html" title="【项目系列】人力资源项目（十四）：表单校验">【项目系列】人力资源项目（十四）：表单校验</a><time datetime="2024-11-13T15:28:20.000Z" title="发表于 2024-11-13 23:28:20">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-13.html" title="【项目系列】人力资源项目（十三）：打包上线"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十三）：打包上线"/></a><div class="content"><a class="title" href="/posts/project-hrm-13.html" title="【项目系列】人力资源项目（十三）：打包上线">【项目系列】人力资源项目（十三）：打包上线</a><time datetime="2024-11-13T15:28:12.000Z" title="发表于 2024-11-13 23:28:12">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-12.html" title="【项目系列】人力资源项目（十二）：多语言tab页全屏主题"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十二）：多语言tab页全屏主题"/></a><div class="content"><a class="title" href="/posts/project-hrm-12.html" title="【项目系列】人力资源项目（十二）：多语言tab页全屏主题">【项目系列】人力资源项目（十二）：多语言tab页全屏主题</a><time datetime="2024-11-13T15:28:02.000Z" title="发表于 2024-11-13 23:28:02">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-11.html" title="【项目系列】人力资源项目（十一）：主页审批图表"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十一）：主页审批图表"/></a><div class="content"><a class="title" href="/posts/project-hrm-11.html" title="【项目系列】人力资源项目（十一）：主页审批图表">【项目系列】人力资源项目（十一）：主页审批图表</a><time datetime="2024-11-13T15:27:45.000Z" title="发表于 2024-11-13 23:27:45">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-10.html" title="【项目系列】人力资源项目（十）：其他模块集成"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十）：其他模块集成"/></a><div class="content"><a class="title" href="/posts/project-hrm-10.html" title="【项目系列】人力资源项目（十）：其他模块集成">【项目系列】人力资源项目（十）：其他模块集成</a><time datetime="2024-11-13T15:27:35.000Z" title="发表于 2024-11-13 23:27:35">2024-11-13</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 By 左耳</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/#/Integrated/index"><span>备案号：闽ICP备2022007849号-1</span></a> <a target="_blank" rel="noopener" href="https://beian.mps.gov.cn/#/query/webSearch"><img class="icp-icon" src="/img/site/icp.png"><span>闽ICP备2022007849号</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const initGitalk = () => {
+    const gitalk = new Gitalk(Object.assign({
+      clientID: 'f5adbf6afe0a4b1a5259',
+      clientSecret: '2aa273b1981e0841b91db860a815d252d7fce5b2',
+      repo: 'zuoer96.github.io',
+      owner: 'zuoer96',
+      admin: ['zuoer96'],
+      id: '55758d2a2f821a836555178aa7885e09',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  const loadGitalk = async() => {
+    if (typeof Gitalk === 'function') initGitalk()
+    else {
+      await btf.getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+      await btf.getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js')
+      initGitalk()
+    }
+  }
+  
+  const commentCount = n => {
+    const isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+    if (isCommentCount) {
+      isCommentCount.textContent= n
+    }
+  }
+
+  if ('Gitalk' === 'Gitalk' || !false) {
+    if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+    else loadGitalk()
+  } else {
+    window.loadOtherComment = loadGitalk
+  }
+})()</script></div><script src="/js/webstack.js?1"></script><script src="/js/movie.js?1"></script><script src="/js/echarts.min.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: true,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><script src="/js/markmap.js"></script></body></html>

@@ -1,0 +1,1009 @@
+<hr>
+<h2 id="title-【项目系列】乐优商城项目（八）：搜索过滤id-project-leyou-8-htmltags-项目categories-编程keywords-‘语法-基础-Java-微服务-编程-数据存储’description-项目实战date-2024-11-13-22-47-48"><a href="#title-【项目系列】乐优商城项目（八）：搜索过滤id-project-leyou-8-htmltags-项目categories-编程keywords-‘语法-基础-Java-微服务-编程-数据存储’description-项目实战date-2024-11-13-22-47-48" class="headerlink" title="title: 【项目系列】乐优商城项目（八）：搜索过滤id: project-leyou-8.htmltags:  - 项目categories:  - 编程keywords: ‘语法,基础,Java,微服务,编程,数据存储’description: 项目实战date: 2024-11-13 22:47:48"></a>title: 【项目系列】乐优商城项目（八）：搜索过滤<br>id: project-leyou-8.html<br>tags:<br>  - 项目<br>categories:<br>  - 编程<br>keywords: ‘语法,基础,Java,微服务,编程,数据存储’<br>description: 项目实战<br>date: 2024-11-13 22:47:48</h2><h1 id="0-学习目标"><a href="#0-学习目标" class="headerlink" title="0.学习目标"></a>0.学习目标</h1><ul>
+<li>了解过滤功能的基本思路</li>
+<li>独立实现分类和品牌展示</li>
+<li>了解规格参数展示</li>
+<li>实现过滤条件筛选</li>
+<li>实现已选过滤项回显</li>
+<li>实现取消选择过滤项</li>
+</ul>
+<h1 id="1-过滤功能分析"><a href="#1-过滤功能分析" class="headerlink" title="1.过滤功能分析"></a>1.过滤功能分析</h1><h2 id="1-1-功能模块"><a href="#1-1-功能模块" class="headerlink" title="1.1.功能模块"></a>1.1.功能模块</h2><p>首先看下页面要实现的效果：</p>
+<p>整个过滤部分有3块：</p>
+<ul>
+<li>顶部的导航，已经选择的过滤条件展示：<ul>
+<li>商品分类面包屑，根据用户选择的商品分类变化</li>
+<li>其它已选择过滤参数</li>
+</ul>
+</li>
+<li>过滤条件展示，又包含3部分<ul>
+<li>商品分类展示</li>
+<li>品牌展示</li>
+<li>其它规格参数</li>
+</ul>
+</li>
+<li>展开或收起的过滤条件的按钮</li>
+</ul>
+<p>顶部导航要展示的内容跟用户选择的过滤条件有关。</p>
+<ul>
+<li>比如用户选择了某个商品分类，则面包屑中才会展示具体的分类</li>
+<li>比如用户选择了某个品牌，列表中才会有品牌信息。</li>
+</ul>
+<p>所以，这部分需要依赖第二部分：过滤条件的展示和选择。因此我们先不着急去做。</p>
+<p>展开或收起的按钮是否显示，取决于过滤条件现在有多少，如果有很多，那么就没必要展示。所以也是跟第二部分的过滤条件有关。</p>
+<p>这样分析来看，我们必须先做第二部分：过滤条件展示。</p>
+<h2 id="1-2-问题分析"><a href="#1-2-问题分析" class="headerlink" title="1.2.问题分析"></a>1.2.问题分析</h2><p>过滤条件包括：分类过滤、品牌过滤、规格过滤项等。我们必须弄清楚几个问题：</p>
+<ul>
+<li>什么时候查询这些过滤项？</li>
+<li>这些过滤项的数据从何而来？</li>
+</ul>
+<p>我们先以分类和品牌来讨论一下：</p>
+<blockquote>
+<p>问题1，什么时候查询这些过滤项？</p>
+</blockquote>
+<p>现在，页面加载后就会调用<code>loadData</code>方法，向服务端发起请求，查询商品数据。我们有两种选择：</p>
+<ul>
+<li>方式1：在查询商品数据的同时，顺便把分类和品牌的过滤数据一起查出来<ul>
+<li>优点：只有一次请求，逻辑简单</li>
+<li>缺点：该请求处理业务较多，业务复杂，效率较差</li>
+</ul>
+</li>
+<li>方式2：在查询商品后，再发一个ajax请求，专门查询分类和品牌的过滤数据<ul>
+<li>优点：每个请求做个业务，耦合度低，每次请求处理效率较高</li>
+<li>缺点：需要发多次请求</li>
+</ul>
+</li>
+</ul>
+<p>这里考虑使用方式2，让每次请求做自己的事情，减少业务耦合。</p>
+<blockquote>
+<p>问题2，过滤项的数据从何而来？</p>
+</blockquote>
+<p>在我们的数据库中已经有所有的分类和品牌信息。在这个位置，是不是把所有的分类和品牌信息都展示出来呢？</p>
+<p>显然不是，用户搜索的条件会对商品进行过滤，而在搜索结果中，不一定包含所有的分类和品牌，直接展示出所有商品分类，让用户选择显然是不合适的。</p>
+<p>比如，用户搜索：<code>小米手机</code>，结果中肯定只有手机，而且还得是小米的手机，就把分类和品牌限定死了，此时显示出其它品牌和分类过滤项显然是不合适的。</p>
+<p>因此，只有**<code>在搜索过滤的结果中存在的分类和品牌才能作为过滤项让用户选择</code>**。</p>
+<p>那么问题来了：我们怎么知道搜索结果中有哪些分类和品牌呢？</p>
+<p>答案是：利用elasticsearch提供的聚合功能，**<code>在搜索条件基础上，对搜索结果聚合</code>**，就能知道结果中包含哪些分类和品牌了。当然，规格参数也是一样的。；</p>
+<h1 id="2-分类和品牌过滤项"><a href="#2-分类和品牌过滤项" class="headerlink" title="2.分类和品牌过滤项"></a>2.分类和品牌过滤项</h1><p>首先，我们先完成分类和品牌的过滤项的查询。</p>
+<h2 id="2-1-发起查询请求"><a href="#2-1-发起查询请求" class="headerlink" title="2.1.发起查询请求"></a>2.1.发起查询请求</h2><p>首先，定义一个函数，在函数内部发起ajax请求，查询各种过滤项：</p>
+<pre><code class="js">loadFilterList(){
+    // 发起请求，查询过滤项
+    ly.http.post(&quot;/search/filter&quot;, this.search)
+        .then(resp =&gt; {
+
+    })
+}
+</code></pre>
+<p>注意：请求的参数与搜索商品时的请求参数是一致的，因为我们需要**<code>在搜索条件基础上，对搜索结果聚合</code>**。</p>
+<p>在created钩子函数中，在查询商品数据的之后，调用这个方法：</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553738446247.png" alt="1553738446247"></p>
+<h2 id="2-2-请求分析"><a href="#2-2-请求分析" class="headerlink" title="2.2.请求分析"></a>2.2.请求分析</h2><p>上面的请求发出了，我们就知道了下面的信息：</p>
+<ul>
+<li>请求方式：Post</li>
+<li>请求路径：&#x2F;search&#x2F;filter</li>
+<li>请求参数：与商品搜索一样，是SearchRequest对象</li>
+</ul>
+<p>那么问题来了：以什么格式返回呢？</p>
+<p>来看下页面的展示效果：</p>
+<p> <img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526742664217.png" alt="1526742664217"></p>
+<p>虽然分类、品牌等过滤内容都不太一样，但是结构相似，都是key和value的结构。</p>
+<ul>
+<li><p>key是过滤参数名称，如：分类</p>
+</li>
+<li><p>value是过滤的待选项，如：手机，儿童手表。</p>
+</li>
+</ul>
+<p>类似这样的键值对结构，是不是可以用一个Map来表示呢？</p>
+<p>而这样的过滤条件很多，所以可以用一个数组表示，其基本结构是这样的：</p>
+<pre><code class="js">{
+    &quot;过滤字段名称1&quot;:[&#39;过滤项1&#39;,&#39;过滤项2&#39;,...],
+    &quot;过滤字段名称2&quot;:[&#39;过滤项1&#39;,&#39;过滤项2&#39;,...]
+}
+</code></pre>
+<p>类似于java中的：<code>Map&lt;String,List&lt;?&gt;&gt;</code></p>
+<p>注意，这里的分类和品牌过滤项，不仅仅是分类和品牌的名称，还有品牌的图片，id等。所以待选项应该是一个分类和品牌的对象。</p>
+<h2 id="2-3-聚合商品分类和品牌"><a href="#2-3-聚合商品分类和品牌" class="headerlink" title="2.3.聚合商品分类和品牌"></a>2.3.聚合商品分类和品牌</h2><p>大家不要忘了，索引库中存储的分类和品牌只有id，因此聚合出来的结果也只有id。</p>
+<p>而页面中需要的是分类和品牌的对象，所以</p>
+<p>我们对分类和品牌聚合，先获取得到的分类和品牌的id，然后再根据id去查询分类和品牌数据。</p>
+<p>所以，商品微服务需要提供接口：</p>
+<ul>
+<li>根据品牌id集合，批量查询品牌；</li>
+<li>根据分类id集合查询分类（之前已经 写过）</li>
+</ul>
+<h3 id="2-2-1-提供查询品牌接口"><a href="#2-2-1-提供查询品牌接口" class="headerlink" title="2.2.1.提供查询品牌接口"></a>2.2.1.提供查询品牌接口</h3><p>我们在<code>ly-item-interface</code>中的<code>ItemClient</code>中定义一个新的API：</p>
+<pre><code class="java">/**
+     * 根据id的集合查询商品分类
+     * @param idList 商品分类的id集合
+     * @return 分类集合
+     */
+@GetMapping(&quot;/brand/list&quot;)
+List&lt;BrandDTO&gt; queryBrandByIds(@RequestParam(&quot;ids&quot;) List&lt;Long&gt; idList);
+</code></pre>
+<p>然后再<code>ly-item-service</code>中实现：</p>
+<p>BrandController：</p>
+<pre><code class="java">/**
+     * 根据多个id查询品牌
+     * @param ids
+     * @return
+     */
+@GetMapping(&quot;list&quot;)
+public ResponseEntity&lt;List&lt;BrandDTO&gt;&gt; queryBrandByIds(@RequestParam(&quot;ids&quot;) List&lt;Long&gt; ids){
+    return ResponseEntity.ok(this.brandService.queryBrandByIds(ids));
+}
+</code></pre>
+<p>BrandService</p>
+<pre><code class="java">public List&lt;BrandDTO&gt; queryBrandByIds(List&lt;Long&gt; ids) {
+    List&lt;Brand&gt; list = brandMapper.selectByIdList(ids);
+    // 判断是否为空
+    if(CollectionUtils.isEmpty(list)){
+        throw new LyException(ExceptionEnum.BRAND_NOT_FOUND);
+    }
+    return BeanHelper.copyWithCollection(list, BrandDTO.class);
+}
+</code></pre>
+<p>BrandMapper，需要基础BaseMapper，以拓展更多功能。</p>
+<pre><code class="java">package com.leyou.item.mapper;
+
+import com.leyou.common.mapper.BaseMapper;
+// ... 略
+
+public interface BrandMapper extends BaseMapper&lt;Brand&gt; {
+    // ... 略
+}
+</code></pre>
+<h3 id="2-2-2-查询过滤项的接口"><a href="#2-2-2-查询过滤项的接口" class="headerlink" title="2.2.2.查询过滤项的接口"></a>2.2.2.查询过滤项的接口</h3><blockquote>
+<p>handler</p>
+</blockquote>
+<p>在<code>SearchController</code>中新增一个Handler：</p>
+<pre><code class="java">/**
+     * 查询过滤项
+     * @param request
+     * @return
+     */
+@PostMapping(&quot;filter&quot;)
+public ResponseEntity&lt;Map&lt;String, List&lt;?&gt;&gt;&gt; queryFilters(@RequestBody SearchRequest request) {
+    return ResponseEntity.ok(searchService.queryFilters(request));
+}
+</code></pre>
+<blockquote>
+<p>searchService</p>
+</blockquote>
+<p>因为在业务中，与商品搜索一样，都需要构建查询条件，我们把构建查询条件的代码封装成一个方法：</p>
+<pre><code class="java">private QueryBuilder buildBasicQuery(SearchRequest request) {
+    // 构建基本的match查询
+    return QueryBuilders.matchQuery(&quot;all&quot;, request.getKey()).operator(Operator.AND);
+}
+</code></pre>
+<p>然后将原来的搜索逻辑修改一下，调用这个方法：</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553741152844.png" alt="1553741152844"></p>
+<p>新增searchService业务逻辑：</p>
+<pre><code class="java">@Autowired
+private ElasticsearchTemplate esTemplate;
+
+public Map&lt;String, List&lt;?&gt;&gt; queryFilters(SearchRequest request) {
+    // 1.创建过滤项集合
+    Map&lt;String, List&lt;?&gt;&gt; filterList = new LinkedHashMap&lt;&gt;();
+
+    // 2.查询条件
+    NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+    // 2.1.获取查询条件
+    QueryBuilder basicQuery = buildBasicQuery(request);
+    
+    queryBuilder.withQuery(basicQuery);
+    // 2.2.减少查询结果(这里只需要聚合结果)
+    // 每页显示1个
+    queryBuilder.withPageable(PageRequest.of(0, 1));
+    // 显示空的source
+    queryBuilder.withSourceFilter(new FetchSourceFilterBuilder().build());
+
+    // 3.聚合条件
+    // 3.1.分类聚合
+    String categoryAgg = &quot;categoryAgg&quot;;
+    queryBuilder.addAggregation(AggregationBuilders.terms(categoryAgg).field(&quot;categoryId&quot;));
+    // 3.2.品牌聚合
+    String brandAgg = &quot;brandAgg&quot;;
+    queryBuilder.addAggregation(AggregationBuilders.terms(brandAgg).field(&quot;brandId&quot;));
+
+    // 4.查询并解析结果
+    AggregatedPage&lt;Goods&gt; result = esTemplate.queryForPage(queryBuilder.build(), Goods.class);
+    Aggregations aggregations = result.getAggregations();
+    // 4.1.获取分类聚合
+    LongTerms cTerms = aggregations.get(categoryAgg);
+    handleCategoryAgg(cTerms, filterList);
+    // 4.2.获取分类聚合
+    LongTerms bTerms = aggregations.get(brandAgg);
+    handleBrandAgg(bTerms, filterList);
+
+    return filterList;
+}
+
+private void handleBrandAgg(LongTerms terms, Map&lt;String, List&lt;?&gt;&gt; filterList) {
+    // 解析bucket，得到id集合
+    List&lt;Long&gt; idList = terms.getBuckets().stream()
+        .map(LongTerms.Bucket::getKeyAsNumber)
+        .map(Number::longValue)
+        .collect(Collectors.toList());
+    // 根据id集合查询品牌
+    List&lt;BrandDTO&gt; brandList = itemClient.queryBrandByIds(idList);
+    // 存入map
+    filterList.put(&quot;品牌&quot;, brandList);
+}
+
+private void handleCategoryAgg(LongTerms terms, Map&lt;String, List&lt;?&gt;&gt; filterList) {
+    // 解析bucket，得到id集合
+    List&lt;Long&gt; idList = terms.getBuckets().stream()
+        .map(LongTerms.Bucket::getKeyAsNumber)
+        .map(Number::longValue)
+        .collect(Collectors.toList());
+    // 根据id集合查询分类
+    List&lt;CategoryDTO&gt; categoryList = itemClient.queryCategoryByIds(idList);
+    // 存入map
+    filterList.put(&quot;分类&quot;, categoryList);
+}
+</code></pre>
+<p>测试：</p>
+<p> <img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553741396967.png" alt="1553741396967"></p>
+<h2 id="2-4-页面渲染数据"><a href="#2-4-页面渲染数据" class="headerlink" title="2.4.页面渲染数据"></a>2.4.页面渲染数据</h2><h3 id="2-4-1-过滤参数数据结构"><a href="#2-4-1-过滤参数数据结构" class="headerlink" title="2.4.1.过滤参数数据结构"></a>2.4.1.过滤参数数据结构</h3><p>来看下页面的展示效果：</p>
+<p> <img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526742664217.png" alt="1526742664217"></p>
+<p>虽然分类、品牌内容都不太一样，但是结构相似，都是key和value的结构。</p>
+<p>而且页面结构也极为类似：</p>
+<p> <img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1526742817804.png" alt="1526742817804"></p>
+<p>所以，利用<code>v-for</code>遍历一次生成。</p>
+<p>后台返回的数据其基本结构是这样的：</p>
+<pre><code class="js">{
+    &quot;过滤字段名称1&quot;:[&#39;过滤项1&#39;,&#39;过滤项2&#39;,...],
+    &quot;过滤字段名称2&quot;:[&#39;过滤项1&#39;,&#39;过滤项2&#39;,...]
+}
+</code></pre>
+<p>我们先在data中定义变量，接收这个结果：</p>
+<p> <img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553741496632.png" alt="1553741496632"></p>
+<p>然后在查询过滤项的回调函数中，对过滤参数进行保存：</p>
+<pre><code class="js">loadFilterList(){
+    // 发起请求，查询过滤项
+    ly.http.post(&quot;/search/filter&quot;, this.search)
+        .then(resp =&gt; {
+        this.filterList = resp.data;
+    })
+}
+</code></pre>
+<p>然后刷新页面，通过浏览器工具，查看封装的结果：</p>
+<p> <img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1553741590843.png" alt="1553741590843"></p>
+<h3 id="2-4-2-页面渲染数据"><a href="#2-4-2-页面渲染数据" class="headerlink" title="2.4.2.页面渲染数据"></a>2.4.2.页面渲染数据</h3><p>首先看页面原来的代码：</p>
+<p> <img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526803362517.png" alt="1526803362517"></p>
+<p>我们注意到，虽然页面元素是一样的，但是品牌会比其它搜搜条件多出一些样式，因为品牌是以图片展示。需要进行特殊处理。数据展示是一致的，我们采用v-for处理，然后通过v-if判断分为两种情况：</p>
+<ul>
+<li>如果不是品牌，则按照第一个div样式处理</li>
+<li>是品牌，则按照第二个div样式处理</li>
+</ul>
+<pre><code class="html">&lt;div class=&quot;type-wrap&quot; v-for=&quot;(v,k,i) in filterList&quot; :key=&quot;k&quot; v-if=&quot;k!==&#39;品牌&#39;&quot;&gt;
+    &lt;div class=&quot;fl key&quot;&gt;{{k}}&lt;/div&gt;
+    &lt;div class=&quot;fl value&quot;&gt;
+        &lt;ul class=&quot;type-list&quot;&gt;
+            &lt;li v-for=&quot;(o,j) in v&quot; :key=&quot;j&quot;&gt;
+                &lt;a&gt;{{o.name}}&lt;/a&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;fl ext&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;type-wrap logo&quot; v-else&gt;
+    &lt;div class=&quot;fl key brand&quot;&gt;{{k}}&lt;/div&gt;
+    &lt;div class=&quot;value logos&quot;&gt;
+        &lt;ul class=&quot;logo-list&quot;&gt;
+            &lt;li v-for=&quot;(o,j) in v&quot; :key=&quot;j&quot; v-if=&quot;o.image&quot;&gt;&lt;img :src=&quot;o.image&quot;/&gt;&lt;/li&gt;
+            &lt;li style=&quot;text-align: center&quot; v-else&gt;
+                &lt;a style=&quot;line-height: 30px; font-size: 12px&quot; href=&quot;#&quot;&gt;{{o.name}}&lt;/a&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;fl ext&quot;&gt;
+        &lt;a href=&quot;javascript:void(0);&quot; class=&quot;sui-btn&quot;&gt;多选&lt;/a&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<p>结果：</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1526804398051.png" alt="1526804398051"></p>
+<h1 id="3-生成规格参数过滤"><a href="#3-生成规格参数过滤" class="headerlink" title="3.生成规格参数过滤"></a>3.生成规格参数过滤</h1><h2 id="3-1-谋而后动"><a href="#3-1-谋而后动" class="headerlink" title="3.1.谋而后动"></a>3.1.谋而后动</h2><p>有3个问题需要先思考清楚：</p>
+<ul>
+<li>什么时候显示规格参数过滤？</li>
+<li>如何知道哪些规格需要过滤？</li>
+<li>要过滤的参数，其可选值是如何获取的？</li>
+</ul>
+<blockquote>
+<p>什么情况下显示有关规格参数的过滤？</p>
+</blockquote>
+<p>可能有同学会想，这还要思考吗？查询商品分类和品牌过滤项的同时，把规格参数过滤项一起返回啊！</p>
+<p>但是，如果用户尚未选择商品分类，或者聚合得到的分类数大于1，那么就没必要进行规格参数的聚合。因为不同分类的商品，其规格是不同的，我们无法确定到底有多少规格需要聚合，代码无法进行。</p>
+<p>因此，我们在后台<strong>需要对聚合得到的商品分类数量进行判断，如果等于1，我们才继续进行规格参数的聚合</strong>。</p>
+<p>此时，只需要聚合当前分类下的规格参数即可，数量可以确定。</p>
+<blockquote>
+<p>如何知道哪些规格需要过滤？</p>
+</blockquote>
+<p>那么，我们是不是把数据库中的所有规格参数都拿来过滤呢？</p>
+<p>显然不是！</p>
+<p>因为并不是所有的规格参数都可以用来过滤。</p>
+<p>庆幸的是，我们在设计规格参数时，已经标记了某些规格可搜索，某些不可搜索，还记得SpecParam中的searching字段吗？</p>
+<p>因此，一旦商品分类确定，我们就可以根据商品分类查询到其对应的规格参数，并过滤哪些searching值为true的规格参数，然后对这些参数聚合即可。</p>
+<blockquote>
+<p>要过滤的参数，其可选值是如何获取的？</p>
+</blockquote>
+<p>虽然数据库中有所有的规格参数的可能值，但是不能把一切数据都用来供用户选择。</p>
+<p>与商品分类和品牌一样，应该是结果中有哪些规格参数值，就显示哪些。</p>
+<p>即：**<code>在搜索条件基础上，对搜索结果聚合</code>**，得到规格参数的待选项。</p>
+<p>比如：用户搜索了OPPO 手机，那么过滤项中只应该有OPPO可能存在的屏幕尺寸，比如5.5以上的，不会存在5.5以下的尺寸让你选择。</p>
+<h2 id="3-3-动手实践"><a href="#3-3-动手实践" class="headerlink" title="3.3.动手实践"></a>3.3.动手实践</h2><p>接下来，我们就用代码实现刚才的思路。</p>
+<p>总结一下，应该是以下几步：</p>
+<ul>
+<li>1）用户搜索得到商品，并聚合出商品分类（已完成）</li>
+<li>2）判断分类数量是否等于1，如果是则进行规格参数聚合</li>
+<li>3）先根据分类，查找可以用来搜索的规格</li>
+<li>4）在用户搜索结果的基础上，对规格参数进行聚合</li>
+<li>5）将规格参数聚合结果整理后返回</li>
+</ul>
+<h3 id="3-3-1-返回聚合得到的分类id"><a href="#3-3-1-返回聚合得到的分类id" class="headerlink" title="3.3.1. 返回聚合得到的分类id"></a>3.3.1. 返回聚合得到的分类id</h3><p>我们修改处理分类聚合的方法，使其返回得到的分类id集合，方便下面判断分类的数量：</p>
+<pre><code class="java">private List&lt;Long&gt; handleCategoryAgg(LongTerms terms, Map&lt;String, List&lt;?&gt;&gt; filterList) {
+    // 解析bucket，得到id集合
+    List&lt;Long&gt; idList = terms.getBuckets().stream()
+        .map(LongTerms.Bucket::getKeyAsNumber)
+        .map(Number::longValue)
+        .collect(Collectors.toList());
+    // 根据id集合查询分类
+    List&lt;CategoryDTO&gt; categoryList = itemClient.queryCategoryByIds(idList);
+    // 存入map
+    filterList.put(&quot;分类&quot;, categoryList);
+    return idList;
+}
+</code></pre>
+<h3 id="3-3-2-判断是否需要聚合"><a href="#3-3-2-判断是否需要聚合" class="headerlink" title="3.3.2.判断是否需要聚合"></a>3.3.2.判断是否需要聚合</h3><p>在<code>queryFilter</code>方法中，聚合得到商品分类后，判断分类的个数，如果是1个则进行规格聚合：</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553743054708.png" alt="1553743054708"> </p>
+<p>此处调用了一个<code>handleSpecAgg</code>方法，处理规格参数聚合。</p>
+<h3 id="3-3-3-获取需要聚合的规格参数"><a href="#3-3-3-获取需要聚合的规格参数" class="headerlink" title="3.3.3.获取需要聚合的规格参数"></a>3.3.3.获取需要聚合的规格参数</h3><p>然后，在<code>handleSpecAgg</code>中我们需要根据商品分类，查询所有可用于搜索的规格参数：</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553743703220.png" alt="1553743703220"></p>
+<h3 id="3-3-4-聚合规格参数"><a href="#3-3-4-聚合规格参数" class="headerlink" title="3.3.4.聚合规格参数"></a>3.3.4.聚合规格参数</h3><p>在<code>handleSpecAgg</code>中，添加聚合条件。</p>
+<p>因为规格参数保存时是specs的属性，因此所有的规格参数都会有一个<code>specs.</code>的前缀,以及.keyword后缀</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1559411307819.png" alt="1559411307819"></p>
+<p>这里把规格参数的名称作为了聚合名称，因此取出结果时，也要以参数名来取</p>
+<h3 id="3-3-5-解析聚合结果"><a href="#3-3-5-解析聚合结果" class="headerlink" title="3.3.5.解析聚合结果"></a>3.3.5.解析聚合结果</h3><p>在<code>handleSpecAgg</code>中，解析聚合得到的结果，并封装到map中</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553743997242.png" alt="1553743997242"></p>
+<h3 id="3-3-6-完整代码"><a href="#3-3-6-完整代码" class="headerlink" title="3.3.6.完整代码"></a>3.3.6.完整代码</h3><pre><code class="java">private void handleSpecAgg(Long cid, QueryBuilder basicQuery, Map&lt;String, List&lt;?&gt;&gt; filterList) {
+    // 1.查询分类下需要搜索过滤的规格参数名称
+    List&lt;SpecParamDTO&gt; specParams = itemClient.querySpecParams(null, cid, true);
+
+    // 2.查询条件
+    NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+    // 2.1.获取查询条件
+    queryBuilder.withQuery(basicQuery);
+    // 2.2.减少查询结果(这里只需要聚合结果)
+    // 每页显示1个
+    queryBuilder.withPageable(PageRequest.of(0, 1));
+    // 显示空的source
+    queryBuilder.withSourceFilter(new FetchSourceFilterBuilder().build());
+
+    // 3.聚合条件
+    for (SpecParamDTO param : specParams) {
+        // 获取param的name，作为聚合名称
+        String name = param.getName();
+        queryBuilder.addAggregation(AggregationBuilders.terms(name).field(&quot;specs.&quot; + name + &quot;.keyword&quot;));
+    }
+
+    // 4.查询并获取结果
+    AggregatedPage&lt;Goods&gt; result = esTemplate.queryForPage(queryBuilder.build(), Goods.class);
+    Aggregations aggregations = result.getAggregations();
+
+    // 5.解析聚合结果
+    for (SpecParamDTO param : specParams) {
+        // 获取param的name，作为聚合名称
+        String name = param.getName();
+        StringTerms terms = aggregations.get(name);
+        // 获取聚合结果，注意，规格聚合的结果 直接是字符串，不用做特殊处理
+        List&lt;String&gt; paramValues = terms.getBuckets()
+            .stream()
+            .map(StringTerms.Bucket::getKeyAsString)
+            // 过滤掉空的待选项
+            .filter(StringUtils::isNotEmpty)
+            .collect(Collectors.toList());
+        // 存入map
+        filterList.put(name, paramValues);
+    }
+}
+</code></pre>
+<h3 id="3-3-7-测试结果："><a href="#3-3-7-测试结果：" class="headerlink" title="3.3.7.测试结果："></a>3.3.7.测试结果：</h3><p><img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1553744260832.png" alt="1553744260832"> </p>
+<h3 id="3-3-8-整个SearchService的完整代码"><a href="#3-3-8-整个SearchService的完整代码" class="headerlink" title="3.3.8.整个SearchService的完整代码"></a>3.3.8.整个SearchService的完整代码</h3><pre><code class="java">package com.leyou.search.service;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.leyou.common.enums.ExceptionEnum;
+import com.leyou.common.exceptions.LyException;
+import com.leyou.common.utils.JsonUtils;
+import com.leyou.common.utils.NumberUtils;
+import com.leyou.common.vo.PageResult;
+import com.leyou.item.client.ItemClient;
+import com.leyou.item.dto.*;
+import com.leyou.search.pojo.Goods;
+import com.leyou.search.pojo.SearchRequest;
+import com.leyou.search.repository.GoodsRepository;
+import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.LongTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
+import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
+import org.springframework.data.elasticsearch.core.query.FetchSourceFilterBuilder;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+
+@Service
+public class SearchService {
+
+    @Autowired
+    private ItemClient itemClient;
+
+    /**
+     * 把一个Spu转为一个Goods对象
+     *
+     * @param spu
+     * @return
+     */
+    public Goods buildGoods(SpuDTO spu) {
+        // 1 商品相关搜索信息的拼接：名称、分类、品牌、规格信息等
+        // 1.1 分类
+        String categoryNames = itemClient.queryCategoryByIds(spu.getCategoryIds())
+                .stream().map(CategoryDTO::getName).collect(Collectors.joining(&quot;,&quot;));
+        // 1.2 品牌
+        BrandDTO brand = itemClient.queryBrandById(spu.getBrandId());
+        // 1.3 名称等，完成拼接
+        String all = spu.getName() + categoryNames + brand.getName();
+
+        // 2 spu下的所有sku的JSON数组
+        List&lt;SkuDTO&gt; skuList = itemClient.querySkuBySpuId(spu.getId());
+        // 准备一个集合，用map来代替sku，只需要sku中的部分数据
+        List&lt;Map&lt;String, Object&gt;&gt; skuMap = new ArrayList&lt;&gt;();
+        for (SkuDTO sku : skuList) {
+            Map&lt;String, Object&gt; map = new HashMap&lt;&gt;();
+            map.put(&quot;id&quot;, sku.getId());
+            map.put(&quot;price&quot;, sku.getPrice());
+            map.put(&quot;title&quot;, sku.getTitle());
+            map.put(&quot;image&quot;, StringUtils.substringBefore(sku.getImages(), &quot;,&quot;));
+            skuMap.add(map);
+        }
+
+        // 3 当前spu下所有sku的价格的集合
+        Set&lt;Long&gt; price = skuList.stream().map(SkuDTO::getPrice).collect(Collectors.toSet());
+
+        // 4 当前spu的规格参数
+        Map&lt;String, Object&gt; specs = new HashMap&lt;&gt;();
+
+        // 4.1 获取规格参数key，来自于SpecParam中当前分类下的需要搜索的规格
+        List&lt;SpecParamDTO&gt; specParams = itemClient.querySpecParams(null, spu.getCid3(), true);
+        // 4.2 获取规格参数的值，来自于spuDetail
+        SpuDetailDTO spuDetail = itemClient.querySpuDetailById(spu.getId());
+        // 4.2.1 通用规格参数值
+        Map&lt;Long, Object&gt; genericSpec = JsonUtils.toMap(spuDetail.getGenericSpec(), Long.class, Object.class);
+        // 4.2.2 特有规格参数值
+        Map&lt;Long, List&lt;String&gt;&gt; specialSpec = JsonUtils.nativeRead(spuDetail.getSpecialSpec(), new TypeReference&lt;Map&lt;Long, List&lt;String&gt;&gt;&gt;() {
+        });
+
+        for (SpecParamDTO specParam : specParams) {
+            // 获取规格参数的名称
+            String key = specParam.getName();
+            // 获取规格参数值
+            Object value = null;
+            // 判断是否是通用规格
+            if (specParam.getGeneric()) {
+                // 通用规格
+                value = genericSpec.get(specParam.getId());
+            } else {
+                // 特有规格
+                value = specialSpec.get(specParam.getId());
+            }
+            // 判断是否是数字类型
+            if(specParam.getNumeric()){
+                // 是数字类型，分段
+                value = chooseSegment(value, specParam);
+            }
+            // 添加到specs
+            specs.put(key, value);
+        }
+
+        Goods goods = new Goods();
+        // 从spu对象中拷贝与goods对象中属性名一致的属性
+        goods.setBrandId(spu.getBrandId());
+        goods.setCategoryId(spu.getCid3());
+        goods.setId(spu.getId());
+        goods.setSubTitle(spu.getSubTitle());
+        goods.setCreateTime(spu.getCreateTime().getTime());
+        goods.setSkus(JsonUtils.toString(skuMap));// spu下的所有sku的JSON数组
+        goods.setSpecs(specs); // 当前spu的规格参数
+        goods.setPrice(price); // 当前spu下所有sku的价格的集合
+        goods.setAll(all);// 商品相关搜索信息的拼接：标题、分类、品牌、规格信息等
+        return goods;
+    }
+
+    private String chooseSegment(Object value, SpecParamDTO p) {
+        if(value == null || StringUtils.isBlank(value.toString())){
+            return &quot;其它&quot;;
+        }
+        double val = NumberUtils.toDouble(value.toString());
+        String result = &quot;其它&quot;;
+        // 保存数值段
+        for (String segment : p.getSegments().split(&quot;,&quot;)) {
+            String[] segs = segment.split(&quot;-&quot;);
+            // 获取数值范围
+            double begin = NumberUtils.toDouble(segs[0]);
+            double end = Double.MAX_VALUE;
+            if(segs.length == 2){
+                end = NumberUtils.toDouble(segs[1]);
+            }
+            // 判断是否在范围内
+            if(val &gt;= begin &amp;&amp; val &lt; end){
+                if(segs.length == 1){
+                    result = segs[0] + p.getUnit() + &quot;以上&quot;;
+                }else if(begin == 0){
+                    result = segs[1] + p.getUnit() + &quot;以下&quot;;
+                }else{
+                    result = segment + p.getUnit();
+                }
+                break;
+            }
+        }
+        return result;
+    }
+
+    @Autowired
+    private GoodsRepository goodsRepository;
+
+    public PageResult&lt;Goods&gt; search(SearchRequest request) {
+        // 1.获取请求参数，完成健壮性校验
+        String key = request.getKey();
+        // 判断是否有搜索条件，如果没有，直接返回null。不允许搜索全部商品
+        if (StringUtils.isBlank(key)) {
+            throw new LyException(ExceptionEnum.GOODS_NOT_FOUND);
+        }
+
+        // 2.构建查询条件
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        // 2.1.通过sourceFilter设置返回的结果字段,我们只需要id、skus、subTitle
+        queryBuilder.withSourceFilter(new FetchSourceFilter(
+                new String[]{&quot;id&quot;,&quot;skus&quot;,&quot;subTitle&quot;}, null));
+        // 2.2.关键字的match匹配查询
+        QueryBuilder basicQuery = buildBasicQuery(request);
+        queryBuilder.withQuery(basicQuery);
+        // 2.3.分页
+        int page = request.getPage() - 1;
+        int size = request.getSize();
+        queryBuilder.withPageable(PageRequest.of(page, size));
+
+        // 3.查询，获取结果
+        Page&lt;Goods&gt; result = goodsRepository.search(queryBuilder.build());
+        int totalPages = result.getTotalPages();
+        long total = result.getTotalElements();
+        List&lt;Goods&gt; list = result.getContent();
+        // 4.封装结果并返回
+        return new PageResult&lt;&gt;(total, totalPages, list);
+    }
+
+    private QueryBuilder buildBasicQuery(SearchRequest request) {
+        // 构建基本的match查询
+        return QueryBuilders.matchQuery(&quot;all&quot;, request.getKey()).operator(Operator.AND);
+    }
+
+    @Autowired
+    private ElasticsearchTemplate esTemplate;
+
+    public Map&lt;String, List&lt;?&gt;&gt; queryFilters(SearchRequest request) {
+        // 1.创建过滤项集合
+        Map&lt;String, List&lt;?&gt;&gt; filterList = new LinkedHashMap&lt;&gt;();
+
+        // 2.查询条件
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        // 2.1.获取查询条件
+        QueryBuilder basicQuery = buildBasicQuery(request);
+        queryBuilder.withQuery(basicQuery);
+        // 2.2.减少查询结果(这里只需要聚合结果)
+        // 每页显示1个
+        queryBuilder.withPageable(PageRequest.of(0, 1));
+        // 显示空的source
+        queryBuilder.withSourceFilter(new FetchSourceFilterBuilder().build());
+
+        // 3.聚合条件
+        // 3.1.分类聚合
+        String categoryAgg = &quot;categoryAgg&quot;;
+        queryBuilder.addAggregation(AggregationBuilders.terms(categoryAgg).field(&quot;categoryId&quot;));
+        // 3.2.品牌聚合
+        String brandAgg = &quot;brandAgg&quot;;
+        queryBuilder.addAggregation(AggregationBuilders.terms(brandAgg).field(&quot;brandId&quot;));
+
+        // 4.查询并解析结果
+        AggregatedPage&lt;Goods&gt; result = esTemplate.queryForPage(queryBuilder.build(), Goods.class);
+        Aggregations aggregations = result.getAggregations();
+        // 4.1.获取分类聚合
+        LongTerms cTerms = aggregations.get(categoryAgg);
+        List&lt;Long&gt; idList = handleCategoryAgg(cTerms, filterList);
+        // 4.2.获取分类聚合
+        LongTerms bTerms = aggregations.get(brandAgg);
+        handleBrandAgg(bTerms, filterList);
+
+        // 5.规格参数处理
+        if (idList != null &amp;&amp; idList.size() == 1) {
+            // 处理规格，需要参数：分类的id，查询条件，过滤项集合
+            handleSpecAgg(idList.get(0), basicQuery, filterList);
+        }
+        return filterList;
+    }
+
+    private void handleSpecAgg(Long cid, QueryBuilder basicQuery, Map&lt;String, List&lt;?&gt;&gt; filterList) {
+        // 1.查询分类下需要搜索过滤的规格参数名称
+        List&lt;SpecParamDTO&gt; specParams = itemClient.querySpecParams(null, cid, true);
+
+        // 2.查询条件
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        // 2.1.获取查询条件
+        queryBuilder.withQuery(basicQuery);
+        // 2.2.减少查询结果(这里只需要聚合结果)
+        // 每页显示1个
+        queryBuilder.withPageable(PageRequest.of(0, 1));
+        // 显示空的source
+        queryBuilder.withSourceFilter(new FetchSourceFilterBuilder().build());
+
+        // 3.聚合条件
+        for (SpecParamDTO param : specParams) {
+            // 获取param的name，作为聚合名称
+            String name = param.getName();
+            queryBuilder.addAggregation(AggregationBuilders.terms(name).field(&quot;specs.&quot; + name+&quot;.keyword&quot;));
+        }
+
+        // 4.查询并获取结果
+        AggregatedPage&lt;Goods&gt; result = esTemplate.queryForPage(queryBuilder.build(), Goods.class);
+        Aggregations aggregations = result.getAggregations();
+
+        // 5.解析聚合结果
+        for (SpecParamDTO param : specParams) {
+            // 获取param的name，作为聚合名称
+            String name = param.getName();
+            StringTerms terms = aggregations.get(name);
+            // 获取聚合结果，注意，规格聚合的结果 直接是字符串，不用做特殊处理
+            List&lt;String&gt; paramValues = terms.getBuckets()
+                    .stream()
+                    .map(StringTerms.Bucket::getKeyAsString)
+                    // 过滤掉空的待选项
+                    .filter(StringUtils::isNotEmpty)
+                    .collect(Collectors.toList());
+            // 存入map
+            filterList.put(name, paramValues);
+        }
+    }
+
+    private void handleBrandAgg(LongTerms terms, Map&lt;String, List&lt;?&gt;&gt; filterList) {
+        // 解析bucket，得到id集合
+        List&lt;Long&gt; idList = terms.getBuckets().stream()
+                .map(LongTerms.Bucket::getKeyAsNumber)
+                .map(Number::longValue)
+                .collect(Collectors.toList());
+        // 根据id集合查询品牌
+        List&lt;BrandDTO&gt; brandList = itemClient.queryBrandByIds(idList);
+        // 存入map
+        filterList.put(&quot;品牌&quot;, brandList);
+    }
+
+    private List&lt;Long&gt; handleCategoryAgg(LongTerms terms, Map&lt;String, List&lt;?&gt;&gt; filterList) {
+        // 解析bucket，得到id集合
+        List&lt;Long&gt; idList = terms.getBuckets().stream()
+                .map(LongTerms.Bucket::getKeyAsNumber)
+                .map(Number::longValue)
+                .collect(Collectors.toList());
+        // 根据id集合查询分类
+        List&lt;CategoryDTO&gt; categoryList = itemClient.queryCategoryByIds(idList);
+        // 存入map
+        filterList.put(&quot;分类&quot;, categoryList);
+        return idList;
+    }
+}
+</code></pre>
+<h2 id="3-4-页面渲染"><a href="#3-4-页面渲染" class="headerlink" title="3.4.页面渲染"></a>3.4.页面渲染</h2><h3 id="3-4-1-渲染规格过滤条件"><a href="#3-4-1-渲染规格过滤条件" class="headerlink" title="3.4.1.渲染规格过滤条件"></a>3.4.1.渲染规格过滤条件</h3><p>刷新页面，发现出事了：</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553744583157.png" alt="1553744583157"></p>
+<p> 除了分类和品牌外，其它的规格过滤项没有正常显示出数据，为什么呢？</p>
+<p>原因是待选项的格式不同：</p>
+<p><img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1553744714332.png" alt="1553744714332"></p>
+<p>我们需要略做处理：</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553744769448.png" alt="1553744769448"></p>
+<p>最后的结果：</p>
+<p><img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526836508277.png" alt="1526836508277"></p>
+<h3 id="3-4-2-展示或收起过滤条件"><a href="#3-4-2-展示或收起过滤条件" class="headerlink" title="3.4.2.展示或收起过滤条件"></a>3.4.2.展示或收起过滤条件</h3><p>是不是感觉显示的太多了，我们可以通过按钮点击来展开和隐藏部分内容：</p>
+<p> <img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526836575516.png" alt="1526836575516"></p>
+<p>我们在data中定义变量，记录展开或隐藏的状态：</p>
+<p> <img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553744949776.png" alt="1553744949776"></p>
+<p>然后在按钮绑定点击事件，以改变showMore的取值：</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553746647101.png" alt="1553746647101"></p>
+<p>在展示规格时，对showMore进行判断：</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553746730541.png" alt="1553746730541"></p>
+<p>OK！</p>
+<h1 id="4-过滤条件的筛选"><a href="#4-过滤条件的筛选" class="headerlink" title="4.过滤条件的筛选"></a>4.过滤条件的筛选</h1><p>当我们点击页面的过滤项，要做哪些事情？</p>
+<ul>
+<li>把过滤条件保存在search对象中</li>
+<li>监控search属性变化，如果有新的值，则发起请求，重新查询商品及过滤项</li>
+<li>在页面顶部展示已选择的过滤项</li>
+</ul>
+<h2 id="4-1-保存过滤项"><a href="#4-1-保存过滤项" class="headerlink" title="4.1.保存过滤项"></a>4.1.保存过滤项</h2><h3 id="4-1-1-定义属性"><a href="#4-1-1-定义属性" class="headerlink" title="4.1.1.定义属性"></a>4.1.1.定义属性</h3><p>我们把已选择的过滤项保存在search中，因为不确定用户会选中几个，会选中什么，所以我们用一个对象（Map）来保存可能被选中的键值对：</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553747483932.png" alt="1553747483932"></p>
+<p>要注意，在created构造函数中会对search进行初始化，可能会覆盖filter的值，所以我们在created函数中对filter做初始化判断：</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553747609474.png" alt="1553747609474"></p>
+<h3 id="4-1-2-绑定点击事件"><a href="#4-1-2-绑定点击事件" class="headerlink" title="4.1.2.绑定点击事件"></a>4.1.2.绑定点击事件</h3><p>给所有的过滤项绑定点击事件：</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553747747188.png" alt="1553747747188"></p>
+<p>要注意，点击事件传2个参数：</p>
+<ul>
+<li>k：过滤项的名称</li>
+<li>option或option.id：当前过滤项的值或者id（因为分类和品牌要拿id去索引库过滤）</li>
+</ul>
+<p>在点击事件中，保存过滤项到<code>selectedFilter</code>：</p>
+<pre><code class="js">selectFilter(key,val){
+    // 复制原来的search
+    const {...obj} = this.search.filter;
+    // 添加新的属性
+    obj[key] = val;
+    // 赋值给search
+    this.search.filter = obj;
+}
+</code></pre>
+<p>然后通过watch监控<code>search.filter</code>的变化：</p>
+<pre><code class="js">watch: {
+    &quot;search.filter&quot;:{
+        handler(val) {
+            // 把search对象中除了key以外的属性变成请求参数，
+            const {key, ...obj} = this.search;
+            // 拼接在url路径的hash中
+            window.location.hash = &quot;#&quot; + ly.stringify(obj);
+            // 因为hash变化不引起刷新，需要手动调用loadData
+            this.loadData();
+            // 还要加载新的过滤项
+            this.loadFilterList();
+        }
+    }
+}
+</code></pre>
+<p>我们刷新页面，点击后通过浏览器功能查看<code>search.filter</code>的属性变化：</p>
+<p> <img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526904752818.png" alt="1526904752818"></p>
+<p>并且，此时浏览器地址也发生了变化：</p>
+<pre><code>http://www.leyou.com/search.html?key=%E6%89%8B%E6%9C%BA#%E5%93%81%E7%89%8C=15127&amp;CPU%E5%93%81%E7%89%8C=%E8%81%94%E5%8F%91%E7%A7%91%EF%BC%88MTK%EF%BC%89&amp;CPU%E6%A0%B8%E6%95%B0=%E5%9B%9B%E6%A0%B8
+</code></pre>
+<p>网络请求也正常发出：</p>
+<p><img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1553750383017.png" alt="1553750383017"></p>
+<h2 id="4-2-后台添加过滤条件"><a href="#4-2-后台添加过滤条件" class="headerlink" title="4.2.后台添加过滤条件"></a>4.2.后台添加过滤条件</h2><p>既然请求已经发送到了后台，那接下来我们就在后台去添加这些条件：</p>
+<h3 id="4-2-1-拓展请求对象"><a href="#4-2-1-拓展请求对象" class="headerlink" title="4.2.1.拓展请求对象"></a>4.2.1.拓展请求对象</h3><p>我们需要在请求类：<code>SearchRequest</code>中添加属性，接收过滤属性。过滤属性都是键值对格式，但是key不确定，所以用一个map来接收即可，<strong>记得加 getter，setter方法</strong>。</p>
+<p><img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1559552221016.png" alt="1559552221016"></p>
+<h3 id="4-2-2-添加过滤条件"><a href="#4-2-2-添加过滤条件" class="headerlink" title="4.2.2.添加过滤条件"></a>4.2.2.添加过滤条件</h3><p>目前，我们的基本查询是这样的：</p>
+<pre><code class="java">private QueryBuilder buildBasicQuery(SearchRequest request) {
+    // 构建基本的match查询
+    return QueryBuilders.matchQuery(&quot;all&quot;, request.getKey()).operator(Operator.AND);
+}
+</code></pre>
+<p>现在，我们要把页面传递的过滤条件也进入进去。</p>
+<p>因此不能在使用普通的查询，而是要用到BooleanQuery，基本结构是这样的：</p>
+<pre><code class="json">GET goods/_search
+{
+  &quot;query&quot;: {
+    &quot;bool&quot;: {
+      &quot;must&quot;: [
+        {
+          &quot;match&quot;: {
+            &quot;all&quot;: {
+              &quot;query&quot;: &quot;手机&quot;,
+              &quot;operator&quot;: &quot;and&quot;
+            }
+          }
+        }
+      ],
+      &quot;filter&quot;: [
+        {
+          &quot;term&quot;: {
+            &quot;brandId&quot;: 18374
+          }
+        },
+        {
+          &quot;term&quot;: {
+            &quot;specs.前置摄像头.keyword&quot;: &quot;1500-2000万&quot;
+          }
+        }
+      ]
+    }
+  }
+}
+</code></pre>
+<p>所以，我们对原来的基本查询进行改造：</p>
+<pre><code class="java">private QueryBuilder buildBasicQuery(SearchRequest request) {
+    // 构建布尔查询
+    BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+    // 构建基本的match查询
+    queryBuilder.must(QueryBuilders.matchQuery(&quot;all&quot;, request.getKey()).operator(Operator.AND));
+    // 构建过滤条件
+    for (Map.Entry&lt;String, String&gt; entry : request.getFilter().entrySet()) {
+        String key = entry.getKey();
+        // 分类、品牌、规格参数的key都需要做一些处理
+        if (&quot;分类&quot;.equals(key)) {
+            key = &quot;categoryId&quot;;
+        } else if (&quot;品牌&quot;.equals(key)) {
+            key = &quot;brandId&quot;;
+        } else {
+            key = &quot;specs.&quot; + key + &quot;.keyword&quot;;
+        }
+        // 把key和value作为过滤条件
+        queryBuilder.filter(QueryBuilders.termQuery(key, entry.getValue()));
+    }
+
+    return queryBuilder;
+}
+</code></pre>
+<p>其它不变,确认search中的查询方法的查询参数也是调用buildBasicQuery。</p>
+<p><img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1559554970753.png" alt="1559554970753"></p>
+<h2 id="4-3-页面测试"><a href="#4-3-页面测试" class="headerlink" title="4.3.页面测试"></a>4.3.页面测试</h2><p>我们先不点击过滤条件，直接搜索手机：</p>
+<p> <img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526910966728.png" alt="1526910966728"></p>
+<p>总共184条</p>
+<p>接下来，我们点击一个过滤条件：</p>
+<p> <img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526911057839.png" alt="1526911057839"></p>
+<p>得到的结果：</p>
+<p> <img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526911090064.png" alt="1526911090064"></p>
+<h1 id="5-页面展示选择的过滤项-作业"><a href="#5-页面展示选择的过滤项-作业" class="headerlink" title="5.页面展示选择的过滤项(作业)"></a>5.页面展示选择的过滤项(作业)</h1><h2 id="5-1-商品分类面包屑"><a href="#5-1-商品分类面包屑" class="headerlink" title="5.1.商品分类面包屑"></a>5.1.商品分类面包屑</h2><p>当用户选择一个商品分类以后，我们应该在过滤模块的上方展示一个面包屑，把三级商品分类都显示出来。</p>
+<p> <img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526912181355.png" alt="1526912181355"></p>
+<p>用户选择的商品分类就存放在<code>search.filter</code>中，但是里面只有第三级分类的id：cid3</p>
+<p>我们需要根据它查询出所有三级分类的id及名称</p>
+<h3 id="5-1-1-提供查询分类接口"><a href="#5-1-1-提供查询分类接口" class="headerlink" title="5.1.1.提供查询分类接口"></a>5.1.1.提供查询分类接口</h3><p>我们在商品微服务<code>ly-item-service</code>的<code>CategoryController</code>中提供一个根据三级分类id查询1~3级分类集合的方法：</p>
+<blockquote>
+<p>Controller</p>
+</blockquote>
+<pre><code class="java">/**
+     * 根据3级分类id，查询1~3级的分类
+     * @param id
+     * @return
+     */
+@GetMapping(&quot;/levels/&quot;)
+public ResponseEntity&lt;List&lt;CategoryDTO&gt;&gt; queryAllByCid3(@RequestParam(&quot;id&quot;) Long id){
+    return ResponseEntity.ok(categoryService.queryAllByCid3(id));
+}
+</code></pre>
+<blockquote>
+<p>Service</p>
+</blockquote>
+<pre><code class="java">public List&lt;CategoryDTO&gt; queryAllByCid3(Long id) {
+    Category c3 = categoryMapper.selectByPrimaryKey(id);
+    if (c3 == null) {
+        throw new LyException(ExceptionEnum.CATEGORY_NOT_FOUND);
+    }
+    Category c2 = categoryMapper.selectByPrimaryKey(c3.getParentId());
+    if (c2 == null) {
+        throw new LyException(ExceptionEnum.CATEGORY_NOT_FOUND);
+    }
+    Category c1 = categoryMapper.selectByPrimaryKey(c2.getParentId());
+    if (c1 == null) {
+        throw new LyException(ExceptionEnum.CATEGORY_NOT_FOUND);
+    }
+    List&lt;Category&gt; list = Arrays.asList(c1, c2, c3);
+    return BeanHelper.copyWithCollection(list, CategoryDTO.class);
+}
+</code></pre>
+<p>测试：</p>
+<p><img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1553751953227.png" alt="1553751953227"></p>
+<h3 id="5-1-2-页面展示面包屑"><a href="#5-1-2-页面展示面包屑" class="headerlink" title="5.1.2.页面展示面包屑"></a>5.1.2.页面展示面包屑</h3><p>我们先在data中定义变量，记录商品分类的信息：</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553752113672.png" alt="1553752113672"></p>
+<p>后台提供了查询接口，下面的问题是，我们在哪里去查询接口？</p>
+<p>大家首先想到的肯定是当用户点击以后。但是用户点击的可能不是分类，所以我们还要判断是否是分类选项，如果是，则查询分类即可。</p>
+<p>但是，有没有考虑过这种情况：</p>
+<ul>
+<li>如果在搜索条件基础上，本身就剩下了一种分类，此时不再需要对分类进行过滤 了，用户无需点击，那么查询也不会触发了。</li>
+</ul>
+<p>所以，我们可以再过滤项加载完毕后，判断分类的数量是否只剩下一个，如果是，说明有两种情况：</p>
+<ul>
+<li>用户点击了分类，过滤后只剩下一个</li>
+<li>用户每点击，但是搜索结果本来就只有一个分类</li>
+</ul>
+<p>无论是哪一种，我们都可以去查询分类信息，渲染面包屑了：</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1553753352829.png" alt="1553753352829"></p>
+<p>渲染：</p>
+<p> <img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1528416823546.png" alt="1528416823546"></p>
+<p>刷新页面：</p>
+<p> <img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526914954839.png" alt="1526914954839"></p>
+<h2 id="5-2-其它过滤项"><a href="#5-2-其它过滤项" class="headerlink" title="5.2.其它过滤项"></a>5.2.其它过滤项</h2><p>接下来，我们需要在页面展示用户已选择的过滤项，如图：</p>
+<p><img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526911364625.png" alt="1526911364625"></p>
+<p>我们知道，所有已选择过滤项都保存在<code>search.filter</code>中，因此在页面遍历并展示即可。</p>
+<p>但这里有个问题，filter中数据的格式：</p>
+<p>基本有3类数据：</p>
+<ul>
+<li>商品分类：这个不需要展示，分类展示在面包屑位置</li>
+<li>品牌：这个要展示，但是其key和值不合适，我们不能显示一个id在页面。需要找到其name值</li>
+<li>规格：直接展示</li>
+</ul>
+<p>因此，我们在页面上这样处理：</p>
+<pre><code class="html">&lt;!--已选择过滤项--&gt;
+&lt;ul class=&quot;tags-choose&quot;&gt;
+    &lt;li class=&quot;tag&quot; v-for=&quot;(v,k) in search.filter&quot; v-if=&quot;k !== &#39;分类&#39;&quot;&gt;
+        {{k}}:&lt;span style=&quot;color: red&quot;&gt;{{getFilterValue(k,v)}}&lt;/span&gt;
+        &lt;i class=&quot;sui-icon icon-tb-close&quot;&gt;&lt;/i&gt;
+    &lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+<ul>
+<li>判断如果 <code>k !== &#39;分类&#39;</code>说明是不商品分类，可以显示</li>
+<li>值的处理比较复杂，我们用一个方法<code>getFilterValue(k,v)</code>来处理，调用时把<code>k</code>和<code>v</code>都传递</li>
+</ul>
+<p>方法内部：</p>
+<pre><code class="js">getFilterValue(key,value){
+    if(!this.filterList[key]){
+        return &quot;&quot;;
+    }
+    if(key === &#39;品牌&#39;){
+        return this.filterList[key][0].name;
+    }
+    return value;
+}
+</code></pre>
+<p>然后刷新页面，即可看到效果：</p>
+<p><img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526911811998.png" alt="1526911811998"></p>
+<h2 id="5-3-隐藏已经选择的过滤项"><a href="#5-3-隐藏已经选择的过滤项" class="headerlink" title="5.3.隐藏已经选择的过滤项"></a>5.3.隐藏已经选择的过滤项</h2><p>现在，我们已经实现了已选择过滤项的展示，但是你会发现一个问题：</p>
+<p>已经选择的过滤项，在过滤列表中依然存在：</p>
+<p><img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526915075037.png" alt="1526915075037"></p>
+<p>这些已经选择的过滤项，应该从列表中移除。</p>
+<p>怎么做呢？</p>
+<p>你必须先知道用户选择了什么。用户选择的项保存在<code>search.filter</code>中：</p>
+<p> <img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526915191753.png" alt="1526915191753"></p>
+<p>我们可以编写一个计算属性，把filters中的 已经被选择的key过滤掉：</p>
+<pre><code class="js">computed:{
+    remainFilters(){
+        // 获取已经选中的过滤项的key
+        const keys = Object.keys(this.search.filter);
+        // 定义空对象，记录符合条件的过滤项
+        const obj = {};
+        // 遍历全部过滤项
+        Object.keys(this.filterList).forEach(key =&gt; {
+            // 过滤掉已经包含在已选中的过滤项中的，还有待选项不超过1个的
+            if(!keys.includes(key) &amp;&amp; this.filterList[key].length &gt; 1){
+                obj[key] = this.filterList[key];
+            }
+        });
+        return obj;
+    }
+}
+</code></pre>
+<p>然后页面不再直接遍历<code>filters</code>，而是遍历<code>remainFilters</code></p>
+<p><img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526916315470.png" alt="1526916315470"></p>
+<p>刷新页面：</p>
+<p><img src="/./../../../../%E5%B7%A5%E4%BD%9C%E5%8F%B0/%E7%AC%94%E8%AE%B0/66_%E9%A1%B9%E7%9B%AE/010_%E4%B9%90%E4%BC%98%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE/assets/1526916838222.png" alt="1526916838222"></p>
+<h1 id="6-取消过滤项（作业）"><a href="#6-取消过滤项（作业）" class="headerlink" title="6.取消过滤项（作业）"></a>6.取消过滤项（作业）</h1><p>我们能够看到，每个过滤项后面都有一个小叉，当点击后，应该取消对应条件的过滤。</p>
+<p>思路非常简单：</p>
+<ul>
+<li>给小叉绑定点击事件</li>
+<li>点击后把过滤项从<code>search.filter</code>中移除，页面会自动刷新，OK</li>
+</ul>
+<blockquote>
+<p>绑定点击事件：</p>
+</blockquote>
+<p><img src="/./08_%E6%90%9C%E7%B4%A2%E8%BF%87%E6%BB%A4/1526955150293.png" alt="1526955150293"></p>
+<p>绑定点击事件时，把k传递过去，方便删除</p>
+<blockquote>
+<p>删除过滤项</p>
+</blockquote>
+<pre><code class="js">removeFilter(k){
+    // 复制原来的search的filter
+    const {...obj} = this.search.filter;
+    // 删除属性
+    delete obj[k]
+    // 赋值给search
+    this.search.filter=obj;
+}
+</code></pre>
+<h1 id="7-优化"><a href="#7-优化" class="headerlink" title="7.优化"></a>7.优化</h1><p>搜索系统需要优化的点：</p>
+<ul>
+<li>查询规格参数部分可以添加缓存</li>
+<li>elasticsearch本身有查询缓存，可以不进行优化</li>
+<li>商品图片应该采用缩略图，减少流量，提高页面加载速度</li>
+<li>图片采用延迟加载</li>
+<li>图片还可以采用CDN服务器</li>
+<li>sku信息在页面异步加载，而不是放到索引库</li>
+</ul>
