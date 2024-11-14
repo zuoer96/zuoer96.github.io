@@ -1,0 +1,331 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>【微服务从入门到入土】异步爬虫 | 左耳</title><meta name="author" content="左耳"><meta name="copyright" content="左耳"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="我们抓取，我们采集，我们分析，我们挖掘">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【微服务从入门到入土】异步爬虫">
+<meta property="og:url" content="https://nbchen.com/posts/ms-spider-async.html">
+<meta property="og:site_name" content="左耳">
+<meta property="og:description" content="我们抓取，我们采集，我们分析，我们挖掘">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbchen.com/img/cover/post_cover_2.png">
+<meta property="article:published_time" content="2024-11-12T07:18:55.000Z">
+<meta property="article:modified_time" content="2024-11-12T07:56:09.924Z">
+<meta property="article:author" content="左耳">
+<meta property="article:tag" content="微服务">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="爬虫">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbchen.com/img/cover/post_cover_2.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://nbchen.com/posts/ms-spider-async.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lWO9QTcbfhCMrpHW2Iz8w1cT6iVDffApIJepQIhimJU"/><meta name="baidu-site-verification" content="17911f388d35a0ab926c0cfff1ca6ea7"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?17911f388d35a0ab926c0cfff1ca6ea7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-3FC1C6JTVL"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-3FC1C6JTVL')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-3FC1C6JTVL', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":100,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【微服务从入门到入土】异步爬虫',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-11-12 15:56:09'
+}</script><link rel="stylesheet" href="/css/equipment.css?1"><link rel="stylesheet" href="/css/movies.css?1"><link rel="stylesheet" href="/css/webstack.css?1"><link rel="stylesheet" href="/css/flag.css?1"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/logo/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">243</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">196</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover/post_cover_2.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">左耳</span></a><a class="nav-page-title" href="/"><span class="site-name">【微服务从入门到入土】异步爬虫</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">【微服务从入门到入土】异步爬虫</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-11-12T07:18:55.000Z" title="发表于 2024-11-12 15:18:55">2024-11-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-12T07:56:09.924Z" title="更新于 2024-11-12 15:56:09">2024-11-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">2.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>8分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>我们抓取，我们采集，我们分析，我们挖掘</p>
+<span id="more"></span>
+
+
+
+<h1 id="异步爬虫"><a href="#异步爬虫" class="headerlink" title="异步爬虫"></a>异步爬虫</h1><p>我们知道爬虫是 IO 密集型任务，比如如果我们使用 requests 库来爬取某个站点的话，发出一个请求之后，程序必须要等待网站返回响应之后才能接着运行，而在等待响应的过程中，整个爬虫程序是一直在等待的，实际上没有做任何事情。对于这种情况，我们有没有优化方案呢？</p>
+<p>当然有，下面我们就来了解一下异步爬虫的基本概念和实现。</p>
+<p>要实现异步机制的爬虫，那自然和协程脱不了关系。</p>
+<h2 id="协程的基本原理"><a href="#协程的基本原理" class="headerlink" title="协程的基本原理"></a>协程的基本原理</h2><p>案例网站：<a target="_blank" rel="noopener" href="https://httpbin.org/delay/5%EF%BC%8C%E8%AF%A5%E7%AB%99%E7%82%B9%E7%AD%89%E5%BE%855s%E8%BF%94%E5%9B%9E%E5%93%8D%E5%BA%94">https://httpbin.org/delay/5，该站点等待5s返回响应</a></p>
+<p>平时我们浏览网页的时候，绝大部分网页响应速度还是很快的，如果我们写爬虫来爬取的话，发出 Request 到收到 Response 的时间不会很长，因此我们需要等待的时间并不多。</p>
+<p>然而像上面这个网站，一次 Request 就需要 5 秒才能得到 Response，如果我们用 requests 写爬虫来爬取的话，那每次 requests 都要等待 5 秒才能拿到结果了。</p>
+<p>此时如果我们开了多线程或多进程来爬取的话，其爬取速度确实会成倍提升，那是否有更好的解决方案呢？</p>
+<p><strong>使用协程来加速的方法，此种方法对于 IO 密集型任务非常有效。如将其应用到网络爬虫中，爬取效率甚至可以成百倍地提升。</strong></p>
+<p>协程本质上是个单进程，它相对于多进程来说，无须线程上下文切换的开销。我们可以使用协程来实现异步操作，比如在网络爬虫场景下，我们发出一个请求之后，需要等待一定时间才能得到响应，但其实在这个等待过程中，程序可以干许多其他事情，等到响应得到之后才切换回来继续处理，这样可以充分利用 CPU 和其他资源，这就是协程的优势。</p>
+<p>从 Python 3.4 开始，Python 中加入了协程的概念，但这个版本的协程还是以生成器对象为基础。</p>
+<p>Python 3.5 则增加了 <code>async</code>&#x2F;<code>await</code>，使得协程的实现更加方便。</p>
+<p>Python 中使用协程最常用的库莫过于 asyncio。</p>
+<p>首先，我们需要了解下面几个概念：</p>
+<ul>
+<li><code>event_loop</code>：事件循环，相当于一个无限循环，我们可以把一些函数注册到这个事件循环上，当满足条件发生的时候，就会调用对应的处理方法。</li>
+<li><code>coroutine</code>：中文翻译叫协程，在 Python 中常指代协程对象类型，我们可以将协程对象注册到时间循环中，它会被事件循环调用。我们可以使用 <code>async</code> 关键字来定义一个方法，这个方法在调用时不会立即被执行，而是返回一个协程对象。</li>
+<li><code>task</code>：任务，它是对协程对象的进一步封装，包含了任务的各个状态。</li>
+<li><code>future</code>：代表将来执行或没有执行的任务的结果，实际上和 <code>task</code> 没有本质区别。</li>
+</ul>
+<p>另外，我们还需要了解 <code>async</code>&#x2F;<code>await</code> 关键字，它是从 Python 3.5 才出现的，专门用于定义协程。其中，<code>async</code> 定义一个协程，<code>await</code> 用来挂起阻塞方法的执行。</p>
+<h2 id="协程初体验"><a href="#协程初体验" class="headerlink" title="协程初体验"></a>协程初体验</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">callback</span>(<span class="params">task</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;回调:&#x27;</span>,task.result())</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">execute</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;数字:&#x27;</span>,x)</span><br><span class="line">    <span class="keyword">return</span> x</span><br><span class="line"></span><br><span class="line">coroutine = execute(<span class="number">1</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;协程:&#x27;</span>,coroutine)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;11111111&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># task = asyncio.ensure_future(coroutine) # 创建task方式1</span></span><br><span class="line">loop = asyncio.get_event_loop()</span><br><span class="line">task = loop.create_task(coroutine)  <span class="comment"># 创建task方式2</span></span><br><span class="line">task.add_done_callback(callback) <span class="comment"># 设置回调</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;任务:&#x27;</span>,task)</span><br><span class="line">loop.run_until_complete(task)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;任务:&#x27;</span>,task)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;任务结果:&#x27;</span>,task.result())</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;222222222&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="多任务协程"><a href="#多任务协程" class="headerlink" title="多任务协程"></a>多任务协程</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">start = time.time()</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">request</span>():</span><br><span class="line">    <span class="comment"># 声明一个支持异步的上下文管理器</span></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">with</span> aiohttp.ClientSession() <span class="keyword">as</span> session:</span><br><span class="line">        res = <span class="keyword">await</span> session.get(<span class="string">&#x27;https://httpbin.org/delay/5&#x27;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;当前时间：<span class="subst">&#123;datetime.datetime.now()&#125;</span>, status_code = <span class="subst">&#123;res.status&#125;</span>&#x27;</span>)</span><br><span class="line">        <span class="comment"># return await res.text()</span></span><br><span class="line">        <span class="comment"># return i</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># python &lt; 3.10</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">tasks = [asyncio.ensure_future(request()) for _ in range(10)]</span></span><br><span class="line"><span class="string">loop = asyncio.get_event_loop()</span></span><br><span class="line"><span class="string">loop.run_until_complete(asyncio.wait(tasks))</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="comment"># python &gt;= 3.10</span></span><br><span class="line">    loop = asyncio.new_event_loop()</span><br><span class="line">    asyncio.set_event_loop(loop)</span><br><span class="line">    tasks = [loop.create_task(request()) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">5</span>)]</span><br><span class="line">    wait_coro = asyncio.wait(tasks)</span><br><span class="line">    loop.run_until_complete(wait_coro)</span><br><span class="line"></span><br><span class="line">    end = time.time()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;Cost time:&#x27;</span>, end - start)</span><br></pre></td></tr></table></figure>
+
+<p>理论来说，确实是这样的，不过有个前提，那就是服务器在同一时刻接受无限次请求都能保证正常返回结果，也就是服务器无限抗压。另外，还要忽略 IO 传输时延，确实可以做到无限 <code>task</code> 一起执行且在预想时间内得到结果。但由于不同服务器处理的实现机制不同，可能某些服务器并不能承受这么高的并发，因此响应速度也会减慢。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">test</span>(<span class="params">number</span>):</span><br><span class="line">    start = time.time()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">get</span>(<span class="params">url</span>):</span><br><span class="line">        <span class="comment"># timeout=aiohttp.ClientTimeout(total=1) # 超时设置</span></span><br><span class="line">        session = aiohttp.ClientSession()</span><br><span class="line">        response = <span class="keyword">await</span> session.get(url)</span><br><span class="line">        <span class="comment"># response = await session.post(url,json=jsonParameter)</span></span><br><span class="line">        <span class="keyword">await</span> response.text()</span><br><span class="line">        <span class="keyword">await</span> session.close()</span><br><span class="line">        <span class="keyword">return</span> response</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">request</span>():</span><br><span class="line">        url = <span class="string">&#x27;https://www.baidu.com/&#x27;</span></span><br><span class="line">        <span class="keyword">await</span> get(url)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># python &gt;= 3.10</span></span><br><span class="line">    <span class="comment"># 事件</span></span><br><span class="line">    loop = asyncio.new_event_loop()</span><br><span class="line">    asyncio.set_event_loop(loop)</span><br><span class="line">    <span class="comment"># 任务</span></span><br><span class="line">    tasks = [asyncio.ensure_future(request()) <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(number)]</span><br><span class="line">    <span class="comment"># 事件和任务</span></span><br><span class="line">    loop.run_until_complete(asyncio.wait(tasks))</span><br><span class="line"></span><br><span class="line">    end = time.time()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;Number:&#x27;</span>, number, <span class="string">&#x27;Cost time:&#x27;</span>, end - start)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> number <span class="keyword">in</span> [<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">10</span>, <span class="number">15</span>, <span class="number">30</span>, <span class="number">50</span>, <span class="number">75</span>, <span class="number">100</span>, <span class="number">200</span>, <span class="number">500</span>]:</span><br><span class="line">    test(number)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ms-spider-async/image-20230304154051837.png" alt="image-20230304154051837"></p>
+<p>我们增加了并发数量，但在服务器能承受高并发的前提下，其爬取速度几乎不太受影响。</p>
+<p>综上所述，使用了异步请求之后，我们几乎可以在相同的时间内实现成百上千倍次的网络请求，把这个运用在爬虫中，速度提升可谓是非常可观了。</p>
+<p>更多例子：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45203607/article/details/127396527">https://blog.csdn.net/weixin_45203607/article/details/127396527</a></p>
+<h2 id="并发限制"><a href="#并发限制" class="headerlink" title="并发限制"></a>并发限制</h2><p>由于aiohtt可以支持很高的并发量，如几万、几十万、上百万都是可以做到的。面对比如高的并发，目标网站很可能无法在短时间内响应，而且有瞬间将目标网站爬挂的危险，所以我们要控制一下爬取的并发量。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">CONCURRENCY=<span class="number">5</span> <span class="comment"># 并发5</span></span><br><span class="line">URL = <span class="string">&#x27;https://httpbin.org/delay/5&#x27;</span> <span class="comment"># 爬取网站</span></span><br><span class="line"></span><br><span class="line">semaphore = asyncio.Semaphore(CONCURRENCY)</span><br><span class="line">session = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">scrape_api</span>():</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">with</span> semaphore:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;爬取网站:&#x27;</span>, URL)</span><br><span class="line">        <span class="keyword">async</span> <span class="keyword">with</span> session.get(URL) <span class="keyword">as</span> response:</span><br><span class="line">            <span class="keyword">await</span> asyncio.sleep(<span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">await</span> response.text()</span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="keyword">global</span> session</span><br><span class="line">    session = aiohttp.ClientSession()</span><br><span class="line">    scrape_index_tasks = [asyncio.ensure_future(scrape_api()) <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10000</span>)]</span><br><span class="line">    <span class="keyword">await</span> asyncio.gather(*scrape_index_tasks)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="comment"># 事件</span></span><br><span class="line">    loop = asyncio.new_event_loop()</span><br><span class="line">    asyncio.set_event_loop(loop)</span><br><span class="line">    loop.run_until_complete(main())</span><br></pre></td></tr></table></figure>
+
+<h2 id="异步爬取实战"><a href="#异步爬取实战" class="headerlink" title="异步爬取实战"></a>异步爬取实战</h2><p>目标网站：<a target="_blank" rel="noopener" href="https://spa5.scrape.center/">https://spa5.scrape.center/</a></p>
+<p>目标：</p>
+<ul>
+<li>aiohttp异步爬取全站图书数据</li>
+<li>数据异步保存到MongoDB</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 安装库 =&gt; MongoDB异步存储</span><br><span class="line">pip3 install motor</span><br></pre></td></tr></table></figure>
+
+<p>思路：</p>
+<p>一个完善的异步爬虫应该能够充分利用资源进行全速爬取，其实现思路是维护一个动态变化的爬取队列，没产生一个task，就将其放入到爬取队列中，有专门的爬虫消费者从队列中获取task并执行，能做到在最大并发量的前提下充分利用等待时间进行额外的爬取处理。</p>
+<blockquote>
+<p>思路整体较为繁琐，需要设计爬取队列，对调函数，消费者机制等。</p>
+</blockquote>
+<p>此处简化实现</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding:utf-8 -*-　</span></span><br><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> aiohttp</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> pymongo</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">logging.basicConfig(level=logging.INFO,</span><br><span class="line">                    <span class="built_in">format</span>=<span class="string">&#x27;%(asctime)s - %(levelname)s: %(message)s&#x27;</span>)</span><br><span class="line"><span class="comment"># 每个页面的URL</span></span><br><span class="line">INDEX_URL = <span class="string">&#x27;https://spa5.scrape.center/api/book/?limit=&#123;limit&#125;&amp;offset=&#123;offset&#125;&#x27;</span></span><br><span class="line"><span class="comment"># 每个详情的URL</span></span><br><span class="line">DETAIL_URL = <span class="string">&#x27;https://spa5.scrape.center/api/book/&#123;id&#125;&#x27;</span></span><br><span class="line"><span class="comment"># 每页10条记录</span></span><br><span class="line">LIMIT = <span class="number">18</span></span><br><span class="line"><span class="comment"># 爬取10页</span></span><br><span class="line">TOTAL_PAGE = <span class="number">10</span></span><br><span class="line"></span><br><span class="line">CONCURRENCY = <span class="number">5</span> <span class="comment"># 并发数</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 并发初始化</span></span><br><span class="line">semaphore = asyncio.Semaphore(CONCURRENCY)</span><br><span class="line">session = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># MongoDB信息</span></span><br><span class="line">MONGO_CONNECTION_STRING = <span class="string">&#x27;mongodb://localhost:27017&#x27;</span></span><br><span class="line">MONGO_DB_NAME = <span class="string">&#x27;books&#x27;</span></span><br><span class="line">MONGO_COLLECTION_NAME = <span class="string">&#x27;books&#x27;</span></span><br><span class="line"><span class="comment"># client = pymongo.MongoClient(MONGO_CONNECTION_STRING)</span></span><br><span class="line">client = pymongo.MongoClient(MONGO_CONNECTION_STRING) <span class="comment"># MongoDB异步存储</span></span><br><span class="line">db = client[MONGO_DB_NAME] <span class="comment"># 数据库</span></span><br><span class="line">collection = db[MONGO_COLLECTION_NAME] <span class="comment"># 表</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 爬取URL,获取响应JSON数据</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">scrape_api</span>(<span class="params">url</span>):</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">with</span> semaphore:</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            logging.info(<span class="string">&#x27;scraping %s...&#x27;</span>, url)</span><br><span class="line">            <span class="keyword">async</span> <span class="keyword">with</span> session.get(url) <span class="keyword">as</span> response:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">await</span> response.json()</span><br><span class="line">        <span class="keyword">except</span> aiohttp.ClientError:</span><br><span class="line">            logging.error(<span class="string">&#x27;error occurred while scraping %s&#x27;</span>, url, exc_info=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 格式化列表也url</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">scrape_index</span>(<span class="params">page</span>):</span><br><span class="line">    url = INDEX_URL.<span class="built_in">format</span>(limit=LIMIT, offset=LIMIT * (page - <span class="number">1</span>))</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> scrape_api(url)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 格式化详情页url</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">scrape_detail</span>(<span class="params"><span class="built_in">id</span></span>):</span><br><span class="line">    url = DETAIL_URL.<span class="built_in">format</span>(<span class="built_in">id</span>=<span class="built_in">id</span>)</span><br><span class="line">    data = <span class="keyword">await</span> scrape_api(url)</span><br><span class="line">    <span class="comment"># 保存数据</span></span><br><span class="line">    <span class="keyword">await</span> save_data(data)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 保存数据到MongoDB</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">save_data</span>(<span class="params">data</span>):</span><br><span class="line">    logging.info(<span class="string">&#x27;saving data %s&#x27;</span>,data)</span><br><span class="line">    <span class="keyword">if</span> data:</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">await</span> collection.update_one(&#123;</span><br><span class="line">            <span class="string">&#x27;id&#x27;</span>: data.get(<span class="string">&#x27;id&#x27;</span>) <span class="comment"># 根据 name 进行查询</span></span><br><span class="line">        &#125;, &#123;</span><br><span class="line">            <span class="string">&#x27;$set&#x27;</span>: data <span class="comment"># 存在即更新，不存在即插入,防止数据库中出现同名的电影数据</span></span><br><span class="line">        &#125;, upsert=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="keyword">global</span> session</span><br><span class="line">    session = aiohttp.ClientSession()</span><br><span class="line">    scrape_index_tasks = [asyncio.ensure_future(scrape_index(page)) <span class="keyword">for</span> page <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,TOTAL_PAGE+<span class="number">1</span>) ]</span><br><span class="line">    results = <span class="keyword">await</span> asyncio.gather(*scrape_index_tasks)</span><br><span class="line">    logging.info(<span class="string">&#x27;results %s&#x27;</span>,json.dumps(results,ensure_ascii=<span class="literal">False</span>,indent=<span class="number">2</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 详情页的id</span></span><br><span class="line">    ids = []</span><br><span class="line">    <span class="keyword">for</span> index_data <span class="keyword">in</span> results:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> index_data: <span class="keyword">continue</span></span><br><span class="line">        <span class="keyword">for</span> item <span class="keyword">in</span> index_data.get(<span class="string">&#x27;results&#x27;</span>):</span><br><span class="line">            ids.append(item.get(<span class="string">&#x27;id&#x27;</span>))</span><br><span class="line"></span><br><span class="line">    scrape_detail_tasks = [asyncio.ensure_future(scrape_detail(<span class="built_in">id</span>)) <span class="keyword">for</span> <span class="built_in">id</span> <span class="keyword">in</span> ids]</span><br><span class="line">    <span class="keyword">await</span> asyncio.wait(scrape_detail_tasks) <span class="comment"># 和gather效果一下，返回略有差异</span></span><br><span class="line">    <span class="keyword">await</span> session.close() <span class="comment"># 全部执行完毕关闭session</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    loop = asyncio.new_event_loop()</span><br><span class="line">    asyncio.set_event_loop(loop)</span><br><span class="line">    loop.run_until_complete(main())</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbchen.com">左耳</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbchen.com/posts/ms-spider-async.html">https://nbchen.com/posts/ms-spider-async.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbchen.com" target="_blank">左耳</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a><a class="post-meta__tags" href="/tags/Python/">Python</a><a class="post-meta__tags" href="/tags/%E7%88%AC%E8%99%AB/">爬虫</a></div><div class="post-share"><div class="social-share" data-image="/img/cover/post_cover_2.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赛博打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/site/wechat.png" target="_blank"><img class="post-qr-code-img" src="/img/site/wechat.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/site/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/site/alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><a class="prev-post pull-left" href="/posts/ms-spider-js.html" title="【微服务从入门到入土】JavaScript动态渲染页面爬虫"><img class="cover" src="/img/cover/post_cover_2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【微服务从入门到入土】JavaScript动态渲染页面爬虫</div></div></a><a class="next-post pull-right" href="/posts/ms-spider-ajax.html" title="【微服务从入门到入土】Ajax数据爬取"><img class="cover" src="/img/cover/post_cover_1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【微服务从入门到入土】Ajax数据爬取</div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a href="/posts/ms-spider-deploy.html" title="【微服务从入门到入土】爬虫管理部署"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】爬虫管理部署</div></div></a><a href="/posts/ms-spider-distributed.html" title="【微服务从入门到入土】分布式爬虫"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】分布式爬虫</div></div></a><a href="/posts/ms-spider-page.html" title="【微服务从入门到入土】页面智能解析"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】页面智能解析</div></div></a><a href="/posts/ms-spider-android.html" title="【微服务从入门到入土】Android逆向"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】Android逆向</div></div></a><a href="/posts/ms-spider-app.html" title="【微服务从入门到入土】APP数据爬取"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】APP数据爬取</div></div></a><a href="/posts/ms-spider-js-reverse.html" title="【微服务从入门到入土】JavaScript逆向爬虫"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【微服务从入门到入土】JavaScript逆向爬虫</div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info is-center"><div class="avatar-img"><img src="/img/logo/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">左耳</div><div class="author-info-description">一夜鱼龙舞</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">243</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">196</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/zuoer96"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/zuoer96" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:1745233303@gmail.com" target="_blank" title="QQ邮箱"><i class="fas fa-envelope" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎光临小站，这里是我日常收集和整理的总结，希望能对你有所帮助：）<br/><br/>本站的内容经过个人加工总结而来，也参考了网友们分享的资料，如有侵权，请第一时间联系我，我将及时进行修改和删除😊</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%82%E6%AD%A5%E7%88%AC%E8%99%AB"><span class="toc-number">1.</span> <span class="toc-text">异步爬虫</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%8F%E7%A8%8B%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="toc-number">1.1.</span> <span class="toc-text">协程的基本原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%8F%E7%A8%8B%E5%88%9D%E4%BD%93%E9%AA%8C"><span class="toc-number">1.2.</span> <span class="toc-text">协程初体验</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E4%BB%BB%E5%8A%A1%E5%8D%8F%E7%A8%8B"><span class="toc-number">1.3.</span> <span class="toc-text">多任务协程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B9%B6%E5%8F%91%E9%99%90%E5%88%B6"><span class="toc-number">1.4.</span> <span class="toc-text">并发限制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%82%E6%AD%A5%E7%88%AC%E5%8F%96%E5%AE%9E%E6%88%98"><span class="toc-number">1.5.</span> <span class="toc-text">异步爬取实战</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/dairy-20241114.html" title="【正经人谁写日记】一：社会临死前的幻想罢了"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【正经人谁写日记】一：社会临死前的幻想罢了"/></a><div class="content"><a class="title" href="/posts/dairy-20241114.html" title="【正经人谁写日记】一：社会临死前的幻想罢了">【正经人谁写日记】一：社会临死前的幻想罢了</a><time datetime="2024-11-14T11:50:27.000Z" title="发表于 2024-11-14 19:50:27">2024-11-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-14.html" title="【项目系列】人力资源项目（十四）：表单校验"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十四）：表单校验"/></a><div class="content"><a class="title" href="/posts/project-hrm-14.html" title="【项目系列】人力资源项目（十四）：表单校验">【项目系列】人力资源项目（十四）：表单校验</a><time datetime="2024-11-13T15:28:20.000Z" title="发表于 2024-11-13 23:28:20">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-13.html" title="【项目系列】人力资源项目（十三）：打包上线"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十三）：打包上线"/></a><div class="content"><a class="title" href="/posts/project-hrm-13.html" title="【项目系列】人力资源项目（十三）：打包上线">【项目系列】人力资源项目（十三）：打包上线</a><time datetime="2024-11-13T15:28:12.000Z" title="发表于 2024-11-13 23:28:12">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-12.html" title="【项目系列】人力资源项目（十二）：多语言tab页全屏主题"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十二）：多语言tab页全屏主题"/></a><div class="content"><a class="title" href="/posts/project-hrm-12.html" title="【项目系列】人力资源项目（十二）：多语言tab页全屏主题">【项目系列】人力资源项目（十二）：多语言tab页全屏主题</a><time datetime="2024-11-13T15:28:02.000Z" title="发表于 2024-11-13 23:28:02">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-11.html" title="【项目系列】人力资源项目（十一）：主页审批图表"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十一）：主页审批图表"/></a><div class="content"><a class="title" href="/posts/project-hrm-11.html" title="【项目系列】人力资源项目（十一）：主页审批图表">【项目系列】人力资源项目（十一）：主页审批图表</a><time datetime="2024-11-13T15:27:45.000Z" title="发表于 2024-11-13 23:27:45">2024-11-13</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 By 左耳</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/#/Integrated/index"><span>备案号：闽ICP备2022007849号-1</span></a> <a target="_blank" rel="noopener" href="https://beian.mps.gov.cn/#/query/webSearch"><img class="icp-icon" src="/img/site/icp.png"><span>闽ICP备2022007849号</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const initGitalk = () => {
+    const gitalk = new Gitalk(Object.assign({
+      clientID: 'f5adbf6afe0a4b1a5259',
+      clientSecret: '2aa273b1981e0841b91db860a815d252d7fce5b2',
+      repo: 'zuoer96.github.io',
+      owner: 'zuoer96',
+      admin: ['zuoer96'],
+      id: '200ea92cdbf7c688c1fec5d8d9736d89',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  const loadGitalk = async() => {
+    if (typeof Gitalk === 'function') initGitalk()
+    else {
+      await btf.getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+      await btf.getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js')
+      initGitalk()
+    }
+  }
+  
+  const commentCount = n => {
+    const isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+    if (isCommentCount) {
+      isCommentCount.textContent= n
+    }
+  }
+
+  if ('Gitalk' === 'Gitalk' || !false) {
+    if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+    else loadGitalk()
+  } else {
+    window.loadOtherComment = loadGitalk
+  }
+})()</script></div><script src="/js/webstack.js?1"></script><script src="/js/movie.js?1"></script><script src="/js/echarts.min.js"></script><script src="/js/common.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: true,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><script src="/js/markmap.js"></script></body></html>

@@ -1,0 +1,763 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>【工具篇】版本控制软件：GitFlow | 左耳</title><meta name="author" content="左耳"><meta name="copyright" content="左耳"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="君子生非异也，善假于物也。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【工具篇】版本控制软件：GitFlow">
+<meta property="og:url" content="https://nbchen.com/posts/tools-vc-gitflow.html">
+<meta property="og:site_name" content="左耳">
+<meta property="og:description" content="君子生非异也，善假于物也。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbchen.com/img/cover/post_cover_2.png">
+<meta property="article:published_time" content="2024-11-13T02:06:11.000Z">
+<meta property="article:modified_time" content="2024-11-13T02:12:48.185Z">
+<meta property="article:author" content="左耳">
+<meta property="article:tag" content="工具">
+<meta property="article:tag" content="版本控制">
+<meta property="article:tag" content="GitFlow">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbchen.com/img/cover/post_cover_2.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://nbchen.com/posts/tools-vc-gitflow.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lWO9QTcbfhCMrpHW2Iz8w1cT6iVDffApIJepQIhimJU"/><meta name="baidu-site-verification" content="17911f388d35a0ab926c0cfff1ca6ea7"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?17911f388d35a0ab926c0cfff1ca6ea7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-3FC1C6JTVL"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-3FC1C6JTVL')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-3FC1C6JTVL', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":100,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【工具篇】版本控制软件：GitFlow',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-11-13 10:12:48'
+}</script><link rel="stylesheet" href="/css/equipment.css?1"><link rel="stylesheet" href="/css/movies.css?1"><link rel="stylesheet" href="/css/webstack.css?1"><link rel="stylesheet" href="/css/flag.css?1"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/logo/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">243</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">196</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover/post_cover_2.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">左耳</span></a><a class="nav-page-title" href="/"><span class="site-name">【工具篇】版本控制软件：GitFlow</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">【工具篇】版本控制软件：GitFlow</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-11-13T02:06:11.000Z" title="发表于 2024-11-13 10:06:11">2024-11-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-13T02:12:48.185Z" title="更新于 2024-11-13 10:12:48">2024-11-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">15.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>51分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="GitFlow"><a href="#GitFlow" class="headerlink" title="GitFlow"></a>GitFlow</h1><blockquote>
+<p>团队开发中，遵循一个合理、清晰的 Git 使用流程，是非常重要的</p>
+</blockquote>
+<h2 id="GIT分支管理"><a href="#GIT分支管理" class="headerlink" title="GIT分支管理"></a>GIT分支管理</h2><blockquote>
+<p>GIT远程分支主要包含：master develop feature release fixbug</p>
+</blockquote>
+<h3 id="master主分支"><a href="#master主分支" class="headerlink" title="master主分支"></a>master主分支</h3><blockquote>
+<p>整个项目主分支，有且仅有一个，除项目负责人以外的开发人员不能像master分支合并内容</p>
+</blockquote>
+<p>​	首先，代码库应该有一个、且仅有一个主分支，所有提供给用户使用的正式版本，都在这个主分支上发布。</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915171741482.png" alt="image-20230915171741482"></p>
+<p>​	Git主分支的名字，默认叫做Master，它是自动建立的，版本库初始化以后，默认就是在主分支在进行开发。</p>
+<h3 id="develop主分支"><a href="#develop主分支" class="headerlink" title="develop主分支"></a>develop主分支</h3><blockquote>
+<p>主分支只用来分布重大版本，日常开发应该在另一条分支上完成，开发用的分支为Develop</p>
+</blockquote>
+<p><img src="/posts/tools-vc-gitflow/image-20230915171801085.png" alt="image-20230915171801085"></p>
+<p>​	这个分支可以用来生成代码的最新隔夜版本（nightly），如果想正式对外发布，就在Master分支上，对Develop分支进行”合并”（merge）。</p>
+<h3 id="临时分支"><a href="#临时分支" class="headerlink" title="临时分支"></a>临时分支</h3><blockquote>
+<p>前面讲到版本库的两条主要分支：Master和Develop，前者用于正式发布，后者用于日常开发，其实，常设分支只需要这两条就够了，不需要其他了</p>
+</blockquote>
+<p>​	但是，除了常设分支以外，还有一些临时性分支，用于应对一些特定目的的版本开发，临时性分支主要有三种：</p>
+<ol>
+<li>功能（feature）分支</li>
+<li>预发布（release）分支</li>
+<li>修补bug（fixbug）分支</li>
+</ol>
+<p>这三种分支都属于临时性需要，使用完以后，应该删除，使得代码库的常设分支始终只有Master和Develop</p>
+<h4 id="feature-功能分支"><a href="#feature-功能分支" class="headerlink" title="feature(功能分支)"></a>feature(功能分支)</h4><blockquote>
+<p>feature是为了开发后续版本的功能，从Develop分支上面分出来的，开发完成稳定后，要再并入Develop</p>
+</blockquote>
+<p><img src="/posts/tools-vc-gitflow/image-20230915171823187.png" alt="image-20230915171823187"></p>
+<p>功能分支的名字，可以采用feature-*的形式命名，常见的操作</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#创建一个功能分支:</span><br><span class="line">git checkout -b feature-x develop</span><br><span class="line">#开发完成后，将功能分支合并到develop分支:</span><br><span class="line">git checkout develop</span><br><span class="line">git merge –no-ff feature-x</span><br><span class="line">#删除feature分支:</span><br><span class="line">git branch -d feature-x</span><br></pre></td></tr></table></figure>
+
+<h3 id="release-预发布分支"><a href="#release-预发布分支" class="headerlink" title="release(预发布分支)"></a>release(预发布分支)</h3><blockquote>
+<p>release是发布正式版本之前（即合并到Master分支之前），我们可能需要有一个预发布的版本进行测试。</p>
+</blockquote>
+<p>​	预发布分支是从Develop分支上面分出来的，预发布结束以后，必须合并进Develop和Master分支。它的命名，可以采用release-*的形式，常见的操作如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#创建一个预发布分支：</span><br><span class="line">git checkout -b release-1.2 develop</span><br><span class="line">#确认没有问题后，合并到master分支：</span><br><span class="line">git checkout master</span><br><span class="line">git merge –no-ff release-1.2</span><br><span class="line"># 对合并生成的新节点，做一个标签</span><br><span class="line">git tag -a 1.2</span><br><span class="line">#再合并到develop分支：</span><br><span class="line">git checkout develop</span><br><span class="line">git merge –no-ff release-1.2</span><br><span class="line">#最后，删除预发布分支：</span><br><span class="line">git branch -d release-1.2</span><br></pre></td></tr></table></figure>
+
+<h3 id="fixbug-修补bug分支"><a href="#fixbug-修补bug分支" class="headerlink" title="fixbug(修补bug分支)"></a>fixbug(修补bug分支)</h3><blockquote>
+<p>fixbug分支是从master分支上面分出来的。fix结束以后，再合并进Master和Develop分支。最后，删除”fixbug分支”</p>
+</blockquote>
+<p><img src="/posts/tools-vc-gitflow/image-20230915171844941.png" alt="image-20230915171844941"></p>
+<p>​	修补bug分支是从Master分支上面分出来的。修补结束以后，再合并进Master和Develop分支。它的命名，可以采用fixbug-*的形式，常见的操作如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#创建一个修补bug分支：</span><br><span class="line">git checkout -b fixbug-0.1 master</span><br><span class="line">#修补结束后，合并到master分支：</span><br><span class="line">git checkout master</span><br><span class="line">git merge –no-ff fixbug-0.1</span><br><span class="line">git tag -a 0.1.1</span><br><span class="line">#再合并到develop分支：</span><br><span class="line">git checkout develop</span><br><span class="line">git merge –no-ff fixbug-0.1</span><br><span class="line">#最后，删除”修补bug分支”：</span><br><span class="line">git branch -d fixbug-0.1</span><br></pre></td></tr></table></figure>
+
+<h3 id="理解-git目录"><a href="#理解-git目录" class="headerlink" title="理解.git目录"></a>理解.git目录</h3><p>200节点上操作</p>
+<h4 id="HEAD"><a href="#HEAD" class="headerlink" title="HEAD"></a>HEAD</h4><p>指针，指向当前分支</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@k8-controller git-test]# cd /root/git/git-test/</span><br><span class="line">[root@k8-controller git-test]# ls -al</span><br><span class="line">total 28</span><br><span class="line">drwxr-xr-x. 3 root root  108 Jun 30 01:13 .</span><br><span class="line">drwxr-xr-x. 4 root root   35 Jun 30 00:52 ..</span><br><span class="line">-rw-r--r--. 1 root root   12 Jun 30 00:53 a</span><br><span class="line">-rw-r--r--. 1 root root   13 Jun 30 00:53 b</span><br><span class="line">-rw-r--r--. 1 root root    8 Jun 30 00:58 feature</span><br><span class="line">drwxr-xr-x. 8 root root  220 Jun 30 01:17 .git</span><br><span class="line">-rw-r--r--. 1 root root   74 Jun 30 01:13 master</span><br><span class="line">-rw-r--r--. 1 root root    0 Jun 30 00:52 readme</span><br><span class="line">-rw-r--r--. 1 root root 6251 Jun 30 00:52 README.md</span><br><span class="line">-rw-r--r--. 1 root root   18 Jun 30 00:52 test</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>查看.git目录</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[root@k8-controller git-test]# cd .git/</span><br><span class="line">[root@k8-controller .git]# ll</span><br><span class="line">total 36</span><br><span class="line">drwxr-xr-x.  2 root root    6 Jun 30 00:52 branches</span><br><span class="line">-rw-r--r--.  1 root root   34 Jun 30 01:11 COMMIT_EDITMSG</span><br><span class="line">-rw-r--r--.  1 root root  318 Jun 30 01:05 config</span><br><span class="line">-rw-r--r--.  1 root root   73 Jun 30 00:52 description</span><br><span class="line">-rw-r--r--.  1 root root  109 Jun 30 00:54 FETCH_HEAD</span><br><span class="line">-rw-r--r--.  1 root root   23 Jun 30 01:17 HEAD</span><br><span class="line">drwxr-xr-x.  2 root root  242 Jun 30 00:52 hooks</span><br><span class="line">-rw-r--r--.  1 root root  649 Jun 30 01:17 index</span><br><span class="line">drwxr-xr-x.  2 root root   21 Jun 30 00:52 info</span><br><span class="line">drwxr-xr-x.  3 root root   30 Jun 30 00:52 logs</span><br><span class="line">drwxr-xr-x. 33 root root 4096 Jun 30 01:17 objects</span><br><span class="line">-rw-r--r--.  1 root root   41 Jun 30 01:12 ORIG_HEAD</span><br><span class="line">-rw-r--r--.  1 root root  105 Jun 30 00:52 packed-refs</span><br><span class="line">drwxr-xr-x.  5 root root   46 Jun 30 00:52 refs</span><br><span class="line">[root@k8-controller .git]# cat HEAD</span><br><span class="line">ref: refs/heads/master</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>指向当前分支，我们尝试切换分支</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@k8-controller .git]# git checkout fixbug</span><br><span class="line">fatal: This operation must be run in a work tree</span><br><span class="line">[root@k8-controller .git]# cd ..</span><br><span class="line">[root@k8-controller git-test]# git checkout fixbug</span><br><span class="line">Switched to branch &#x27;fixbug&#x27;</span><br><span class="line">[root@k8-controller git-test]# git branch</span><br><span class="line">* fixbug</span><br><span class="line">  main</span><br><span class="line">  master</span><br><span class="line">[root@k8-controller git-test]# cat .git/HEAD</span><br><span class="line">ref: refs/heads/fixbug</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="refs"><a href="#refs" class="headerlink" title="refs"></a>refs</h4><p>另外我们直接进入到 refs目录下查看</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@k8-controller git-test]# cd .git/refs/</span><br><span class="line">[root@k8-controller refs]# ll</span><br><span class="line">total 0</span><br><span class="line">drwxr-xr-x. 2 root root 46 Jun 30 01:17 heads</span><br><span class="line">drwxr-xr-x. 3 root root 20 Jun 30 00:52 remotes</span><br><span class="line">drwxr-xr-x. 2 root root  6 Jun 30 00:52 tags</span><br><span class="line">[root@k8-controller refs]# cd heads/</span><br><span class="line">[root@k8-controller heads]# ll</span><br><span class="line">total 12</span><br><span class="line">-rw-r--r--. 1 root root 41 Jun 30 01:09 fixbug</span><br><span class="line">-rw-r--r--. 1 root root 41 Jun 30 00:52 main</span><br><span class="line">-rw-r--r--. 1 root root 41 Jun 30 01:17 master</span><br></pre></td></tr></table></figure>
+
+<p>查看 fixbug文件，既然跟分支有关系，也再次查看一下分支信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[root@k8-controller heads]# cat fixbug</span><br><span class="line">3d6704cf59d410963cad2ff6746dc2b50eb9ddf2</span><br><span class="line">[root@k8-controller heads]# git branch -av</span><br><span class="line">* fixbug              3d6704c on fixbug branch ,fixed master</span><br><span class="line">  main                e8ef10e Merge remote-tracking branch &#x27;origin/main&#x27;</span><br><span class="line">  master              2fbcfed on master branch ,add master king</span><br><span class="line">  remotes/origin/HEAD -&gt; origin/main</span><br><span class="line">  remotes/origin/main e8ef10e Merge remote-tracking branch &#x27;origin/main&#x27;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>发现fixbug 分支后的信息跟我们cat 查看fixbug文件的内容有一定关系 </p>
+<p>那fixbug文件中的这一串具体是什么呢？通过git提供的一个命令来看</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[root@k8-controller heads]# git cat-file -t 3d6704cf59d410963cad2ff6746dc2b50eb9ddf2</span><br><span class="line">commit</span><br><span class="line">[root@k8-controller heads]# git cat-file -p 3d6704cf59d410963cad2ff6746dc2b50eb9ddf2</span><br><span class="line">tree 6cda39293d871875d09ab6c8611bca68f072b6cd</span><br><span class="line">parent 6365649644ebcc6b8a9537eac3eb15ba67cadeef</span><br><span class="line">author ls &lt;ls@itcast.cn&gt; 1656565742 -0400</span><br><span class="line">committer ls &lt;ls@itcast.cn&gt; 1656565742 -0400</span><br><span class="line"></span><br><span class="line">on fixbug branch ,fixed master</span><br></pre></td></tr></table></figure>
+
+<p>我们发现这是一个提交，即fixbug分支指向的是一个commit，同时通过 git cat-file -p 查看这个从commit的内容，</p>
+<p>发现它是一个tree，它有parent，它的parent不出意外也是一个commit</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@k8-controller heads]# git cat-file -t 6365649644ebcc6b8a9537eac3eb15ba67cadeef</span><br><span class="line">commit</span><br></pre></td></tr></table></figure>
+
+<p>当然它还有作者author，committer信息，以及commit时提交的信息</p>
+<p>当然最终要是的是看它自身的这个tree信息是什么，通过 -p查看 tree的内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[root@k8-controller heads]# git cat-file -p 6cda39293d871875d09ab6c8611bca68f072b6cd</span><br><span class="line">100644 blob 6726e5640c19fca4d557baa08bff0ae004e22b83    README.md</span><br><span class="line">100644 blob 3b18e512dba79e4c8300dd08aeb37f8e728b8dad    a</span><br><span class="line">100644 blob 6fbb2f5eb5ff166ad4207110dcceeea89ed778a7    b</span><br><span class="line">100644 blob a7453f07505c42ea8d6fdda75fa91710c81c53d6    feature</span><br><span class="line">100644 blob 236947a4ded0db37d1737a3b03c9f3d2901129fa    master</span><br><span class="line">100644 blob e69de29bb2d1d6434b8b29ae775ad8c2e48c5391    readme</span><br><span class="line">100644 blob 2b555209af1eb7e76f29f6e1557acaea31c096f7    test</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>你会发现就是这次提交的一个快照，你会发现是用一个blob对象存储的，我们查看其中一个blob的内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@k8-controller heads]# git cat-file -p 3b18e512dba79e4c8300dd08aeb37f8e728b8dad</span><br><span class="line">hello world</span><br></pre></td></tr></table></figure>
+
+<h4 id="objects"><a href="#objects" class="headerlink" title="objects"></a>objects</h4><p><a target="_blank" rel="noopener" href="https://www.runoob.com/git/git-workspace-index-repo.html">https://www.runoob.com/git/git-workspace-index-repo.html</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[root@k8-controller objects]# cd /root/git/git-test/.git/objects/</span><br><span class="line">[root@k8-controller objects]# ll</span><br><span class="line">total 0</span><br><span class="line">drwxr-xr-x. 2 root root  52 Jun 30 01:01 02</span><br><span class="line">drwxr-xr-x. 2 root root  52 Jun 30 01:01 13</span><br><span class="line">drwxr-xr-x. 2 root root  52 Jun 30 00:57 1f</span><br><span class="line">drwxr-xr-x. 2 root root   6 Jun 30 00:52 info</span><br><span class="line">drwxr-xr-x. 2 root root 121 Jun 30 00:52 pack</span><br><span class="line"></span><br><span class="line">[root@k8-controller objects]# cd 02</span><br><span class="line">[root@k8-controller 02]# ll</span><br><span class="line">total 4</span><br><span class="line">-r--r--r--. 1 root root 32 Jun 30 01:01 0fe8d44289af20d4445f9e3129229b0a898c59</span><br></pre></td></tr></table></figure>
+
+<p>查看对象类型和内容：需要将02和这一长串拼起来</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@k8-controller 02]# git cat-file -t 020fe8d44289af20d4445f9e3129229b0a898c59</span><br><span class="line">blob</span><br><span class="line">[root@k8-controller 02]# git cat-file -p 020fe8d44289af20d4445f9e3129229b0a898c59</span><br><span class="line">master</span><br><span class="line">master-append</span><br></pre></td></tr></table></figure>
+
+<h4 id="config"><a href="#config" class="headerlink" title="config"></a>config</h4><p>config文件中保存了当前仓库下的一些配置</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">[root@k8-controller git-test]# cd .git/</span><br><span class="line">[root@k8-controller .git]# ll</span><br><span class="line">total 36</span><br><span class="line">drwxr-xr-x.  2 root root    6 Jun 30 00:52 branches</span><br><span class="line">-rw-r--r--.  1 root root   34 Jun 30 01:11 COMMIT_EDITMSG</span><br><span class="line">-rw-r--r--.  1 root root  318 Jun 30 01:05 config</span><br><span class="line">-rw-r--r--.  1 root root   73 Jun 30 00:52 description</span><br><span class="line">-rw-r--r--.  1 root root  109 Jun 30 00:54 FETCH_HEAD</span><br><span class="line">-rw-r--r--.  1 root root   23 Jun 30 02:47 HEAD</span><br><span class="line">drwxr-xr-x.  2 root root  242 Jun 30 00:52 hooks</span><br><span class="line">-rw-r--r--.  1 root root  520 Jun 30 02:47 index</span><br><span class="line">drwxr-xr-x.  2 root root   21 Jun 30 00:52 info</span><br><span class="line">drwxr-xr-x.  3 root root   30 Jun 30 00:52 logs</span><br><span class="line">drwxr-xr-x. 33 root root 4096 Jun 30 01:17 objects</span><br><span class="line">-rw-r--r--.  1 root root   41 Jun 30 01:12 ORIG_HEAD</span><br><span class="line">-rw-r--r--.  1 root root  105 Jun 30 00:52 packed-refs</span><br><span class="line">drwxr-xr-x.  5 root root   46 Jun 30 00:52 refs</span><br><span class="line">[root@k8-controller .git]# cat config</span><br><span class="line">[core]</span><br><span class="line">        repositoryformatversion = 0</span><br><span class="line">        filemode = true</span><br><span class="line">        bare = false</span><br><span class="line">        logallrefupdates = true</span><br><span class="line">[remote &quot;origin&quot;]</span><br><span class="line">        url = git@192.168.200.200:gitlab-instance-faefd22f/git-test.git</span><br><span class="line">        fetch = +refs/heads/*:refs/remotes/origin/*</span><br><span class="line">[branch &quot;main&quot;]</span><br><span class="line">        remote = origin</span><br><span class="line">        merge = refs/heads/main</span><br><span class="line">[user]</span><br><span class="line">        name = ls</span><br><span class="line">        email = ls@itcast.cn</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="GIT代码提交规则"><a href="#GIT代码提交规则" class="headerlink" title="GIT代码提交规则"></a>GIT代码提交规则</h2><h3 id="代码提交规范化的目的"><a href="#代码提交规范化的目的" class="headerlink" title="代码提交规范化的目的"></a>代码提交规范化的目的</h3><ul>
+<li>为了部门提交代码信息格式规范化</li>
+<li>为了更好的追溯代码、筛选</li>
+<li>为了更加快速的定位提交代码所涉及的范围和实现功能</li>
+<li>为了后续代码的Review、自动生成ChangeLog</li>
+</ul>
+<h3 id="代码提交信息规范模板"><a href="#代码提交信息规范模板" class="headerlink" title="代码提交信息规范模板"></a>代码提交信息规范模板</h3><blockquote>
+<p>该模板修改自《Angular代码提交规范》,分为Header、Body两大块内容，去除Footer，这一部分很少使用</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;</span><br><span class="line">// 空一行</span><br><span class="line">&lt;body&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>使用样例</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[Bug修复](4.27.10):http://jira.xyz.cn/browse/XYZDEV-9043</span><br><span class="line"></span><br><span class="line">原因分析:需求内容不完整或错误</span><br></pre></td></tr></table></figure>
+
+<h4 id="Header"><a href="#Header" class="headerlink" title="Header"></a>Header</h4><blockquote>
+<p>Header的部分只有一行,包括三个字段: type(必需), scope(可选), subject(必需)</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>描述</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>type(必需)</td>
+<td>Type of change</td>
+<td>commit类别</td>
+</tr>
+<tr>
+<td>scope(可选)</td>
+<td>Scope of this change</td>
+<td>commint影响的范围</td>
+</tr>
+<tr>
+<td>subject(必需)</td>
+<td>Short description</td>
+<td>简短的描述</td>
+</tr>
+</tbody></table>
+<h5 id="type-提交类型"><a href="#type-提交类型" class="headerlink" title="type(提交类型)"></a>type(提交类型)</h5><ul>
+<li>【feat-新增功能】-【新的功能点、新的需求】</li>
+<li>【fix-Bug修复】-【修复的Bug:现网发散Bug、测试阶段的Bug、验收阶段的Bug】</li>
+<li>【docs-文档修改】-【只是修改了文档:注释、README.md等】.</li>
+<li>【style-样式修改】-【不影响代码功能的修改:CSS样式、代码格式化等】</li>
+<li>【refactor-代码重构】-【代码更改既不修复错误也不添加功能】</li>
+<li>【perf-性能优化】-【代码更改可以提高性能】</li>
+<li>【test-测试代码】-【添加缺失测试或更正现有测试】</li>
+<li>【build-编译代码】-【影响构建系统或外部依赖项的更改:build.gradle、package.json、Podfile等】</li>
+<li>【ci-持续集成】-【我们的CI配置文件和脚本的更改:Jenkinsfile等】</li>
+<li>【revert-回退更改】-【代码回退提交更改】</li>
+<li>【other-其他提交】-【除以上所有类型之外的提交更改】</li>
+</ul>
+<h5 id="scope-涉及范围"><a href="#scope-涉及范围" class="headerlink" title="scope(涉及范围)"></a>scope(涉及范围)</h5><blockquote>
+<p><code>scope</code>用于说明 commit 影响的范围，比如数据层、控制层、视图层等等，视项目不同而不同。</p>
+</blockquote>
+<h5 id="subject-简要描述"><a href="#subject-简要描述" class="headerlink" title="subject(简要描述)"></a>subject(简要描述)</h5><blockquote>
+<p><code>subject</code>是 commit 目的的简短描述，不超过50个字符</p>
+</blockquote>
+<ol>
+<li>如果提交类型是【Bug修复】,则简要描述直接填写Bug的JIRA或者Sentry链接</li>
+<li>如果提交类型是【新增功能】,则简要描述填写对应需求的JIRA链接或需求的详细描述，如需求过于庞大，则应拆分成小的功能点提交代码，便于Review人员审核,也有利于Bug的回溯。</li>
+<li>如果提交类型是其他类型，则简要描述根据你的理解，尽量用简短的文字描述出此次代码提交的目的</li>
+</ol>
+<h4 id="Body"><a href="#Body" class="headerlink" title="Body"></a>Body</h4><blockquote>
+<p>Body 部分是对本次 commit 的详细描述，可以分成多行</p>
+</blockquote>
+<h5 id="详细描述"><a href="#详细描述" class="headerlink" title="详细描述"></a>详细描述</h5><p>​		这边的详细描述，力争语句表达清晰此次提交的代码具体涉及的功能点、修改、原因分析等，如功能点很多则应使用序号列出代码所涉及的功能点。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1、顺风车项目完成了打车功能</span><br><span class="line">2、顺风车项目完成了REDIS-GEO功能开发</span><br><span class="line">3、顺风车项目完成积累的BUG修复</span><br></pre></td></tr></table></figure>
+
+<h2 id="Git工作流简介"><a href="#Git工作流简介" class="headerlink" title="Git工作流简介"></a><strong>Git工作流简介</strong></h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>工作流有各式各样的用法，但也正因此使得在实际工作中如何上手使用增加了难度。这篇指南通过总览公司团队中最常用的几种 Git 工作流让大家可以上手使用。</p>
+<p>在阅读的过程中请记住，本文中的几种工作流是作为方案指导而不是条例规定。在展示了各种工作流可能的用法后，你可以从不同的工作流中挑选或揉合出一个满足你自己需求的工作流</p>
+<h3 id="集中式工作流"><a href="#集中式工作流" class="headerlink" title="集中式工作流"></a><strong>集中式工作流</strong></h3><p>如果你的开发团队成员已经很熟悉 Subversion，集中式工作流让你无需去适应一个全新流程就可以体验 Git 带来的收益。这个工作流也可以作为向更 Git 风格工作流迁移的友好过渡</p>
+<p>ps:一开始是为了让svn用户更好的过渡到git的解决方案</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200949615.png" alt="image-20230915200949615"></p>
+<h3 id="功能分支工作流"><a href="#功能分支工作流" class="headerlink" title="功能分支工作流"></a><strong>功能分支工作流</strong></h3><p>功能分支工作流以集中式工作流为基础，不同的是为各个新功能分配一个专门的分支来开发。这样可以在把新功能集成到正式项目前，用 Pull Requests 的方式讨论变更</p>
+<p>ps：适用于十几人的团队</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200945201.png" alt="image-20230915200945201"></p>
+<h3 id="GitFlow-工作流"><a href="#GitFlow-工作流" class="headerlink" title="GitFlow 工作流"></a><strong>GitFlow 工作流</strong></h3><p>GitFlow 工作流通过为功能开发、发布准备和维护分配独立的分支，让发布迭代过程更流畅。严格的分支模型也为大型项目提供了一些非常必要的结构</p>
+<p>ps:工作用一般用gitflow的简化工作流模式，适用于公司</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200941166.png" alt="image-20230915200941166"></p>
+<h3 id="Forking工作流"><a href="#Forking工作流" class="headerlink" title="Forking工作流"></a><strong>Forking工作流</strong></h3><p>Forking 工作流是分布式工作流，充分利用了 Git 在分支和克隆上的优势。可以安全可靠地管理大团队的开发者（developer），并能接受不信任贡献者（contributor）的提交</p>
+<p>ps：适用于跨国团队、开源项目</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200937013.png" alt="image-20230915200937013"></p>
+<h3 id="Pull-Requests"><a href="#Pull-Requests" class="headerlink" title="Pull Requests"></a><strong>Pull Requests</strong></h3><p>Pull requests 让开发者更方便地进行协作的功能，提供了友好的 Web 界面可以在提议的修改合并到正式项目之前对修改进行讨论。</p>
+<p>ps:合并请求&#x2F;请求合并,除了集中式的,其他的工作流模式都会穿插pull request</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200933399.png" alt="image-20230915200933399"></p>
+<h2 id="Forking工作流-1"><a href="#Forking工作流-1" class="headerlink" title="Forking工作流"></a><strong>Forking工作流</strong></h2><p><img src="/posts/tools-vc-gitflow/image-20230915200929361.png" alt="image-20230915200929361"></p>
+<p>    Forking 工作流和前面讨论的几种工作流有根本的不同。这种工作流不是使用单个服务端仓库作为『中央』代码基线，而让各个开发者都有一个服务端仓库。这意味着各个代码贡献者有 2 个 Git 仓库而不是 1 个：一个本地私有的，另一个服务端公开的。</p>
+<p>    Forking 工作流的一个主要优势是，贡献的代码可以被集成，而不需要所有人都能 push 代码到仅有的中央仓库中。开发者 push 到自己的服务端仓库，而只有项目维护者才能 push 到正式仓库。这样项目维护者可以接受任何开发者的提交，但无需给他正式代码库的写权限。</p>
+<p>    效果就是一个分布式的工作流，能为大型、自发性的团队（包括了不受信的第三方）提供灵活的方式来安全的协作。也让这个工作流成为开源项目的理想工作流</p>
+<h3 id="工作方式"><a href="#工作方式" class="headerlink" title="工作方式"></a><strong>工作方式</strong></h3><p>    和其它的 Git 工作流一样，Forking 工作流要先有一个公开的正式仓库存储在服务器上。但一个新的开发者想要在项目上工作时，不是直接从正式仓库克隆，而是 fork 正式项目在服务器上创建一个拷贝。</p>
+<p>    这个仓库拷贝作为他个人公开仓库 —— 其它开发者不允许 push 到这个仓库，但可以 pull 到修改（后面我们很快就会看这点很重要）。在创建了自己服务端拷贝之后，和之前的工作流一样，开发者执行 git clone 命令克隆仓库到本地机器上，作为私有的开发环境。</p>
+<p>    要提交本地修改时，push 提交到自己公开仓库中 —— 而不是正式仓库中。然后，给正式仓库发起一个 pull request，让项目维护者知道有更新已经准备好可以集成了。对于贡献的代码，pull request 也可以很方便地作为一个讨论的地方。</p>
+<p>    为了集成功能到正式代码库，维护者 pull 贡献者的变更到自己的本地仓库中，检查变更以确保不会让项目出错，合并变更到自己本地的 master 分支，然后 push master 分支到服务器的正式仓库中。到此，贡献的提交成为了项目的一部分，其它的开发者应该执行 pull 操作与正式仓库同步自己本地仓库</p>
+<h3 id="正式仓库"><a href="#正式仓库" class="headerlink" title="正式仓库"></a><strong>正式仓库</strong></h3><p>在 Forking 工作流中，『官方』仓库的叫法只是一个约定，理解这点很重要。从技术上来看，各个开发者仓库和正式仓库在Git看来没有任何区别。事实上，让正式仓库之所以正式的唯一原因是它是项目维护者的公开仓库。</p>
+<h3 id="Forking-工作流的分支使用方式"><a href="#Forking-工作流的分支使用方式" class="headerlink" title="Forking 工作流的分支使用方式"></a><strong>Forking 工作流的分支使用方式</strong></h3><p>所有的个人公开仓库实际上只是为了方便和其它的开发者共享分支。各个开发者应该用分支隔离各个功能，就像在功能分支工作流和 GitFlow 工作流一样。唯一的区别是这些分支被共享了。在 Forking 工作流中这些分支会被 pull 到另一个开发者的本地仓库中，而在功能分支工作流和 GitFlow 工作流中是直接被 push 到正式仓库中</p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例:"></a>示例:</h3><h3 id="项目维护者初始化正式仓库"><a href="#项目维护者初始化正式仓库" class="headerlink" title="项目维护者初始化正式仓库"></a><strong>项目维护者初始化正式仓库</strong></h3><p>和任何使用 Git 项目一样，第一步是创建在服务器上一个正式仓库，让所有团队成员都可以访问到。通常这个仓库也会作为项目维护者的公开仓库。</p>
+<p>公开仓库应该是裸仓库，不管是不是正式代码库。所以项目维护者会运行像下面的命令来搭建正式仓库：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh user@host</span><br><span class="line">git init --bare /path/to/repo.git</span><br></pre></td></tr></table></figure>
+
+<p>Bitbucket 和 Stash 提供了一个方便的 GUI 客户端以完成上面命令行做的事。这个搭建中央仓库的过程和前面提到的工作流完全一样。如果有现存的代码库，维护者也要 push 到这个仓库中。</p>
+<h3 id="开发者fork正式仓库"><a href="#开发者fork正式仓库" class="headerlink" title="开发者fork正式仓库"></a><strong>开发者fork正式仓库</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200923049.png" alt="image-20230915200923049"></p>
+<p>其它所有的开发需要 fork 正式仓库。可以用 git clone 命令用 SSH 协议连通到服务器，拷贝仓库到服务器另一个位置 —— 是的，fork 操作基本上就只是一个服务端的克隆。Bitbucket 和 Stash 上可以点一下按钮就让开发者完成仓库的 fork 操作。</p>
+<p>这一步完成后，每个开发都在服务端有一个自己的仓库。和正式仓库一样，这些仓库应该是裸仓库</p>
+<h3 id="开发者克隆自己fork出来的仓库"><a href="#开发者克隆自己fork出来的仓库" class="headerlink" title="开发者克隆自己fork出来的仓库"></a><strong>开发者克隆自己fork出来的仓库</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200916940.png" alt="image-20230915200916940"></p>
+<p>下一步，各个开发者要克隆自己的公开仓库，用熟悉的 git clone 命令。</p>
+<p>在这个示例中，假定用 Bitbucket 托管了仓库。记住，如果这样的话各个开发者需要有各自的 Bitbucket 账号，使用下面命令克隆服务端自己的仓库：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://user@bitbucket.org/user/repo.git</span><br></pre></td></tr></table></figure>
+
+<p>相比前面介绍的工作流只用了一个 origin 远程别名指向中央仓库，Forking 工作流需要 2 个远程别名 —— 一个指向正式仓库，另一个指向开发者自己的服务端仓库。别名的名字可以任意命名，常见的约定是使用 origin 作为远程克隆的仓库的别名（这个别名会在运行 git clone 自动创建），upstream（上游）作为正式仓库的别名。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git remote add upstream https://bitbucket.org/maintainer/repo</span><br></pre></td></tr></table></figure>
+
+<p>需要自己用上面的命令创建 upstream 别名。这样可以简单地保持本地仓库和正式仓库的同步更新。注意，如果上游仓库需要认证（比如不是开源的），你需要提供用户</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git remote add upstream https://user@bitbucket.org/maintainer/repo.git</span><br></pre></td></tr></table></figure>
+
+<p>这时在克隆和 pull 正式仓库时，需要提供用户的密码。</p>
+<h3 id="开发者开发自己的功能"><a href="#开发者开发自己的功能" class="headerlink" title="开发者开发自己的功能"></a><strong>开发者开发自己的功能</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915201050878.png" alt="image-20230915201050878"></p>
+<p>在刚克隆的本地仓库中，开发者可以像其它工作流一样的编辑代码、提交修改和新建分支：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b some-feature</span><br><span class="line">// Edit some code</span><br><span class="line">git commit -a -m &quot;Add first draft of some feature&quot;</span><br></pre></td></tr></table></figure>
+
+<p>所有的修改都是私有的直到 push 到自己公开仓库中。如果正式项目已经往前走了，可以用 git pull 命令获得新的提交：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git pull upstream master</span><br></pre></td></tr></table></figure>
+
+<p>由于开发者应该都在专门的功能分支上工作，pull 操作结果会都是快进合并</p>
+<h3 id="开发者发布自己的功能"><a href="#开发者发布自己的功能" class="headerlink" title="开发者发布自己的功能"></a><strong>开发者发布自己的功能</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915201046148.png" alt="image-20230915201046148"></p>
+<p>一旦开发者准备好了分享新功能，需要做二件事。首先，通过push他的贡献代码到自己的公开仓库中，让其它的开发者都可以访问到。他的 origin 远程别名应该已经有了，所以要做的就是</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push origin feature-branch</span><br></pre></td></tr></table></figure>
+
+<p>这里和之前的工作流的差异是，origin 远程别名指向开发者自己的服务端仓库，而不是正式仓库。</p>
+<p>第二件事，开发者要通知项目维护者，想要合并他的新功能到正式库中。Bitbucket 和 Stash 提供了 Pull Request 按钮，弹出表单让你指定哪个分支要合并到正式仓库。一般你会想集成你的功能分支到上游远程仓库的 master 分支中。</p>
+<h3 id="项目维护者集成开发者的功能"><a href="#项目维护者集成开发者的功能" class="headerlink" title="项目维护者集成开发者的功能"></a><strong>项目维护者集成开发者的功能</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915201041074.png" alt="image-20230915201041074"></p>
+<p>当项目维护者收到 pull request，他要做的是决定是否集成它到正式代码库中。有二种方式来做：</p>
+<ul>
+<li>直接在 pull request 中查看代码</li>
+<li>pull 代码到他自己的本地仓库，再手动合并</li>
+</ul>
+<p>第一种做法更简单，维护者可以在 GUI 中查看变更的差异，做评注和执行合并。但如果出现了合并冲突，需要第二种做法来解决。这种情况下，维护者需要从开发者的服务端仓库中 fetch 功能分支，合并到他本地的 master 分支，解决冲突</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git fetch https://bitbucket.org/user/repo feature-branch</span><br><span class="line">// 查看变更</span><br><span class="line">git checkout master</span><br><span class="line">git merge FETCH_HEAD</span><br></pre></td></tr></table></figure>
+
+<p>变更集成到本地的 master 分支后，维护者要 push 变更到服务器上的正式仓库，这样其它的开发者都能访问到</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push origin master</span><br></pre></td></tr></table></figure>
+
+<p>注意，维护者的 origin 是指向他自己公开仓库的，即是项目的正式代码库。到此，开发者的贡献完全集成到了项目中</p>
+<h3 id="开发者和正式仓库做同步"><a href="#开发者和正式仓库做同步" class="headerlink" title="开发者和正式仓库做同步"></a><strong>开发者和正式仓库做同步</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915201034053.png" alt="image-20230915201034053"></p>
+<p>由于正式代码库往前走了，其它的开发需要和正式仓库做同步</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git pull upstream master</span><br></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a><strong>总结</strong></h3><p>如果你之前是使用 SVN，Forking 工作流可能看起来像是一个激进的范式切换（paradigm shift）。但不要害怕，这个工作流实际上就是在功能分支工作流之上引入另一个抽象层。不是直接通过单个中央仓库来分享分支，而是把贡献代码发布到开发者自己的服务端仓库中。</p>
+<p>示例中解释了，一个贡献如何从一个开发者流到正式的 master 分支中，但同样的方法可以把贡献集成到任一个仓库中。比如，如果团队的几个人协作实现一个功能，可以在开发之间用相同的方法分享变更，完全不涉及正式仓库。</p>
+<p>这使得 Forking 工作流对于松散组织的团队来说是个非常强大的工具。任一开发者可以方便地和另一开发者分享变更，任何分支都能有效地合并到正式代码库中。</p>
+<h2 id="GitFlow工作流"><a href="#GitFlow工作流" class="headerlink" title="GitFlow工作流"></a>GitFlow工作流</h2><p><img src="/posts/tools-vc-gitflow/image-20230915201027551.png" alt="image-20230915201027551"></p>
+<h3 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a><strong>概述</strong></h3><p>GitFlow 工作流定义了一个围绕项目发布的严格分支模型。虽然比功能分支工作流复杂几分，但提供了用于一个健壮的用于管理大型项目的框架。</p>
+<p>GitFlow 工作流没有用超出功能分支工作流的概念和命令，而是为不同的分支分配一个很明确的角色，并定义分支之间如何和什么时候进行交互。除了使用功能分支，在做准备、维护和记录发布也使用各自的分支。当然你可以用上功能分支工作流所有的好处：Pull Requests、隔离实验性开发和更高效的协作</p>
+<h3 id="工作方式-1"><a href="#工作方式-1" class="headerlink" title="工作方式"></a>工作方式</h3><p>GitFlow 工作流仍然用中央仓库作为所有开发者的交互中心。和其它的工作流一样，开发者在本地工作并 push 分支到中央仓库中</p>
+<h3 id="历史分支"><a href="#历史分支" class="headerlink" title="历史分支"></a><strong>历史分支</strong></h3><p>相对使用仅有的一个 master 分支，GitFlow 工作流使用2个分支来记录项目的历史。master 分支存储了正式发布的历史，而 develop 分支作为功能的集成分支。这样也方便 master 分支上的所有提交分配一个版本号</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915201022859.png" alt="image-20230915201022859"></p>
+<p>剩下要说明的问题围绕着这2个分支的区别展开</p>
+<h3 id="功能分支"><a href="#功能分支" class="headerlink" title="功能分支"></a><strong>功能分支</strong></h3><p>每个新功能位于一个自己的分支，这样可以 push 到中央仓库以备份和协作。但功能分支不是从 master 分支上拉出新分支，而是使用 develop 分支作为父分支。当新功能完成时，合并回 develop 分支。新功能提交应该从不直接与 master 分支交互</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915201018327.png" alt="image-20230915201018327"></p>
+<p>注意，从各种含义和目的上来看，功能分支加上 develop 分支就是功能分支工作流的用法。但 GitFlow 工作流没有在这里止步</p>
+<h3 id="发布版本"><a href="#发布版本" class="headerlink" title="发布版本"></a><strong>发布版本</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915201013766.png" alt="image-20230915201013766"></p>
+<p>一旦 develop 分支上有了做一次发布（或者说快到了既定的发布日）的足够功能，就从 develop 分支上 fork 一个发布分支。新建的分支用于开始发布循环，所以从这个时间点开始之后新的功能不能再加到这个分支上 —— 这个分支只应该做 Bug 修复、文档生成和其它面向发布任务。一旦对外发布的工作都完成了，发布分支合并到 master 分支并分配一个版本号打好 Tag。另外，这些从新建发布分支以来的做的修改要合并回 develop 分支。</p>
+<p>使用一个用于发布准备的专门分支，使得一个团队可以在完善当前的发布版本的同时，另一个团队可以继续开发下个版本的功能。这也打造定义良好的开发阶段（比如，可以很轻松地说，『这周我们要做准备发布版本 4.0』，并且在仓库的目录结构中可以实际看到）</p>
+<p>常用的分支约定：</p>
+<ul>
+<li>用于新建发布分支的分支: develop</li>
+<li>用于合并的分支: master</li>
+<li>分支命名: release-* 或 release&#x2F;*</li>
+</ul>
+<h3 id="维护分支"><a href="#维护分支" class="headerlink" title="维护分支"></a><strong>维护分支</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915201139361.png" alt="image-20230915201139361"></p>
+<p>维护分支或说是热修复（hotfix）分支用于生成快速给产品发布版本（production releases）打补丁，这是唯一可以直接从 master 分支 fork 出来的分支。修复完成，修改应该马上合并回 master 分支和 develop 分支（当前的发布分支），master 分支应该用新的版本号打好 Tag。</p>
+<p>为 Bug 修复使用专门分支，让团队可以处理掉问题而不用打断其它工作或是等待下一个发布循环。你可以把维护分支想成是一个直接在 master 分支上处理的临时发布</p>
+<h3 id="示例-1"><a href="#示例-1" class="headerlink" title="示例:"></a><strong>示例:</strong></h3><p>下面的示例演示本工作流如何用于管理单个发布循环。假设你已经创建了一个中央仓库</p>
+<h3 id="创建开发分支"><a href="#创建开发分支" class="headerlink" title="创建开发分支"></a><strong>创建开发分支</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915201116004.png" alt="image-20230915201116004"></p>
+<p>第一步为 master 分支配套一个 develop 分支。简单来做可以本地创建一个空的 develop 分支，push 到服务器上：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git branch develop</span><br><span class="line">git push -u origin develop</span><br></pre></td></tr></table></figure>
+
+<p>以后这个分支将会包含了项目的全部历史，而 master 分支将只包含了部分历史。其它开发者这时应该克隆中央仓库，建好 develop 分支的跟踪分支</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git clone ssh://user@host/path/to/repo.git</span><br><span class="line">git checkout -b develop origin/develop</span><br></pre></td></tr></table></figure>
+
+<p>现在每个开发都有了这些历史分支的本地拷贝</p>
+<h3 id="小红和小明开始开发新的功能"><a href="#小红和小明开始开发新的功能" class="headerlink" title="小红和小明开始开发新的功能"></a><strong>小红和小明开始开发新的功能</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200435941.png" alt="image-20230915200435941"></p>
+<p>这个示例中，小红和小明开始各自的功能开发。他们需要为各自的功能创建相应的分支。新分支不是基于 master 分支，而是应该基于 develop 分支</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b some-feature develop</span><br></pre></td></tr></table></figure>
+
+<p>他们用老套路添加提交到各自功能分支上：编辑、暂存、提交：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git status</span><br><span class="line">git add</span><br><span class="line">git commit</span><br></pre></td></tr></table></figure>
+
+<h3 id="小红完成功能开发"><a href="#小红完成功能开发" class="headerlink" title="小红完成功能开发"></a><strong>小红完成功能开发</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200442450.png" alt="image-20230915200442450"></p>
+<p>添加了提交后，小红觉得她的功能 OK 了。如果团队使用 Pull Requests，这时候可以发起一个用于合并到 develop 分支。否则她可以直接合并到她本地的 develop 分支后 push 到中央仓库：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git pull origin develop</span><br><span class="line">git checkout develop</span><br><span class="line">git merge some-feature</span><br><span class="line">git push</span><br><span class="line">git branch -d some-feature</span><br></pre></td></tr></table></figure>
+
+<p>第一条命令在合并功能前确保 develop 分支是最新的。注意，功能决不应该直接合并到 master 分支。冲突解决方法和集中式工作流一样。</p>
+<h3 id="小红开始准备发布"><a href="#小红开始准备发布" class="headerlink" title="小红开始准备发布"></a><strong>小红开始准备发布</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200448010.png" alt="image-20230915200448010"></p>
+<p>这个时候小明正在实现他的功能，小红开始准备她的第一个项目正式发布。像功能开发一样，她用一个新的分支来做发布准备。这一步也确定了发布的版本号：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b release-0.1 develop</span><br></pre></td></tr></table></figure>
+
+<p>这个分支是清理发布、执行所有测试、更新文档和其它为下个发布做准备操作的地方，像是一个专门用于改善发布的功能分支。</p>
+<p>只要小红创建这个分支并 push 到中央仓库，这个发布就是功能冻结的。任何不在 develop 分支中的新功能都推到下个发布循环中</p>
+<h3 id="小红完成发布"><a href="#小红完成发布" class="headerlink" title="小红完成发布"></a><strong>小红完成发布</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200455835.png" alt="image-20230915200455835"></p>
+<p>一旦准备好了对外发布，小红合并修改到 master 分支和 develop 分支上，删除发布分支。合并回 develop 分支很重要，因为在发布分支中已经提交的更新需要在后面的新功能中也要是可用的。另外，如果小红的团队要求 Code Review，这是一个发起 Pull Request 的理想时机。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git checkout master</span><br><span class="line">git merge release-0.1</span><br><span class="line">git push</span><br><span class="line">git checkout develop</span><br><span class="line">git merge release-0.1</span><br><span class="line">git push</span><br><span class="line">git branch -d release-0.1</span><br></pre></td></tr></table></figure>
+
+<p>发布分支是作为功能开发（develop 分支）和对外发布（master 分支）间的缓冲。只要有合并到 master 分支，就应该打好 Tag 以方便跟踪</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git tag -a 0.1 -m &quot;Initial public release&quot; master</span><br><span class="line">git push --tags</span><br></pre></td></tr></table></figure>
+
+<p>Git 有提供各种勾子（hook），即仓库有事件发生时触发执行的脚本。可以配置一个勾子，在你 push 中央仓库的 master 分支时，自动构建好对外发布。</p>
+<h3 id="最终用户发布Bug"><a href="#最终用户发布Bug" class="headerlink" title="最终用户发布Bug"></a><strong>最终用户发布Bug</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200501746.png" alt="image-20230915200501746"></p>
+<p>对外发布后，小红回去和小明一起做下个发布的新功能开发，直到有最终用户开了一个 Ticket 抱怨当前版本的一个 Bug。为了处理 Bug，小红（或小明）从 master 分支上拉出了一个维护分支，提交修改以解决问题，然后直接合并回 master 分支：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b issue-#001 master</span><br><span class="line"># Fix the bug</span><br><span class="line">git checkout master</span><br><span class="line">git merge issue-#001</span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
+
+<p>就像发布分支，维护分支中新加这些重要修改需要包含到 develop 分支中，所以小红要执行一个合并操作。然后就可以安全地删除这个分支了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git checkout develop</span><br><span class="line">git merge issue-#001</span><br><span class="line">git push</span><br><span class="line">git branch -d issue-#001</span><br></pre></td></tr></table></figure>
+
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a><strong>总结</strong></h3><p>到了这里，但愿你对集中式工作流、功能分支工作流和 GitFlow 工作流已经感觉很舒适了。你应该也牢固的掌握了本地仓库的潜能，push&#x2F;pull 模式和 Git 健壮的分支和合并模型。</p>
+<p>记住，这里演示的工作流只是可能用法的例子，而不是在实际工作中使用 Git 不可违逆的条例。所以不要畏惧按自己需要对工作流的用法做取舍。不变的目标就是让 Git 为你所用。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b issue-#001 master</span><br><span class="line"></span><br><span class="line">Fix the bug</span><br><span class="line"></span><br><span class="line">git checkout master</span><br><span class="line"></span><br><span class="line">git merge issue-#001</span><br><span class="line"></span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Pull-Requests-1"><a href="#Pull-Requests-1" class="headerlink" title="Pull Requests"></a><strong>Pull Requests</strong></h2><p><img src="/posts/tools-vc-gitflow/image-20230915200517215.png" alt="image-20230915200517215"></p>
+<p>Pull Requests 是 Bitbucket 上方便开发者之间协作的功能。提供了一个用户友好的 Web 界面，在集成提交的变更到正式项目前可以对变更进行讨论.</p>
+<p>开发者向团队成员通知功能开发已经完成，Pull Requests 是最简单的用法。开发者完成功能开发后，通过 Bitbucket 账号发起一个 Pull Request。这样让涉及这个功能的所有人知道，要去做 Code Review 和合并到 master 分支。</p>
+<p>但是，Pull Request 远不止一个简单的通知，而是为讨论提交的功能的一个专门论坛。如果变更有任何问题，团队成员反馈在 Pull Request 中，甚至 push 新的提交微调功能。所有的这些活动都直接跟踪在 Pull Request 中。</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200521716.png" alt="image-20230915200521716"></p>
+<p>相比其它的协作模型，这种分享提交的形式有助于打造一个更流畅的工作流。SVN 和 Git 都能通过一个简单的脚本收到通知邮件；但是，讨论变更时，开发者通常只能去回复邮件。这样做会变得杂乱，尤其还要涉及后面的几个提交时。Pull Requests 把所有相关功能整合到一个和 Bitbucket 仓库界面集成的用户友好 Web 界面中.</p>
+<h3 id="解析Pull-Request"><a href="#解析Pull-Request" class="headerlink" title="解析Pull Request"></a><strong>解析Pull Request</strong></h3><p>当要发起一个 Pull Request，你所要做的就是请求（Request）另一个开发者（比如项目的维护者），来 pull 你仓库中一个分支到他的仓库中。这意味着你要提供 4 个信息（源仓库、源分支、目的仓库、目的分支），以发起 Pull Request。</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200526655.png" alt="image-20230915200526655"></p>
+<h3 id="工作方式-2"><a href="#工作方式-2" class="headerlink" title="工作方式"></a><strong>工作方式</strong></h3><p>Pull Request 可以和功能分支工作流、GitFlow 工作流或 Forking 工作流一起使用。但 Pull Request 要求要么分支不同，要么仓库不同，所以不能用于集中式工作流。在不同的工作流中使用 Pull Request 会有一些不同，但基本的过程是这样的：</p>
+<ul>
+<li>开发者在本地仓库中新建一个专门的分支开发功能。</li>
+<li>开发者 push 分支修改到公开的 Bitbucket 仓库中。</li>
+<li>开发者通过 Bitbucket 发起一个 Pull Request。</li>
+<li>团队的其它成员 review code，讨论并修改。</li>
+<li>项目维护者合并功能到官方仓库中并关闭 Pull Request</li>
+</ul>
+<h3 id="在功能分支工作流中使用Pull-Request"><a href="#在功能分支工作流中使用Pull-Request" class="headerlink" title="在功能分支工作流中使用Pull Request"></a><strong>在功能分支工作流中使用Pull Request</strong></h3><p>功能分支工作流用一个共享的 Bitbucket 仓库来管理协作，开发者在专门的分支上开发功能。但不是立即合并到 master 分支上，而是在合并到主代码库之前开发者应该开一个 Pull Request 发起功能的讨论。</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200531153.png" alt="image-20230915200531153"></p>
+<p>功能分支工作流只有一个公开的仓库，所以 Pull Request 的目的仓库和源仓库总是同一个。通常开发者会指定他的功能分支作为源分支，master 分支作为目的分支。</p>
+<p>收到 Pull Request 后，项目维护者要决定如何做。如果功能没问题，就简单地合并到 master 分支，关闭 Pull Request。但如果提交的变更有问题，他可以在 Pull Request 中反馈。之后新加的提交也会评论之后接着显示出来</p>
+<p>在功能还没有完全开发完的时候，也可能发起一个 Pull Request。比如开发者在实现某个需求时碰到了麻烦，他可以发一个包含正在进行中工作的 Pull Request。其它的开发者可以在 Pull Request 提供建议，或者甚至直接添加提交来解决问题。</p>
+<h3 id="在GitFlow工作流中使用Pull-Request"><a href="#在GitFlow工作流中使用Pull-Request" class="headerlink" title="在GitFlow工作流中使用Pull Request"></a><strong>在GitFlow工作流中使用Pull Request</strong></h3><p>GitFlow 工作流和功能分支工作流类似，但围绕项目发布定义一个严格的分支模型。在 GitFlow 工作流中使用 Pull Request 让开发者在发布分支或是维护分支上工作时，可以有个方便的地方对关于发布分支或是维护分支的问题进行交流。</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200539051.png" alt="image-20230915200539051"></p>
+<p>GitFlow 工作流中 Pull Request 的使用过程和上一节中完全一致：当一个功能、发布或是热修复分支需要 Review 时，开发者简单发起一个 Pull Request，团队的其它成员会通过 Bitbucket 收到通知。</p>
+<p>新功能一般合并到 develop 分支，而发布和热修复则要同时合并到 develop 分支和 master 分支上。Pull Request 可能用做所有合并的正式管理。</p>
+<h3 id="在Forking工作流中使用Pull-Request"><a href="#在Forking工作流中使用Pull-Request" class="headerlink" title="在Forking工作流中使用Pull Request"></a><strong>在Forking工作流中使用Pull Request</strong></h3><p>在 Forking 工作流中，开发者 push 完成的功能到他自己的仓库中，而不是共享仓库。然后，他发起一个 Pull Request，让项目维护者知道他的功能已经可以 Review 了。</p>
+<p>在这个工作流，Pull Request 的通知功能非常有用，因为项目维护者不可能知道其它开发者在他们自己的仓库添加了提交</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200543877.png" alt="image-20230915200543877"></p>
+<p>由于各个开发有自己的公开仓库，Pull Request 的源仓库和目标仓库不是同一个。源仓库是开发者的公开仓库，源分支是包含了修改的分支。如果开发者要合并修改到正式代码库中，那么目标仓库是正式仓库，目标分支是 master 分支。</p>
+<p>Pull Request 也可以用于正式项目之外的其它开发者之间的协作。比如，如果一个开发者和一个团队成员一起开发一个功能，他们可以发起一个 Pull Request，用团队成员的 Bitbucket 仓库作为目标，而不是正式项目的仓库。然后使用相同的功能分支作为源和目标分支。</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200548673.png" alt="image-20230915200548673"></p>
+<p>2 个开发者之间可以在 Pull Request 中讨论和开发功能。完成开发后，他们可以发起另一个 Pull Request，请求合并功能到正式的 master 分支。在 Forking 工作流中，这样的灵活性让 Pull Request 成为一个强有力的协作工具</p>
+<h3 id="示例-2"><a href="#示例-2" class="headerlink" title="示例"></a>示例</h3><p>下面的示例演示了 Pull Request 如何在在 Forking 工作流中使用。也同样适用于小团队的开发协作和第三方开发者向开源项目的贡献。</p>
+<p>在示例中，小红是个开发，小明是项目维护者。他们各自有一个公开的 Bitbucket 仓库，而小明的仓库包含了正式工程。</p>
+<h3 id="小红-fork-正式项目"><a href="#小红-fork-正式项目" class="headerlink" title="小红 fork 正式项目"></a>小红 fork 正式项目</h3><p><img src="/posts/tools-vc-gitflow/image-20230915200553630.png" alt="image-20230915200553630"></p>
+<p>小红先要 fork 小明的 Bitbucket 仓库，开始项目的开发。她登陆 Bitbucket，浏览到小明的仓库页面，点 Fork 按钮。</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200600124.png" alt="image-20230915200600124"></p>
+<p>然后为 fork 出来的仓库填写名字和描述，这样小红就有了服务端的项目拷贝了。</p>
+<h3 id="小红克隆她的-Bitbucket-仓库"><a href="#小红克隆她的-Bitbucket-仓库" class="headerlink" title="小红克隆她的 Bitbucket 仓库"></a>小红克隆她的 Bitbucket 仓库</h3><p><img src="/posts/tools-vc-gitflow/image-20230915200604408.png" alt="image-20230915200604408"></p>
+<p>下一步，小红克隆自己刚才 fork 出来的 Bitbucket 仓库，以在本机上准备出工作拷贝。命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://user@bitbucket.org/user/repo.git</span><br></pre></td></tr></table></figure>
+
+<p>请记住，git clone 会自动创建 origin 远程别名，是指向小红 fork 出来的仓库。</p>
+<h3 id="小红开发新功能"><a href="#小红开发新功能" class="headerlink" title="小红开发新功能"></a>小红开发新功能</h3><p>在开始改代码前，小红要为新功能先新建一个新分支。她会用这个分支作为 Pull Request 的源分支。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b some-feature</span><br></pre></td></tr></table></figure>
+
+<h3 id="编辑代码"><a href="#编辑代码" class="headerlink" title="编辑代码"></a>编辑代码</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -a -m &quot;Add first draft of some feature&quot;</span><br></pre></td></tr></table></figure>
+
+<p>在新功能分支上，小红按需要添加提交。甚至如果小红觉得功能分支上的提交历史太乱了，她可以用交互式 rebase 来删除或压制提交。对于大型项目，整理功能分支的历史可以让项目维护者更容易看出在 Pull Request 中做了什么内容。</p>
+<h3 id="小红-push-功能到她的-Bitbucket-仓库中"><a href="#小红-push-功能到她的-Bitbucket-仓库中" class="headerlink" title="小红 push 功能到她的 Bitbucket 仓库中"></a>小红 push 功能到她的 Bitbucket 仓库中</h3><p><img src="/posts/tools-vc-gitflow/image-20230915200608966.png" alt="image-20230915200608966"></p>
+<p>小红完成了功能后，push 功能到她自己的 Bitbucket 仓库中（不是正式仓库），用下面简单的命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push origin some-branch</span><br></pre></td></tr></table></figure>
+
+<p>这时她的变更可以让项目维护者看到了（或者任何想要看的协作者）。</p>
+<h3 id="小红发起-Pull-Request"><a href="#小红发起-Pull-Request" class="headerlink" title="小红发起 Pull Request"></a>小红发起 Pull Request</h3><p><img src="/posts/tools-vc-gitflow/image-20230915200612928.png" alt="image-20230915200612928"></p>
+<p>Bitbucket 上有了她的功能分支后，小红可以用她的 Bitbucket 账号浏览到她的 fork 出来的仓库页面，点右上角的【Pull Request】按钮，发起一个 Pull Request。弹出的表单自动设置小红的仓库为源仓库，询问小红以指定源分支、目标仓库和目标分支。</p>
+<p>小红想要合并功能到正式仓库，所以源分支是她的功能分支，目标仓库是小明的公开仓库，而目标分支是 master 分支。另外，小红需要提供 Pull Request 的标题和描述信息。如果需要小明以外的人审核批准代码，她可以把这些人填在【Reviewers】文本框中。</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200617111.png" alt="image-20230915200617111"></p>
+<p>创建好了 Pull Request，通知会通过Bitbucket系统消息或邮件（可选）发给小明。</p>
+<h3 id="小明-review-Pull-Request"><a href="#小明-review-Pull-Request" class="headerlink" title="小明 review Pull Request"></a>小明 review Pull Request</h3><p><img src="/posts/tools-vc-gitflow/image-20230915200621894.png" alt="image-20230915200621894"></p>
+<p>在小明的 Bitbucket 仓库页面的 【Pull Request】Tab 可以看到所有人发起的 Pull Request。点击小红的 Pull Request 会显示出 Pull Request 的描述、功能的提交历史和每个变更的差异（diff）。</p>
+<p>如果小明想要合并到项目中，只要点一下【Merge】按钮，就可以同意 Pull Request 并合并到 master 分支。</p>
+<p>但如果像这个示例中一样小明发现了在小红的代码中的一个小 Bug，要小红在合并前修复。小明可以在整个 Pull Request 上加上评注，或是选择历史中的某个提交加上评注。</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200625518.png" alt="image-20230915200625518"></p>
+<h3 id="小红补加提交"><a href="#小红补加提交" class="headerlink" title="小红补加提交"></a>小红补加提交</h3><p>如果小红对反馈有任何疑问，可以在 Pull Request 中响应，把 Pull Request 当作是她功能讨论的论坛。</p>
+<p>小红在她的功能分支新加提交以解决代码问题，并 push 到她的 Bitbucket 仓库中，就像前一轮中的做法一样。这些提交会进入的 Pull Request，小明在原来的评注旁边可以再次 review 变更。</p>
+<h3 id="小明接受-Pull-Request"><a href="#小明接受-Pull-Request" class="headerlink" title="小明接受 Pull Request"></a>小明接受 Pull Request</h3><p>最终，小明接受变更，合并功能分支到 master 分支，并关闭 Pull Request。至此，功能集成到项目中，其它的项目开发者可以用标准的 git pull 命令 pull 这些变更到自己的本地仓库中</p>
+<h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a><strong>总结</strong></h3><p>到了这里，你应该有了所有需要的工具来集成 Pull Request 到你自己的工作流。请记住，Pull Request 并不是为了替代任何基于 Git 的协作工作流，而是它们的一个便利的补充，让团队成员间的协作更轻松方便</p>
+<h2 id="功能分支工作流-1"><a href="#功能分支工作流-1" class="headerlink" title="功能分支工作流"></a>功能分支工作流</h2><p><img src="/posts/tools-vc-gitflow/image-20230915200632832.png" alt="image-20230915200632832"></p>
+<h3 id="概述-2"><a href="#概述-2" class="headerlink" title="概述"></a><strong>概述</strong></h3><p>一旦你玩转了集中式工作流，在开发过程中可以很简单地加上功能分支，用来鼓励开发者之间协作和简化交流。</p>
+<p>功能分支工作流背后的核心思路是所有的功能开发应该在一个专门的分支，而不是在 master 分支上。这个隔离可以方便多个开发者在各自的功能上开发而不会弄乱主干代码。另外，也保证了 master 分支的代码一定不会是有问题的，极大有利于集成环境。</p>
+<p>功能开发隔离也让 pull requests 工作流成功可能，pull requests 工作流能为每个分支发起一个讨论，在分支合入正式项目之前，给其它开发者有表示赞同的机会。另外，如果你在功能开发中有问题卡住了，可以开一个 pull requests 来向同学们征求建议。这些做法的重点就是，pull requests 让团队成员之间互相评论工作变成非常方便！</p>
+<h3 id="工作方式-3"><a href="#工作方式-3" class="headerlink" title="工作方式"></a><strong>工作方式</strong></h3><p>功能分支工作流仍然用中央仓库，并且 master 分支还是代表了正式项目的历史。但不是直接提交本地历史到各自的本地 master 分支，开发者每次在开始新功能前先创建一个新分支。功能分支应该有个有描述性的名字，比如 animated-menu-items 或 issue-#1061，这样可以让分支有个清楚且高聚焦的用途。</p>
+<p>在 master 分支和功能分支之间，Git 是没有技术上的区别，所以开发者可以用和集中式工作流中完全一样的方式编辑、暂存和提交修改到功能分支上。</p>
+<p>另外，功能分支也可以（且应该）push 到中央仓库中。这样不修改正式代码就可以和其它开发者分享提交的功能。由于 master 仅有的一个『特殊』分支，在中央仓库上存多个功能分支不会有任何问题。当然，这样做也可以很方便地备份各自的本地提交</p>
+<h3 id="Pull-Requests-2"><a href="#Pull-Requests-2" class="headerlink" title="Pull Requests"></a><strong>Pull Requests</strong></h3><p>功能分支除了可以隔离功能的开发，也使得通过 Pull Requests 讨论变更成为可能。一旦某个开发完成一个功能，不是立即合并到 master，而是 push 到中央仓库的功能分支上并发起一个 Pull Request 请求去合并修改到 master。在修改成为主干代码前，这让其它的开发者有机会先去 Review 变更。</p>
+<p>Code Review 是 Pull Requests 的一个重要的收益，但 Pull Requests 目的是讨论代码一个通用方式。你可以把 Pull Requests 作为专门给某个分支的讨论。这意味着可以在更早的开发过程中就可以进行 Code Review。比如，一个开发者开发功能需要帮助时，要做的就是发起一个 Pull Request，相关的人就会自动收到通知，在相关的提交旁边能看到需要帮助解决的问题。</p>
+<p>一旦 Pull Request 被接受了，发布功能要做的就和集中式工作流就很像了。首先，确定本地的 master 分支和上游的 master 分支是同步的。然后合并功能分支到本地 master 分支并 push 已经更新的本地 master 分支到中央仓库</p>
+<h3 id="示例-3"><a href="#示例-3" class="headerlink" title="示例:"></a><strong>示例:</strong></h3><p>下面的示例演示了如何把 Pull Requests 作为 Code Review 的方式，但注意 Pull Requests 可以用于很多其它的目的。</p>
+<h3 id="小红开始开发一个新功能"><a href="#小红开始开发一个新功能" class="headerlink" title="小红开始开发一个新功能"></a><strong>小红开始开发一个新功能</strong></h3><p><strong><img src="/posts/tools-vc-gitflow/image-20230915200638235.png" alt="image-20230915200638235"></strong></p>
+<p>在开始开发功能前，小红需要一个独立的分支。使用下面的命令新建一个分支：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b marys-feature master</span><br></pre></td></tr></table></figure>
+
+<p>这个命令检出一个基于 master 名为 marys-feature 的分支，Git 的 -b 选项表示如果分支还不存在则新建分支。这个新分支上，小红按老套路编辑、暂存和提交修改，按需要提交以实现功能</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git status</span><br><span class="line">git add</span><br><span class="line">git commit</span><br></pre></td></tr></table></figure>
+
+<h3 id="小红要去吃个午饭"><a href="#小红要去吃个午饭" class="headerlink" title="小红要去吃个午饭"></a><strong>小红要去吃个午饭</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200643016.png" alt="image-20230915200643016"></p>
+<p>早上小红为新功能添加一些提交。去吃午饭前，push 功能分支到中央仓库是很好的做法，这样可以方便地备份，如果和其它开发协作，也让他们可以看到小红的提交。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push -u origin marys-feature</span><br></pre></td></tr></table></figure>
+
+<p>这条命令 push marys-feature 分支到中央仓库（origin），-u 选项设置本地分支去跟踪远程对应的分支。设置好跟踪的分支后，小红就可以使用 git push 命令省去指定推送分支的参数</p>
+<h3 id="小红开发完功能"><a href="#小红开发完功能" class="headerlink" title="小红开发完功能"></a><strong>小红开发完功能</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200650267.png" alt="image-20230915200650267"></p>
+<p>小红吃完午饭回来，完成整个功能的开发。在合并到 master 之前，她发起一个 Pull Request 让团队的其它人知道功能已经完成。但首先，她要确认中央仓库中已经有她最近的提交：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push</span><br></pre></td></tr></table></figure>
+
+<p>然后，在她的 Git GUI 客户端中发起 Pull Request，请求合并 marys-feature 到 master，团队成员会自动收到通知。Pull Request 很酷的是可以在相关的提交旁边显示评注，所以你可以很对某个变更集提问.</p>
+<h3 id="小黑收到Pull-Request"><a href="#小黑收到Pull-Request" class="headerlink" title="小黑收到Pull Request"></a><strong>小黑收到Pull Request</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200656667.png" alt="image-20230915200656667"></p>
+<p>小黑收到了 Pull Request 后会查看 marys-feature 的修改。决定在合并到正式项目前是否要做些修改，且通过 Pull Request 和小红来回地讨论。</p>
+<h3 id="小红再做修改"><a href="#小红再做修改" class="headerlink" title="小红再做修改"></a><strong>小红再做修改</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200728045.png" alt="image-20230915200728045"></p>
+<p>要再做修改，小红用和功能第一个迭代完全一样的过程。编辑、暂存、提交并push更新到中央仓库。小红这些活动都会显示在 Pull Request 上，小黑可以断续做评注。</p>
+<p>如果小黑有需要，也可以把 marys-feature 分支拉到本地，自己来修改，他加的提交也会一样显示在 Pull Request 上</p>
+<h3 id="小红发布她的功能"><a href="#小红发布她的功能" class="headerlink" title="小红发布她的功能"></a><strong>小红发布她的功能</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200733827.png" alt="image-20230915200733827"></p>
+<p>一旦小黑可以的接受 Pull Request，就可以合并功能到稳定项目代码中（可以由小黑或是小红来做这个操作）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git checkout master</span><br><span class="line">git pull</span><br><span class="line">git pull origin marys-feature</span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
+
+<p>无论谁来做合并，首先要检出 master 分支并确认是它是最新的。然后执行 git pull origin marys-feature 合并 marys-feature 分支到和已经和远程一致的本地 master 分支。你可以使用简单 git merge marys-feature 命令，但前面的命令可以保证总是最新的新功能分支。最后更新的 master 分支要重新 push 回到 origin。</p>
+<p>这个过程常常会生成一个合并提交。有些开发者喜欢有合并提交，因为它像一个新功能和原来代码基线的连通符。但如果你偏爱线性的提交历史，可以在执行合并时 rebase 新功能到 master 分支的顶部，这样生成一个快进（fast-forward）的合并。</p>
+<p>一些 GUI 客户端可以只要点一下『接受』按钮执行好上面的命令来自动化 Pull Request 接受过程。如果你的不能这样，至少在功能合并到 master 分支后能自动关闭 Pull Request。</p>
+<h3 id="与此同时-小明在做和小红一样的事"><a href="#与此同时-小明在做和小红一样的事" class="headerlink" title="与此同时,小明在做和小红一样的事"></a><strong>与此同时,小明在做和小红一样的事</strong></h3><p>当小红和小黑在 marys-feature 上工作并讨论她的 Pull Request 的时候，小明在自己的功能分支上做完全一样的事。</p>
+<p>通过隔离功能到独立的分支上，每个人都可以自主的工作，当然必要的时候在开发者之间分享变更还是比较繁琐的</p>
+<h3 id="总结-3"><a href="#总结-3" class="headerlink" title="总结"></a><strong>总结</strong></h3><p>到了这里，但愿你发现了功能分支可以很直接地在集中式工作流的仅有的 master 分支上完成多功能的开发。另外，功能分支还使用了 Pull Request，使得可以在你的版本控制 GUI 客户端中讨论某个提交。</p>
+<p>功能分支工作流是开发项目异常灵活的方式。问题是，有时候太灵活了。对于大型团队，常常需要给不同分支分配一个更具体的角色。GitFlow 工作流是管理功能开发、发布准备和维护的常用模式</p>
+<h2 id="集中式工作流-1"><a href="#集中式工作流-1" class="headerlink" title="集中式工作流"></a>集中式工作流</h2><p><img src="/posts/tools-vc-gitflow/image-20230915200739475.png" alt="image-20230915200739475"></p>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a><strong>简介</strong></h3><p>    转到分布式版本控制系统看起来像个令人生畏的任务，但不改变已用的工作流你也可以用上 Git 带来的收益。团队可以用和 Subversion 完全不变的方式来开发项目。</p>
+<p>    但使用 Git 加强开发的工作流，Git 比 SVN 有几个优势。首先，每个开发可以有属于自己的整个工程的本地拷贝。隔离的环境让各个开发者的工作和项目的其他部分（修改）独立开来 —— 即自由地提交到自己的本地仓库，先完全忽略上游的开发，直到方便的时候再把修改反馈上去。</p>
+<p>    其次，Git 提供了强壮的分支和合并模型。不像 SVN，Git 的分支设计成可以做为一种用来在仓库之间集成代码和分享修改的『失败安全』的机制</p>
+<h3 id="工作方式-4"><a href="#工作方式-4" class="headerlink" title="工作方式"></a><strong>工作方式</strong></h3><p>像 Subversion 一样，集中式工作流以中央仓库作为项目所有修改的单点实体。相比 SVN 缺省的开发分支 trunk，Git 叫做 master，所有修改提交到这个分支上。该工作流只用到 master 这一个分支。</p>
+<p>开发者开始先克隆中央仓库。在自己的项目拷贝中，像 SVN 一样的编辑文件和提交修改；但修改是存在本地的，和中央仓库是完全隔离的。开发者可以把和上游的同步延后到一个方便时间点。</p>
+<p>要发布修改到正式项目中，开发者要把本地 master 分支的修改『推（push）』到中央仓库中。这相当于 svn commit 操作，但 push 操作会把所有还不在中央仓库的本地提交都推上去</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200745483.png" alt="image-20230915200745483"></p>
+<h3 id="解决冲突"><a href="#解决冲突" class="headerlink" title="解决冲突"></a><strong>解决冲突</strong></h3><p>中央仓库代表了正式项目，所以提交历史应该被尊重且是稳定不变的。如果开发者本地的提交历史和中央仓库有分歧，Git 会拒绝 push 提交否则会覆盖已经在中央库的正式提交。</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200749746.png" alt="image-20230915200749746"></p>
+<p>在开发者提交自己功能修改到中央库前，需要先 fetch 在中央库的新增提交，rebase 自己提交到中央库提交历史之上。这样做的意思是在说，『我要把自己的修改加到别人已经完成的修改上。』最终的结果是一个完美的线性历史，就像以前的SVN 的工作流中一样。</p>
+<p>如果本地修改和上游提交有冲突，Git 会暂停 rebase 过程，给你手动解决冲突的机会。Git 解决合并冲突，用和生成提交一样的 git status 和 git add 命令，很一致方便。还有一点，如果解决冲突时遇到麻烦，Git 可以很简单中止整个 rebase 操作，重来一次（或者让别人来帮助解决）</p>
+<h3 id="示例："><a href="#示例：" class="headerlink" title="示例："></a><strong>示例：</strong></h3><p>让我们一起逐步分解来看看一个常见的小团队如何用这个工作流来协作的。有两个开发者小明和小红，看他们是如何开发自己的功能并提交到中央仓库上的。</p>
+<h3 id="有人先初始化好中央仓库"><a href="#有人先初始化好中央仓库" class="headerlink" title="有人先初始化好中央仓库"></a><strong>有人先初始化好中央仓库</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200754505.png" alt="image-20230915200754505"></p>
+<p>    第一步，有人在服务器上创建好中央仓库。如果是新项目，你可以初始化一个空仓库；否则你要导入已有的 Git 或 SVN 仓库。</p>
+<p>中央仓库应该是个裸仓库（bare repository），即没有工作目录（working directory）的仓库</p>
+<h3 id="所有人克隆仓库"><a href="#所有人克隆仓库" class="headerlink" title="所有人克隆仓库"></a><strong>所有人克隆仓库</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200800852.png" alt="image-20230915200800852"></p>
+<p>下一步，各个开发者创建整个项目的本地拷贝。通过 git clone 命令完成</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/path/to/repo.git</span><br></pre></td></tr></table></figure>
+
+<p>基于你后续会持续和克隆的仓库做交互的假设，克隆仓库时 Git 会自动添加远程别名 origin 指回『父』仓库</p>
+<h3 id="小明开发功能"><a href="#小明开发功能" class="headerlink" title="小明开发功能"></a><strong>小明开发功能</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200808257.png" alt="image-20230915200808257"></p>
+<p>在小明的本地仓库中，他使用标准的 Git 过程开发功能：编辑、暂存（Stage）和提交。如果你不熟悉暂存区（Staging Area），这里说明一下：暂存区的用来准备一个提交，但可以不用把工作目录中所有的修改内容都包含进来。这样你可以创建一个高度聚焦的提交，尽管你本地修改很多内容.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git status # 查看本地仓库的修改状态</span><br><span class="line">git add # 暂存文件</span><br><span class="line">git commit # 提交文件</span><br></pre></td></tr></table></figure>
+
+<p>请记住，因为这些命令生成的是本地提交，小明可以按自己需求反复操作多次，而不用担心中央仓库上有了什么操作。对需要多个更简单更原子分块的大功能，这个做法是很有用的.</p>
+<h3 id="小红开发功能"><a href="#小红开发功能" class="headerlink" title="小红开发功能"></a><strong>小红开发功能</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200815083.png" alt="image-20230915200815083"></p>
+<p>与此同时，小红在自己的本地仓库中用相同的编辑、暂存和提交过程开发功能。和小明一样，她也不关心中央仓库有没有新提交；当然更不关心小明在他的本地仓库中的操作，因为所有本地仓库都是私有的</p>
+<h3 id="小明发布功能"><a href="#小明发布功能" class="headerlink" title="小明发布功能"></a><strong>小明发布功能</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200820171.png" alt="image-20230915200820171"></p>
+<p>一旦小明完成了他的功能开发，会发布他的本地提交到中央仓库中，这样其它团队成员可以看到他的修改。他可以用下面的 git push 命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push origin master</span><br></pre></td></tr></table></figure>
+
+<p>注意，origin 是在小明克隆仓库时 Git 创建的远程中央仓库别名。master 参数告诉 Git 推送的分支。由于中央仓库自从小明克隆以来还没有被更新过，所以 push 操作不会有冲突，成功完成</p>
+<h3 id="小红试着发布功能"><a href="#小红试着发布功能" class="headerlink" title="小红试着发布功能"></a><strong>小红试着发布功能</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200826562.png" alt="image-20230915200826562"></p>
+<p>一起来看看在小明发布修改后，小红 push 修改会怎么样？她使用完全一样的 push 命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push origin master</span><br></pre></td></tr></table></figure>
+
+<p>但她的本地历史已经和中央仓库有分岐了，Git 拒绝操作并给出下面很长的出错消息：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">error: failed to push some refs to &#x27;/path/to/repo.git&#x27;</span><br><span class="line">hint: Updates were rejected because the tip of your current branch is behind</span><br><span class="line">hint: its remote counterpart. Merge the remote changes (e.g. &#x27;git pull&#x27;)</span><br><span class="line">hint: before pushing again.</span><br><span class="line">hint: See the &#x27;Note about fast-forwards&#x27; in &#x27;git push --help&#x27; for details.</span><br></pre></td></tr></table></figure>
+
+<p>这避免了小红覆写正式的提交。她要先 pull 小明的更新到她的本地仓库合并上她的本地修改后，再重试</p>
+<h3 id="小红在小明的提交之上rebase"><a href="#小红在小明的提交之上rebase" class="headerlink" title="小红在小明的提交之上rebase"></a><strong>小红在小明的提交之上rebase</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200833738.png" alt="image-20230915200833738"></p>
+<p>小红用 git pull 合并上游的修改到自己的仓库中。这条命令类似 svn update ——拉取所有上游提交命令到小红的本地仓库，并尝试和她的本地修改合并</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git pull --rebase origin master</span><br></pre></td></tr></table></figure>
+
+<p>--rebase 选项告诉 Git 把小红的提交移到同步了中央仓库修改后的 master 分支的顶部，如下图所示：</p>
+<p><img src="/posts/tools-vc-gitflow/image-20230915200838621.png" alt="image-20230915200838621"></p>
+<p>如果你忘加了这个选项，pull 操作仍然可以完成，但每次 pull 操作要同步中央仓库中别人修改时，提交历史会以一个多余的『合并提交』结尾。对于集中式工作流，最好是使用 rebase 而不是生成一个合并提交。</p>
+<h3 id="小红解决合并冲突"><a href="#小红解决合并冲突" class="headerlink" title="小红解决合并冲突"></a><strong>小红解决合并冲突</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200845028.png" alt="image-20230915200845028"></p>
+<p>rebase 操作过程是把本地提交一次一个地迁移到更新了的中央仓库 master 分支之上。这意味着可能要解决在迁移某个提交时出现的合并冲突，而不是解决包含了所有提交的大型合并时所出现的冲突。这样的方式让你尽可能保持每个提交的聚焦和项目历史的整洁。反过来，简化了哪里引入 Bug 的分析，如果有必要，回滚修改也可以做到对项目影响最小。</p>
+<p>如果小红和小明的功能是相关的，不大可能在 rebase 过程中有冲突。如果有，Git 在合并有冲突的提交处暂停 rebase 过程，输出下面的信息并带上相关的指令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CONFLICT (content): Merge conflict in</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/tools-vc-gitflow/image-20230915200848420.png" alt="image-20230915200848420"></p>
+<p>Git 很赞的一点是，任何人可以解决他自己的冲突。在这个例子中，小红可以简单的运行 git status 命令来查看哪里有问题。冲突文件列在 Unmerged paths（未合并路径）一节中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># Unmerged paths:</span><br><span class="line"># (use &quot;git reset HEAD &lt;some-file&gt;...&quot; to unstage)</span><br><span class="line"># (use &quot;git add/rm &lt;some-file&gt;...&quot; as appropriate to mark resolution)</span><br><span class="line">#</span><br><span class="line"># both modified: &lt;some-file&gt;</span><br></pre></td></tr></table></figure>
+
+<p>接着小红编辑这些文件。修改完成后，用老套路暂存这些文件，并让 git rebase 完成剩下的事</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git add</span><br><span class="line">git rebase --continue</span><br></pre></td></tr></table></figure>
+
+<p>要做的就这些了。Git 会继续一个一个地合并后面的提交，如其它的提交有冲突就重复这个过程。</p>
+<p>如果你碰到了冲突，但发现搞不定，不要惊慌。只要执行下面这条命令，就可以回到你执行 git pull --rebase 命令前的样子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rebase --abort</span><br></pre></td></tr></table></figure>
+
+<h3 id="小红成功发布功能"><a href="#小红成功发布功能" class="headerlink" title="小红成功发布功能"></a><strong>小红成功发布功能</strong></h3><p><img src="/posts/tools-vc-gitflow/image-20230915200853403.png" alt="image-20230915200853403"></p>
+<p>小红完成和中央仓库的同步后，就能成功发布她的修改了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push origin master</span><br></pre></td></tr></table></figure>
+
+<h3 id="总结-4"><a href="#总结-4" class="headerlink" title="总结"></a><strong>总结</strong></h3><p>如你所见，仅使用几个 Git 命令我们就可以模拟出传统 Subversion 开发环境。对于要从 SVN 迁移过来的团队来说这太好了，但没有发挥出 Git 分布式本质的优势。</p>
+<p>如果你的团队适应了集中式工作流，但想要更流畅的协作效果，绝对值得探索一下功能分支工作流的收益。通过为一个功能分配一个专门的分支，能够做到一个新增功能集成到正式项目之前对新功能进行深入讨论。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbchen.com">左耳</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbchen.com/posts/tools-vc-gitflow.html">https://nbchen.com/posts/tools-vc-gitflow.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbchen.com" target="_blank">左耳</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B7%A5%E5%85%B7/">工具</a><a class="post-meta__tags" href="/tags/%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/">版本控制</a><a class="post-meta__tags" href="/tags/GitFlow/">GitFlow</a></div><div class="post-share"><div class="social-share" data-image="/img/cover/post_cover_2.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赛博打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/site/wechat.png" target="_blank"><img class="post-qr-code-img" src="/img/site/wechat.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/site/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/site/alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><a class="prev-post pull-left" href="/posts/tools-vc-svn.html" title="【工具篇】版本控制软件：SVN"><img class="cover" src="/img/cover/post_cover_1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【工具篇】版本控制软件：SVN</div></div></a><a class="next-post pull-right" href="/posts/tools-vc-gitlib.html" title="【工具篇】版本控制软件：GitLib"><img class="cover" src="/img/cover/post_cover_2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【工具篇】版本控制软件：GitLib</div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a href="/posts/tools-ide-idea.html" title="【工具篇】编程工具：PyCharm"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【工具篇】编程工具：PyCharm</div></div></a><a href="/posts/tools-vc-svn.html" title="【工具篇】版本控制软件：SVN"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【工具篇】版本控制软件：SVN</div></div></a><a href="/posts/tools-vc-gitlib.html" title="【工具篇】版本控制软件：GitLib"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【工具篇】版本控制软件：GitLib</div></div></a><a href="/posts/tools-vc-github.html" title="【工具篇】版本控制软件：GitHub"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【工具篇】版本控制软件：GitHub</div></div></a><a href="/posts/tools-vc-gitee.html" title="【工具篇】版本控制软件：Gitee"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【工具篇】版本控制软件：Gitee</div></div></a><a href="/posts/tools-vc-gogs.html" title="【工具篇】版本控制软件:Gogs"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-13</div><div class="title">【工具篇】版本控制软件:Gogs</div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info is-center"><div class="avatar-img"><img src="/img/logo/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">左耳</div><div class="author-info-description">一夜鱼龙舞</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">243</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">196</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/zuoer96"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/zuoer96" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:1745233303@gmail.com" target="_blank" title="QQ邮箱"><i class="fas fa-envelope" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎光临小站，这里是我日常收集和整理的总结，希望能对你有所帮助：）<br/><br/>本站的内容经过个人加工总结而来，也参考了网友们分享的资料，如有侵权，请第一时间联系我，我将及时进行修改和删除😊</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#GitFlow"><span class="toc-number">1.</span> <span class="toc-text">GitFlow</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#GIT%E5%88%86%E6%94%AF%E7%AE%A1%E7%90%86"><span class="toc-number">1.1.</span> <span class="toc-text">GIT分支管理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#master%E4%B8%BB%E5%88%86%E6%94%AF"><span class="toc-number">1.1.1.</span> <span class="toc-text">master主分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#develop%E4%B8%BB%E5%88%86%E6%94%AF"><span class="toc-number">1.1.2.</span> <span class="toc-text">develop主分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%B4%E6%97%B6%E5%88%86%E6%94%AF"><span class="toc-number">1.1.3.</span> <span class="toc-text">临时分支</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#feature-%E5%8A%9F%E8%83%BD%E5%88%86%E6%94%AF"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">feature(功能分支)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#release-%E9%A2%84%E5%8F%91%E5%B8%83%E5%88%86%E6%94%AF"><span class="toc-number">1.1.4.</span> <span class="toc-text">release(预发布分支)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fixbug-%E4%BF%AE%E8%A1%A5bug%E5%88%86%E6%94%AF"><span class="toc-number">1.1.5.</span> <span class="toc-text">fixbug(修补bug分支)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%90%86%E8%A7%A3-git%E7%9B%AE%E5%BD%95"><span class="toc-number">1.1.6.</span> <span class="toc-text">理解.git目录</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#HEAD"><span class="toc-number">1.1.6.1.</span> <span class="toc-text">HEAD</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#refs"><span class="toc-number">1.1.6.2.</span> <span class="toc-text">refs</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#objects"><span class="toc-number">1.1.6.3.</span> <span class="toc-text">objects</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#config"><span class="toc-number">1.1.6.4.</span> <span class="toc-text">config</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GIT%E4%BB%A3%E7%A0%81%E6%8F%90%E4%BA%A4%E8%A7%84%E5%88%99"><span class="toc-number">1.2.</span> <span class="toc-text">GIT代码提交规则</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E6%8F%90%E4%BA%A4%E8%A7%84%E8%8C%83%E5%8C%96%E7%9A%84%E7%9B%AE%E7%9A%84"><span class="toc-number">1.2.1.</span> <span class="toc-text">代码提交规范化的目的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E6%8F%90%E4%BA%A4%E4%BF%A1%E6%81%AF%E8%A7%84%E8%8C%83%E6%A8%A1%E6%9D%BF"><span class="toc-number">1.2.2.</span> <span class="toc-text">代码提交信息规范模板</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Header"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">Header</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#type-%E6%8F%90%E4%BA%A4%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.2.2.1.1.</span> <span class="toc-text">type(提交类型)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#scope-%E6%B6%89%E5%8F%8A%E8%8C%83%E5%9B%B4"><span class="toc-number">1.2.2.1.2.</span> <span class="toc-text">scope(涉及范围)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#subject-%E7%AE%80%E8%A6%81%E6%8F%8F%E8%BF%B0"><span class="toc-number">1.2.2.1.3.</span> <span class="toc-text">subject(简要描述)</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Body"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">Body</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E6%8F%8F%E8%BF%B0"><span class="toc-number">1.2.2.2.1.</span> <span class="toc-text">详细描述</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Git%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%AE%80%E4%BB%8B"><span class="toc-number">1.3.</span> <span class="toc-text">Git工作流简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">1.3.1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%86%E4%B8%AD%E5%BC%8F%E5%B7%A5%E4%BD%9C%E6%B5%81"><span class="toc-number">1.3.2.</span> <span class="toc-text">集中式工作流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E5%88%86%E6%94%AF%E5%B7%A5%E4%BD%9C%E6%B5%81"><span class="toc-number">1.3.3.</span> <span class="toc-text">功能分支工作流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GitFlow-%E5%B7%A5%E4%BD%9C%E6%B5%81"><span class="toc-number">1.3.4.</span> <span class="toc-text">GitFlow 工作流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Forking%E5%B7%A5%E4%BD%9C%E6%B5%81"><span class="toc-number">1.3.5.</span> <span class="toc-text">Forking工作流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pull-Requests"><span class="toc-number">1.3.6.</span> <span class="toc-text">Pull Requests</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Forking%E5%B7%A5%E4%BD%9C%E6%B5%81-1"><span class="toc-number">1.4.</span> <span class="toc-text">Forking工作流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F"><span class="toc-number">1.4.1.</span> <span class="toc-text">工作方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E4%BB%93%E5%BA%93"><span class="toc-number">1.4.2.</span> <span class="toc-text">正式仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Forking-%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%9A%84%E5%88%86%E6%94%AF%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">1.4.3.</span> <span class="toc-text">Forking 工作流的分支使用方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-number">1.4.4.</span> <span class="toc-text">示例:</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E7%BB%B4%E6%8A%A4%E8%80%85%E5%88%9D%E5%A7%8B%E5%8C%96%E6%AD%A3%E5%BC%8F%E4%BB%93%E5%BA%93"><span class="toc-number">1.4.5.</span> <span class="toc-text">项目维护者初始化正式仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E8%80%85fork%E6%AD%A3%E5%BC%8F%E4%BB%93%E5%BA%93"><span class="toc-number">1.4.6.</span> <span class="toc-text">开发者fork正式仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E8%80%85%E5%85%8B%E9%9A%86%E8%87%AA%E5%B7%B1fork%E5%87%BA%E6%9D%A5%E7%9A%84%E4%BB%93%E5%BA%93"><span class="toc-number">1.4.7.</span> <span class="toc-text">开发者克隆自己fork出来的仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E8%80%85%E5%BC%80%E5%8F%91%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="toc-number">1.4.8.</span> <span class="toc-text">开发者开发自己的功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E8%80%85%E5%8F%91%E5%B8%83%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="toc-number">1.4.9.</span> <span class="toc-text">开发者发布自己的功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E7%BB%B4%E6%8A%A4%E8%80%85%E9%9B%86%E6%88%90%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="toc-number">1.4.10.</span> <span class="toc-text">项目维护者集成开发者的功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E8%80%85%E5%92%8C%E6%AD%A3%E5%BC%8F%E4%BB%93%E5%BA%93%E5%81%9A%E5%90%8C%E6%AD%A5"><span class="toc-number">1.4.11.</span> <span class="toc-text">开发者和正式仓库做同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.4.12.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GitFlow%E5%B7%A5%E4%BD%9C%E6%B5%81"><span class="toc-number">1.5.</span> <span class="toc-text">GitFlow工作流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-1"><span class="toc-number">1.5.1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F-1"><span class="toc-number">1.5.2.</span> <span class="toc-text">工作方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%86%E5%8F%B2%E5%88%86%E6%94%AF"><span class="toc-number">1.5.3.</span> <span class="toc-text">历史分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E5%88%86%E6%94%AF"><span class="toc-number">1.5.4.</span> <span class="toc-text">功能分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%91%E5%B8%83%E7%89%88%E6%9C%AC"><span class="toc-number">1.5.5.</span> <span class="toc-text">发布版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%B4%E6%8A%A4%E5%88%86%E6%94%AF"><span class="toc-number">1.5.6.</span> <span class="toc-text">维护分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-1"><span class="toc-number">1.5.7.</span> <span class="toc-text">示例:</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E5%BC%80%E5%8F%91%E5%88%86%E6%94%AF"><span class="toc-number">1.5.8.</span> <span class="toc-text">创建开发分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E5%92%8C%E5%B0%8F%E6%98%8E%E5%BC%80%E5%A7%8B%E5%BC%80%E5%8F%91%E6%96%B0%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="toc-number">1.5.9.</span> <span class="toc-text">小红和小明开始开发新的功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E5%AE%8C%E6%88%90%E5%8A%9F%E8%83%BD%E5%BC%80%E5%8F%91"><span class="toc-number">1.5.10.</span> <span class="toc-text">小红完成功能开发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E5%BC%80%E5%A7%8B%E5%87%86%E5%A4%87%E5%8F%91%E5%B8%83"><span class="toc-number">1.5.11.</span> <span class="toc-text">小红开始准备发布</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E5%AE%8C%E6%88%90%E5%8F%91%E5%B8%83"><span class="toc-number">1.5.12.</span> <span class="toc-text">小红完成发布</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E7%94%A8%E6%88%B7%E5%8F%91%E5%B8%83Bug"><span class="toc-number">1.5.13.</span> <span class="toc-text">最终用户发布Bug</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-number">1.5.14.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pull-Requests-1"><span class="toc-number">1.6.</span> <span class="toc-text">Pull Requests</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E6%9E%90Pull-Request"><span class="toc-number">1.6.1.</span> <span class="toc-text">解析Pull Request</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F-2"><span class="toc-number">1.6.2.</span> <span class="toc-text">工作方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8%E5%8A%9F%E8%83%BD%E5%88%86%E6%94%AF%E5%B7%A5%E4%BD%9C%E6%B5%81%E4%B8%AD%E4%BD%BF%E7%94%A8Pull-Request"><span class="toc-number">1.6.3.</span> <span class="toc-text">在功能分支工作流中使用Pull Request</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8GitFlow%E5%B7%A5%E4%BD%9C%E6%B5%81%E4%B8%AD%E4%BD%BF%E7%94%A8Pull-Request"><span class="toc-number">1.6.4.</span> <span class="toc-text">在GitFlow工作流中使用Pull Request</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8Forking%E5%B7%A5%E4%BD%9C%E6%B5%81%E4%B8%AD%E4%BD%BF%E7%94%A8Pull-Request"><span class="toc-number">1.6.5.</span> <span class="toc-text">在Forking工作流中使用Pull Request</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-2"><span class="toc-number">1.6.6.</span> <span class="toc-text">示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2-fork-%E6%AD%A3%E5%BC%8F%E9%A1%B9%E7%9B%AE"><span class="toc-number">1.6.7.</span> <span class="toc-text">小红 fork 正式项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E5%85%8B%E9%9A%86%E5%A5%B9%E7%9A%84-Bitbucket-%E4%BB%93%E5%BA%93"><span class="toc-number">1.6.8.</span> <span class="toc-text">小红克隆她的 Bitbucket 仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E5%BC%80%E5%8F%91%E6%96%B0%E5%8A%9F%E8%83%BD"><span class="toc-number">1.6.9.</span> <span class="toc-text">小红开发新功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%BE%91%E4%BB%A3%E7%A0%81"><span class="toc-number">1.6.10.</span> <span class="toc-text">编辑代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2-push-%E5%8A%9F%E8%83%BD%E5%88%B0%E5%A5%B9%E7%9A%84-Bitbucket-%E4%BB%93%E5%BA%93%E4%B8%AD"><span class="toc-number">1.6.11.</span> <span class="toc-text">小红 push 功能到她的 Bitbucket 仓库中</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E5%8F%91%E8%B5%B7-Pull-Request"><span class="toc-number">1.6.12.</span> <span class="toc-text">小红发起 Pull Request</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E6%98%8E-review-Pull-Request"><span class="toc-number">1.6.13.</span> <span class="toc-text">小明 review Pull Request</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E8%A1%A5%E5%8A%A0%E6%8F%90%E4%BA%A4"><span class="toc-number">1.6.14.</span> <span class="toc-text">小红补加提交</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E6%98%8E%E6%8E%A5%E5%8F%97-Pull-Request"><span class="toc-number">1.6.15.</span> <span class="toc-text">小明接受 Pull Request</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-2"><span class="toc-number">1.6.16.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E5%88%86%E6%94%AF%E5%B7%A5%E4%BD%9C%E6%B5%81-1"><span class="toc-number">1.7.</span> <span class="toc-text">功能分支工作流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-2"><span class="toc-number">1.7.1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F-3"><span class="toc-number">1.7.2.</span> <span class="toc-text">工作方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pull-Requests-2"><span class="toc-number">1.7.3.</span> <span class="toc-text">Pull Requests</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-3"><span class="toc-number">1.7.4.</span> <span class="toc-text">示例:</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E5%BC%80%E5%A7%8B%E5%BC%80%E5%8F%91%E4%B8%80%E4%B8%AA%E6%96%B0%E5%8A%9F%E8%83%BD"><span class="toc-number">1.7.5.</span> <span class="toc-text">小红开始开发一个新功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E8%A6%81%E5%8E%BB%E5%90%83%E4%B8%AA%E5%8D%88%E9%A5%AD"><span class="toc-number">1.7.6.</span> <span class="toc-text">小红要去吃个午饭</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E5%BC%80%E5%8F%91%E5%AE%8C%E5%8A%9F%E8%83%BD"><span class="toc-number">1.7.7.</span> <span class="toc-text">小红开发完功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E9%BB%91%E6%94%B6%E5%88%B0Pull-Request"><span class="toc-number">1.7.8.</span> <span class="toc-text">小黑收到Pull Request</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E5%86%8D%E5%81%9A%E4%BF%AE%E6%94%B9"><span class="toc-number">1.7.9.</span> <span class="toc-text">小红再做修改</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E5%8F%91%E5%B8%83%E5%A5%B9%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="toc-number">1.7.10.</span> <span class="toc-text">小红发布她的功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8E%E6%AD%A4%E5%90%8C%E6%97%B6-%E5%B0%8F%E6%98%8E%E5%9C%A8%E5%81%9A%E5%92%8C%E5%B0%8F%E7%BA%A2%E4%B8%80%E6%A0%B7%E7%9A%84%E4%BA%8B"><span class="toc-number">1.7.11.</span> <span class="toc-text">与此同时,小明在做和小红一样的事</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-3"><span class="toc-number">1.7.12.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%86%E4%B8%AD%E5%BC%8F%E5%B7%A5%E4%BD%9C%E6%B5%81-1"><span class="toc-number">1.8.</span> <span class="toc-text">集中式工作流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">1.8.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F-4"><span class="toc-number">1.8.2.</span> <span class="toc-text">工作方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E5%86%B2%E7%AA%81"><span class="toc-number">1.8.3.</span> <span class="toc-text">解决冲突</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A"><span class="toc-number">1.8.4.</span> <span class="toc-text">示例：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%89%E4%BA%BA%E5%85%88%E5%88%9D%E5%A7%8B%E5%8C%96%E5%A5%BD%E4%B8%AD%E5%A4%AE%E4%BB%93%E5%BA%93"><span class="toc-number">1.8.5.</span> <span class="toc-text">有人先初始化好中央仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%80%E6%9C%89%E4%BA%BA%E5%85%8B%E9%9A%86%E4%BB%93%E5%BA%93"><span class="toc-number">1.8.6.</span> <span class="toc-text">所有人克隆仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E6%98%8E%E5%BC%80%E5%8F%91%E5%8A%9F%E8%83%BD"><span class="toc-number">1.8.7.</span> <span class="toc-text">小明开发功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E5%BC%80%E5%8F%91%E5%8A%9F%E8%83%BD"><span class="toc-number">1.8.8.</span> <span class="toc-text">小红开发功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E6%98%8E%E5%8F%91%E5%B8%83%E5%8A%9F%E8%83%BD"><span class="toc-number">1.8.9.</span> <span class="toc-text">小明发布功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E8%AF%95%E7%9D%80%E5%8F%91%E5%B8%83%E5%8A%9F%E8%83%BD"><span class="toc-number">1.8.10.</span> <span class="toc-text">小红试着发布功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E5%9C%A8%E5%B0%8F%E6%98%8E%E7%9A%84%E6%8F%90%E4%BA%A4%E4%B9%8B%E4%B8%8Arebase"><span class="toc-number">1.8.11.</span> <span class="toc-text">小红在小明的提交之上rebase</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E8%A7%A3%E5%86%B3%E5%90%88%E5%B9%B6%E5%86%B2%E7%AA%81"><span class="toc-number">1.8.12.</span> <span class="toc-text">小红解决合并冲突</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BA%A2%E6%88%90%E5%8A%9F%E5%8F%91%E5%B8%83%E5%8A%9F%E8%83%BD"><span class="toc-number">1.8.13.</span> <span class="toc-text">小红成功发布功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-4"><span class="toc-number">1.8.14.</span> <span class="toc-text">总结</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/dairy-20241114.html" title="【正经人谁写日记】一：社会临死前的幻想罢了"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【正经人谁写日记】一：社会临死前的幻想罢了"/></a><div class="content"><a class="title" href="/posts/dairy-20241114.html" title="【正经人谁写日记】一：社会临死前的幻想罢了">【正经人谁写日记】一：社会临死前的幻想罢了</a><time datetime="2024-11-14T11:50:27.000Z" title="发表于 2024-11-14 19:50:27">2024-11-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-14.html" title="【项目系列】人力资源项目（十四）：表单校验"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十四）：表单校验"/></a><div class="content"><a class="title" href="/posts/project-hrm-14.html" title="【项目系列】人力资源项目（十四）：表单校验">【项目系列】人力资源项目（十四）：表单校验</a><time datetime="2024-11-13T15:28:20.000Z" title="发表于 2024-11-13 23:28:20">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-13.html" title="【项目系列】人力资源项目（十三）：打包上线"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十三）：打包上线"/></a><div class="content"><a class="title" href="/posts/project-hrm-13.html" title="【项目系列】人力资源项目（十三）：打包上线">【项目系列】人力资源项目（十三）：打包上线</a><time datetime="2024-11-13T15:28:12.000Z" title="发表于 2024-11-13 23:28:12">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-12.html" title="【项目系列】人力资源项目（十二）：多语言tab页全屏主题"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十二）：多语言tab页全屏主题"/></a><div class="content"><a class="title" href="/posts/project-hrm-12.html" title="【项目系列】人力资源项目（十二）：多语言tab页全屏主题">【项目系列】人力资源项目（十二）：多语言tab页全屏主题</a><time datetime="2024-11-13T15:28:02.000Z" title="发表于 2024-11-13 23:28:02">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-11.html" title="【项目系列】人力资源项目（十一）：主页审批图表"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十一）：主页审批图表"/></a><div class="content"><a class="title" href="/posts/project-hrm-11.html" title="【项目系列】人力资源项目（十一）：主页审批图表">【项目系列】人力资源项目（十一）：主页审批图表</a><time datetime="2024-11-13T15:27:45.000Z" title="发表于 2024-11-13 23:27:45">2024-11-13</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 By 左耳</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/#/Integrated/index"><span>备案号：闽ICP备2022007849号-1</span></a> <a target="_blank" rel="noopener" href="https://beian.mps.gov.cn/#/query/webSearch"><img class="icp-icon" src="/img/site/icp.png"><span>闽ICP备2022007849号</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const initGitalk = () => {
+    const gitalk = new Gitalk(Object.assign({
+      clientID: 'f5adbf6afe0a4b1a5259',
+      clientSecret: '2aa273b1981e0841b91db860a815d252d7fce5b2',
+      repo: 'zuoer96.github.io',
+      owner: 'zuoer96',
+      admin: ['zuoer96'],
+      id: 'fe29b64ef6a341474a912f1d56ae8b42',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  const loadGitalk = async() => {
+    if (typeof Gitalk === 'function') initGitalk()
+    else {
+      await btf.getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+      await btf.getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js')
+      initGitalk()
+    }
+  }
+  
+  const commentCount = n => {
+    const isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+    if (isCommentCount) {
+      isCommentCount.textContent= n
+    }
+  }
+
+  if ('Gitalk' === 'Gitalk' || !false) {
+    if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+    else loadGitalk()
+  } else {
+    window.loadOtherComment = loadGitalk
+  }
+})()</script></div><script src="/js/webstack.js?1"></script><script src="/js/movie.js?1"></script><script src="/js/echarts.min.js"></script><script src="/js/common.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: true,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><script src="/js/markmap.js"></script></body></html>

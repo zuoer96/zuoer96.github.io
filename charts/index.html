@@ -1,0 +1,518 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>文章统计 | 左耳</title><meta name="author" content="左耳"><meta name="copyright" content="左耳"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta property="og:type" content="website">
+<meta property="og:title" content="文章统计">
+<meta property="og:url" content="https://nbchen.com/charts/index.html">
+<meta property="og:site_name" content="左耳">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbchen.com/img/cover/post_cover_2.png">
+<meta property="article:published_time" content="2024-10-25T10:18:19.000Z">
+<meta property="article:modified_time" content="2024-10-25T10:44:42.057Z">
+<meta property="article:author" content="左耳">
+<meta property="article:tag" content="Java开发程序员, Java编程, 高质量解决方案, 创新的编码技巧, 可靠应用程序, 数据库设计, 性能优化, 技术挑战解决, 软件工程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbchen.com/img/cover/post_cover_2.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://nbchen.com/charts/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""><link rel="preconnect" href="//hm.baidu.com"><link rel="preconnect" href="//busuanzi.ibruce.info"><meta name="google-site-verification" content="lWO9QTcbfhCMrpHW2Iz8w1cT6iVDffApIJepQIhimJU"><meta name="baidu-site-verification" content="17911f388d35a0ab926c0cfff1ca6ea7"><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?17911f388d35a0ab926c0cfff1ca6ea7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-3FC1C6JTVL"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-3FC1C6JTVL')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-3FC1C6JTVL', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":100,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '文章统计',
+  isPost: false,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2024-10-25 18:44:42'
+}</script><link rel="stylesheet" href="/css/equipment.css?1"><link rel="stylesheet" href="/css/movies.css?1"><link rel="stylesheet" href="/css/webstack.css?1"><link rel="stylesheet" href="/css/flag.css?1"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/logo/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">243</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">196</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page" id="page-header" style="background-image: url(/img/cover/default_cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">左耳</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title">文章统计</h1></div></header><main class="layout hide-aside" id="content-inner"><div id="page"><div id="article-container"><!-- 文章发布时间统计图 -->
+<div id="posts-chart" data-start="2024-09" style="border-radius: 8px; height: 300px; padding: 10px;"></div>
+  <script id="postsChart">
+    var color = document.documentElement.getAttribute('data-theme') === 'light' ? '#4c4948' : 'rgba(255,255,255,0.7)'
+    var postsChart = echarts.init(document.getElementById('posts-chart'), 'light');
+    var postsOption = {
+      title: {
+        text: '文章发布统计图',
+        x: 'center',
+        textStyle: {
+          color: color
+        }
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      xAxis: {
+        name: '日期',
+        type: 'category',
+        boundaryGap: false,
+        nameTextStyle: {
+          color: color
+        },
+        axisTick: {
+          show: false
+        },
+        axisLabel: {
+          show: true,
+          color: color
+        },
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: color
+          }
+        },
+        data: ["2024-09","2024-10","2024-11"]
+      },
+      yAxis: {
+        name: '文章篇数',
+        type: 'value',
+        nameTextStyle: {
+          color: color
+        },
+        splitLine: {
+          show: false
+        },
+        axisTick: {
+          show: false
+        },
+        axisLabel: {
+          show: true,
+          color: color
+        },
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: color
+          }
+        }
+      },
+      series: [{
+        name: '文章篇数',
+        type: 'line',
+        smooth: true,
+        lineStyle: {
+            width: 0
+        },
+        showSymbol: false,
+        itemStyle: {
+          opacity: 1,
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+            offset: 0,
+            color: 'rgba(128, 255, 165)'
+          },
+          {
+            offset: 1,
+            color: 'rgba(1, 191, 236)'
+          }])
+        },
+        areaStyle: {
+          opacity: 1,
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+            offset: 0,
+            color: 'rgba(128, 255, 165)'
+          }, {
+            offset: 1,
+            color: 'rgba(1, 191, 236)'
+          }])
+        },
+        data: [1,0,242],
+        markLine: {
+          data: [{
+            name: '平均值',
+            type: 'average',
+            label: {
+              color: color
+            }
+          }]
+        }
+      }]
+    };
+    postsChart.setOption(postsOption);
+    window.addEventListener('resize', () => { 
+      postsChart.resize();
+    });
+    postsChart.on('click', 'series', (event) => {
+      if (event.componentType === 'series') window.location.href = '/archives/' + event.name.replace('-', '/');
+    });
+  </script>
+<!-- 文章标签统计图 -->
+<div id="tags-chart" data-length="10" style="border-radius: 8px; height: 300px; padding: 10px;"></div>
+  <script id="tagsChart">
+    var color = document.documentElement.getAttribute('data-theme') === 'light' ? '#4c4948' : 'rgba(255,255,255,0.7)'
+    var tagsChart = echarts.init(document.getElementById('tags-chart'), 'light');
+    var tagsOption = {
+      title: {
+        text: 'Top 10 标签统计图',
+        x: 'center',
+        textStyle: {
+          color: color
+        }
+      },
+      tooltip: {},
+      xAxis: {
+        name: '标签',
+        type: 'category',
+        nameTextStyle: {
+          color: color
+        },
+        axisTick: {
+          show: false
+        },
+        axisLabel: {
+          show: true,
+          color: color,
+          interval: 0
+        },
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: color
+          }
+        },
+        data: ["项目","工具","微服务","Python","数据存储","Java","软性办公","爬虫","方向","人力资源项目"]
+      },
+      yAxis: {
+        name: '文章篇数',
+        type: 'value',
+        splitLine: {
+          show: false
+        },
+        nameTextStyle: {
+          color: color
+        },
+        axisTick: {
+          show: false
+        },
+        axisLabel: {
+          show: true,
+          color: color
+        },
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: color
+          }
+        }
+      },
+      series: [{
+        name: '文章篇数',
+        type: 'bar',
+        data: [{"name":"项目","value":56,"path":"tags/项目/"},{"name":"工具","value":39,"path":"tags/工具/"},{"name":"微服务","value":37,"path":"tags/微服务/"},{"name":"Python","value":27,"path":"tags/Python/"},{"name":"数据存储","value":22,"path":"tags/数据存储/"},{"name":"Java","value":18,"path":"tags/Java/"},{"name":"软性办公","value":18,"path":"tags/软性办公/"},{"name":"爬虫","value":17,"path":"tags/爬虫/"},{"name":"方向","value":16,"path":"tags/方向/"},{"name":"人力资源项目","value":15,"path":"tags/人力资源项目/"},{"name":"大数据","value":14,"path":"tags/大数据/"},{"name":"前端","value":13,"path":"tags/前端/"},{"name":"DevOps","value":12,"path":"tags/DevOps/"},{"name":"部署","value":12,"path":"tags/部署/"},{"name":"数据库","value":11,"path":"tags/数据库/"},{"name":"版本控制","value":7,"path":"tags/版本控制/"},{"name":"语法","value":4,"path":"tags/语法/"},{"name":"并发","value":4,"path":"tags/并发/"},{"name":"Linux","value":4,"path":"tags/Linux/"},{"name":"网络","value":3,"path":"tags/网络/"},{"name":"文件存储","value":3,"path":"tags/文件存储/"},{"name":"消息中间件","value":3,"path":"tags/消息中间件/"},{"name":"搜索引擎","value":3,"path":"tags/搜索引擎/"},{"name":"代码规范","value":3,"path":"tags/代码规范/"},{"name":"Vue","value":2,"path":"tags/Vue/"},{"name":"JavaWeb","value":2,"path":"tags/JavaWeb/"},{"name":"Hadoop","value":2,"path":"tags/Hadoop/"},{"name":"Spark","value":2,"path":"tags/Spark/"},{"name":"面向对象","value":2,"path":"tags/面向对象/"},{"name":"源码","value":2,"path":"tags/源码/"},{"name":"包管理","value":2,"path":"tags/包管理/"},{"name":"框架","value":2,"path":"tags/框架/"},{"name":"Shell","value":2,"path":"tags/Shell/"},{"name":"项目构建","value":2,"path":"tags/项目构建/"},{"name":"学成在线项目","value":2,"path":"tags/学成在线项目/"},{"name":"内网穿透","value":2,"path":"tags/内网穿透/"},{"name":"HTML","value":1,"path":"tags/HTML/"},{"name":"JavaScript","value":1,"path":"tags/JavaScript/"},{"name":"hexo","value":1,"path":"tags/hexo/"},{"name":"butterfly","value":1,"path":"tags/butterfly/"},{"name":"CSS","value":1,"path":"tags/CSS/"},{"name":"jQuery","value":1,"path":"tags/jQuery/"},{"name":"Ajax","value":1,"path":"tags/Ajax/"},{"name":"React","value":1,"path":"tags/React/"},{"name":"后台模板","value":1,"path":"tags/后台模板/"},{"name":"TypeScript","value":1,"path":"tags/TypeScript/"},{"name":"NuxtJs","value":1,"path":"tags/NuxtJs/"},{"name":"Stylus","value":1,"path":"tags/Stylus/"},{"name":"Pug","value":1,"path":"tags/Pug/"},{"name":"Spring MVC","value":1,"path":"tags/Spring-MVC/"},{"name":"SpringBoot","value":1,"path":"tags/SpringBoot/"},{"name":"ServiceMesh","value":1,"path":"tags/ServiceMesh/"},{"name":"Apollo","value":1,"path":"tags/Apollo/"},{"name":"Spring Security","value":1,"path":"tags/Spring-Security/"},{"name":"面试","value":1,"path":"tags/面试/"},{"name":"Skywalking","value":1,"path":"tags/Skywalking/"},{"name":"SpringCloud","value":1,"path":"tags/SpringCloud/"},{"name":"通用权限系统","value":1,"path":"tags/通用权限系统/"},{"name":"数仓","value":1,"path":"tags/数仓/"},{"name":"CDH","value":1,"path":"tags/CDH/"},{"name":"Sqoop","value":1,"path":"tags/Sqoop/"},{"name":"Presto","value":1,"path":"tags/Presto/"},{"name":"Hive","value":1,"path":"tags/Hive/"},{"name":"Storm","value":1,"path":"tags/Storm/"},{"name":"Flume","value":1,"path":"tags/Flume/"},{"name":"Oozie","value":1,"path":"tags/Oozie/"},{"name":"Flink","value":1,"path":"tags/Flink/"},{"name":"2024年","value":1,"path":"tags/2024年/"},{"name":"11月","value":1,"path":"tags/11月/"},{"name":"14日","value":1,"path":"tags/14日/"},{"name":"RPC","value":1,"path":"tags/RPC/"},{"name":"NIO","value":1,"path":"tags/NIO/"},{"name":"Zookeeper","value":1,"path":"tags/Zookeeper/"},{"name":"chatgpt","value":1,"path":"tags/chatgpt/"},{"name":"openai","value":1,"path":"tags/openai/"},{"name":"Netty","value":1,"path":"tags/Netty/"},{"name":"Seata","value":1,"path":"tags/Seata/"},{"name":"Nacos","value":1,"path":"tags/Nacos/"},{"name":"Dubbo","value":1,"path":"tags/Dubbo/"},{"name":"Excel处理","value":1,"path":"tags/Excel处理/"},{"name":"飞书","value":1,"path":"tags/飞书/"},{"name":"定时调度","value":1,"path":"tags/定时调度/"},{"name":"工作流","value":1,"path":"tags/工作流/"},{"name":"Activiti","value":1,"path":"tags/Activiti/"},{"name":"数组","value":1,"path":"tags/数组/"},{"name":"Sentinel","value":1,"path":"tags/Sentinel/"},{"name":"IO","value":1,"path":"tags/IO/"},{"name":"File","value":1,"path":"tags/File/"},{"name":"Junit","value":1,"path":"tags/Junit/"},{"name":"Socket","value":1,"path":"tags/Socket/"},{"name":"集合","value":1,"path":"tags/集合/"},{"name":"日志","value":1,"path":"tags/日志/"},{"name":"异常","value":1,"path":"tags/异常/"},{"name":"注解","value":1,"path":"tags/注解/"},{"name":"动态代理","value":1,"path":"tags/动态代理/"},{"name":"反射","value":1,"path":"tags/反射/"},{"name":"Lombok","value":1,"path":"tags/Lombok/"},{"name":"特性","value":1,"path":"tags/特性/"},{"name":"类库","value":1,"path":"tags/类库/"},{"name":"API","value":1,"path":"tags/API/"},{"name":"多任务","value":1,"path":"tags/多任务/"},{"name":"Web开发","value":1,"path":"tags/Web开发/"},{"name":"Anaconda","value":1,"path":"tags/Anaconda/"},{"name":"MySQL数据库","value":1,"path":"tags/MySQL数据库/"},{"name":"Pandas","value":1,"path":"tags/Pandas/"},{"name":"Groovy","value":1,"path":"tags/Groovy/"},{"name":"django","value":1,"path":"tags/django/"},{"name":"Mycat","value":1,"path":"tags/Mycat/"},{"name":"Scala","value":1,"path":"tags/Scala/"},{"name":"Redis","value":1,"path":"tags/Redis/"},{"name":"TiDB","value":1,"path":"tags/TiDB/"},{"name":"MongoDB","value":1,"path":"tags/MongoDB/"},{"name":"Oracle","value":1,"path":"tags/Oracle/"},{"name":"MySQL","value":1,"path":"tags/MySQL/"},{"name":"FastDFS","value":1,"path":"tags/FastDFS/"},{"name":"HDFS","value":1,"path":"tags/HDFS/"},{"name":"Mybatis","value":1,"path":"tags/Mybatis/"},{"name":"Ceph","value":1,"path":"tags/Ceph/"},{"name":"MybatisPlus","value":1,"path":"tags/MybatisPlus/"},{"name":"RocketMQ","value":1,"path":"tags/RocketMQ/"},{"name":"Solr","value":1,"path":"tags/Solr/"},{"name":"Lucene","value":1,"path":"tags/Lucene/"},{"name":"RabitMQ","value":1,"path":"tags/RabitMQ/"},{"name":"Kafka","value":1,"path":"tags/Kafka/"},{"name":"Es","value":1,"path":"tags/Es/"},{"name":"Tomcat","value":1,"path":"tags/Tomcat/"},{"name":"LVS","value":1,"path":"tags/LVS/"},{"name":"Nginx","value":1,"path":"tags/Nginx/"},{"name":"OpenResty","value":1,"path":"tags/OpenResty/"},{"name":"云服务","value":1,"path":"tags/云服务/"},{"name":"UCloud","value":1,"path":"tags/UCloud/"},{"name":"持续集成","value":1,"path":"tags/持续集成/"},{"name":"Jenkins","value":1,"path":"tags/Jenkins/"},{"name":"IaaS","value":1,"path":"tags/IaaS/"},{"name":"Zabbix","value":1,"path":"tags/Zabbix/"},{"name":"Docker","value":1,"path":"tags/Docker/"},{"name":"监控工具","value":1,"path":"tags/监控工具/"},{"name":"Arthas","value":1,"path":"tags/Arthas/"},{"name":"百度网盘","value":1,"path":"tags/百度网盘/"},{"name":"K8s","value":1,"path":"tags/K8s/"},{"name":"Calibre","value":1,"path":"tags/Calibre/"},{"name":"福昕阅读器","value":1,"path":"tags/福昕阅读器/"},{"name":"Cmder","value":1,"path":"tags/Cmder/"},{"name":"印象笔记","value":1,"path":"tags/印象笔记/"},{"name":"Chrome","value":1,"path":"tags/Chrome/"},{"name":"Nodepad","value":1,"path":"tags/Nodepad/"},{"name":"Office","value":1,"path":"tags/Office/"},{"name":"PotPlayer","value":1,"path":"tags/PotPlayer/"},{"name":"SublimeText","value":1,"path":"tags/SublimeText/"},{"name":"Snipaste","value":1,"path":"tags/Snipaste/"},{"name":"Xmind","value":1,"path":"tags/Xmind/"},{"name":"Typora","value":1,"path":"tags/Typora/"},{"name":"7Zip","value":1,"path":"tags/7Zip/"},{"name":"全链路测试","value":1,"path":"tags/全链路测试/"},{"name":"Markdown","value":1,"path":"tags/Markdown/"},{"name":"Fences","value":1,"path":"tags/Fences/"},{"name":"Windows","value":1,"path":"tags/Windows/"},{"name":"vpn","value":1,"path":"tags/vpn/"},{"name":"NVM","value":1,"path":"tags/NVM/"},{"name":"Gradle","value":1,"path":"tags/Gradle/"},{"name":"SVN","value":1,"path":"tags/SVN/"},{"name":"PyCharm","value":1,"path":"tags/PyCharm/"},{"name":"VsCode","value":1,"path":"tags/VsCode/"},{"name":"SQLyog","value":1,"path":"tags/SQLyog/"},{"name":"Navicat","value":1,"path":"tags/Navicat/"},{"name":"虚拟机","value":1,"path":"tags/虚拟机/"},{"name":"VMware","value":1,"path":"tags/VMware/"},{"name":"SSH","value":1,"path":"tags/SSH/"},{"name":"调试","value":1,"path":"tags/调试/"},{"name":"Postman","value":1,"path":"tags/Postman/"},{"name":"Maven","value":1,"path":"tags/Maven/"},{"name":"压测","value":1,"path":"tags/压测/"},{"name":"JMeter","value":1,"path":"tags/JMeter/"},{"name":"IDEA","value":1,"path":"tags/IDEA/"},{"name":"架构演变","value":1,"path":"tags/架构演变/"},{"name":"架构思想","value":1,"path":"tags/架构思想/"},{"name":"架构设计","value":1,"path":"tags/架构设计/"},{"name":"系统建模","value":1,"path":"tags/系统建模/"},{"name":"敏捷开发","value":1,"path":"tags/敏捷开发/"},{"name":"代码质量","value":1,"path":"tags/代码质量/"},{"name":"算法与数据结构","value":1,"path":"tags/算法与数据结构/"},{"name":"代码安全","value":1,"path":"tags/代码安全/"},{"name":"设计模式","value":1,"path":"tags/设计模式/"},{"name":"JUC","value":1,"path":"tags/JUC/"},{"name":"Disruptor","value":1,"path":"tags/Disruptor/"},{"name":"Thread","value":1,"path":"tags/Thread/"},{"name":"JVM","value":1,"path":"tags/JVM/"},{"name":"Gogs","value":1,"path":"tags/Gogs/"},{"name":"GitHub","value":1,"path":"tags/GitHub/"},{"name":"Gitee","value":1,"path":"tags/Gitee/"},{"name":"Git","value":1,"path":"tags/Git/"},{"name":"Localtunnel","value":1,"path":"tags/Localtunnel/"},{"name":"GitLib","value":1,"path":"tags/GitLib/"},{"name":"Ngrok","value":1,"path":"tags/Ngrok/"},{"name":"GitFlow","value":1,"path":"tags/GitFlow/"},{"name":"环境","value":1,"path":"tags/环境/"}],
+        itemStyle: {
+          borderRadius: [5, 5, 0, 0],
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+            offset: 0,
+            color: 'rgba(128, 255, 165)'
+          },
+          {
+            offset: 1,
+            color: 'rgba(1, 191, 236)'
+          }])
+        },
+        emphasis: {
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+              offset: 0,
+              color: 'rgba(128, 255, 195)'
+            },
+            {
+              offset: 1,
+              color: 'rgba(1, 211, 255)'
+            }])
+          }
+        },
+        markLine: {
+          data: [{
+            name: '平均值',
+            type: 'average',
+            label: {
+              color: color
+            }
+          }]
+        }
+      }]
+    };
+    tagsChart.setOption(tagsOption);
+    window.addEventListener('resize', () => { 
+      tagsChart.resize();
+    });
+    tagsChart.on('click', 'series', (event) => {
+      if(event.data.path) window.location.href = '/' + event.data.path;
+    });
+  </script>
+<!-- 文章分类统计图 -->
+<div id="categories-chart" data-parent="true" style="border-radius: 8px; height: 300px; padding: 10px;"></div>
+  <script id="categoriesChart">
+    var color = document.documentElement.getAttribute('data-theme') === 'light' ? '#4c4948' : 'rgba(255,255,255,0.7)'
+    var categoriesChart = echarts.init(document.getElementById('categories-chart'), 'light');
+    var categoryParentFlag = false
+    var categoriesOption = {
+      title: {
+        text: '文章分类统计图',
+        x: 'center',
+        textStyle: {
+          color: color
+        }
+      },
+      legend: {
+        top: 'bottom',
+        data: ["编程","建站","日记","AI"],
+        textStyle: {
+          color: color
+        }
+      },
+      tooltip: {
+        trigger: 'item'
+      },
+      series: []
+    };
+    categoriesOption.series.push(
+      categoryParentFlag ? 
+      {
+        nodeClick :false,
+        name: '文章篇数',
+        type: 'sunburst',
+        radius: ['15%', '90%'],
+        center: ['50%', '55%'],
+        sort: 'desc',
+        data: [{"name":"编程","value":240,"path":"categories/编程/","id":"cm3huopej0004kcvs69364xgt","parentId":"0"},{"name":"建站","value":1,"path":"categories/建站/","id":"cm3huopes000jkcvs8ff7hbte","parentId":"0"},{"name":"日记","value":1,"path":"categories/日记/","id":"cm3huopg60050kcvsg80icq9q","parentId":"0"},{"name":"AI","value":1,"path":"categories/AI/","id":"cm3huopga005fkcvs0dl16s07","parentId":"0"}],
+        itemStyle: {
+          borderColor: '#fff',
+          borderWidth: 2,
+          emphasis: {
+            focus: 'ancestor',
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(255, 255, 255, 0.5)'
+          }
+        }
+      }
+      :
+      {
+        name: '文章篇数',
+        type: 'pie',
+        radius: [30, 80],
+        roseType: 'area',
+        label: {
+          color: color,
+          formatter: '{b} : {c} ({d}%)'
+        },
+        data: [{"name":"编程","value":240,"path":"categories/编程/","id":"cm3huopej0004kcvs69364xgt","parentId":"0"},{"name":"建站","value":1,"path":"categories/建站/","id":"cm3huopes000jkcvs8ff7hbte","parentId":"0"},{"name":"日记","value":1,"path":"categories/日记/","id":"cm3huopg60050kcvsg80icq9q","parentId":"0"},{"name":"AI","value":1,"path":"categories/AI/","id":"cm3huopga005fkcvs0dl16s07","parentId":"0"}],
+        itemStyle: {
+          emphasis: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(255, 255, 255, 0.5)'
+          }
+        }
+      }
+    )
+    categoriesChart.setOption(categoriesOption);
+    window.addEventListener('resize', () => { 
+      categoriesChart.resize();
+    });
+    categoriesChart.on('click', 'series', (event) => {
+      if(event.data.path) window.location.href = '/' + event.data.path;
+    });
+  </script></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">©2024 By 左耳</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/#/Integrated/index"><span>备案号：闽ICP备2022007849号-1</span></a> <a target="_blank" rel="noopener" href="https://beian.mps.gov.cn/#/query/webSearch"><img class="icp-icon" src="/img/site/icp.png"><span>闽ICP备2022007849号</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script src="/js/webstack.js?1"></script><script src="/js/movie.js?1"></script><script src="/js/echarts.min.js"></script><script src="/js/common.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: true,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async="" data-pjax="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><script src="/js/markmap.js"></script></body></html>

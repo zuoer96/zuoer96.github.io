@@ -1,0 +1,1086 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>【数据存储系列】手牵手学习Arthas | 左耳</title><meta name="author" content="左耳"><meta name="copyright" content="左耳"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="性能调优就是对计算机硬件、操作系统和应用有相当深入的了解，调节三者之间的关系，实现整个系统（包括硬件、操作系统、应用）的性能最大化，并能不断的满足现有的业务需求。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【数据存储系列】手牵手学习Arthas">
+<meta property="og:url" content="https://nbchen.com/posts/devops-monitor-arthas.html">
+<meta property="og:site_name" content="左耳">
+<meta property="og:description" content="性能调优就是对计算机硬件、操作系统和应用有相当深入的了解，调节三者之间的关系，实现整个系统（包括硬件、操作系统、应用）的性能最大化，并能不断的满足现有的业务需求。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbchen.com/img/cover/post_cover_2.png">
+<meta property="article:published_time" content="2024-11-12T12:21:24.000Z">
+<meta property="article:modified_time" content="2024-11-12T14:09:47.689Z">
+<meta property="article:author" content="左耳">
+<meta property="article:tag" content="数据存储">
+<meta property="article:tag" content="监控工具">
+<meta property="article:tag" content="Arthas">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbchen.com/img/cover/post_cover_2.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://nbchen.com/posts/devops-monitor-arthas.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lWO9QTcbfhCMrpHW2Iz8w1cT6iVDffApIJepQIhimJU"/><meta name="baidu-site-verification" content="17911f388d35a0ab926c0cfff1ca6ea7"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?17911f388d35a0ab926c0cfff1ca6ea7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-3FC1C6JTVL"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-3FC1C6JTVL')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-3FC1C6JTVL', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":100,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【数据存储系列】手牵手学习Arthas',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-11-12 22:09:47'
+}</script><link rel="stylesheet" href="/css/equipment.css?1"><link rel="stylesheet" href="/css/movies.css?1"><link rel="stylesheet" href="/css/webstack.css?1"><link rel="stylesheet" href="/css/flag.css?1"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/logo/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">243</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">196</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover/post_cover_2.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">左耳</span></a><a class="nav-page-title" href="/"><span class="site-name">【数据存储系列】手牵手学习Arthas</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 电影</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">【数据存储系列】手牵手学习Arthas</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-11-12T12:21:24.000Z" title="发表于 2024-11-12 20:21:24">2024-11-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-12T14:09:47.689Z" title="更新于 2024-11-12 22:09:47">2024-11-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">10.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>34分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="性能调优工具"><a href="#性能调优工具" class="headerlink" title="性能调优工具"></a>性能调优工具</h2><h3 id="1-什么是性能调优"><a href="#1-什么是性能调优" class="headerlink" title="1 什么是性能调优"></a>1 什么是性能调优</h3><p>​		性能调优就是对计算机硬件、操作系统和应用有相当深入的了解，调节三者之间的关系，实现整个系统（包括硬件、操作系统、应用）的性能最大化，并能不断的满足现有的业务需求。</p>
+<h4 id="1-1-为什么需要性能调优"><a href="#1-1-为什么需要性能调优" class="headerlink" title="1.1. 为什么需要性能调优"></a>1.1. 为什么需要性能调优</h4><ul>
+<li>一是为了获得更好的系统性能(就是你现有的系统运行的还不错，但优化一下可以运行的更好)</li>
+<li>二是通过性能调优来满足不断增加的业务需求</li>
+</ul>
+<h4 id="1-2-什么时候需要性能调优"><a href="#1-2-什么时候需要性能调优" class="headerlink" title="1.2 什么时候需要性能调优"></a>1.2 什么时候需要性能调优</h4><h5 id="1-2-1-上线前-基本优化"><a href="#1-2-1-上线前-基本优化" class="headerlink" title="1.2.1 上线前(基本优化)"></a>1.2.1 上线前(基本优化)</h5><p>​		一般我们在项目实施到项目上线这段时间，不但要准备硬件服务器、安装操作系统、环境搭建，还有个很重要的问题就是进行性能优化，包括操作系统优化和应用环境优化等，我称上线前的优化为基本优化也称为经验优化。</p>
+<p>​		根据你做过的项目和你工作中的经验对上线前的服务器或架构进行基本的性能优化来满足业务需求。</p>
+<h5 id="1-2-2-上线后-持续优化"><a href="#1-2-2-上线后-持续优化" class="headerlink" title="1.2.2 上线后(持续优化)"></a>1.2.2 上线后(持续优化)</h5><p>​		再有就是项目上线后的优化，在上线前我们已经经过基本的性能优化，解决大部分的性能问题，但毕竟上线前的所以测试都是模拟测试并进行相关的性能优化，与上线后的真实环境还是有相当大的区。</p>
+<p>​		我们首先要做的就是对上线后的项目进行性能监控包括服务器性能监控和服务性能监控。</p>
+<h4 id="1-3-性能优化的流程"><a href="#1-3-性能优化的流程" class="headerlink" title="1.3 性能优化的流程"></a>1.3 性能优化的流程</h4><blockquote>
+<p>在性能优化这个领域，并没有一个严格的流程定义，但是对于绝大多数的优化场景，我们可以将其过程抽象为下面四个步骤。</p>
+</blockquote>
+<h5 id="1-3-1-准备阶段"><a href="#1-3-1-准备阶段" class="headerlink" title="1.3.1 准备阶段"></a>1.3.1 准备阶段</h5><blockquote>
+<p>主要工作是是通过性能测试，了解应用的概况、瓶颈的大概方向，明确优化目标</p>
+</blockquote>
+<p>​		准备阶段是非常关键的一步，不能省略，首先，需要对我们进行调优的对象进行详尽的了解，所谓知己知彼，百战不殆。</p>
+<h6 id="1-3-1-1-对性能问题进行粗略评估"><a href="#1-3-1-1-对性能问题进行粗略评估" class="headerlink" title="1.3.1.1 对性能问题进行粗略评估"></a>1.3.1.1 对性能问题进行粗略评估</h6><p>​		过滤一些因为低级的业务逻辑导致的性能问题。譬如，线上应用日志级别不合理，可能会在大流量时导致 CPU 和磁盘的负载飙高，这种情况调整日志级别即可。</p>
+<h6 id="1-3-1-2-了解应用的的总体架构"><a href="#1-3-1-2-了解应用的的总体架构" class="headerlink" title="1.3.1.2 了解应用的的总体架构"></a>1.3.1.2 了解应用的的总体架构</h6><p>​		比如应用的外部依赖和核心接口有哪些，使用了哪些组件和框架，哪些接口、模块的使用率较高，上下游的数据链路是怎么样的等</p>
+<h6 id="1-3-1-3-了解应用对应的服务器信息"><a href="#1-3-1-3-了解应用对应的服务器信息" class="headerlink" title="1.3.1.3 了解应用对应的服务器信息"></a>1.3.1.3 了解应用对应的服务器信息</h6><p>​		如服务器所在的集群信息、服务器的 CPU&#x2F;内存信息、安装的 Linux 版本信息、服务器是容器还是虚拟机、所在宿主机混部后是否对当前应用有干扰等</p>
+<h5 id="1-3-2-分析阶段"><a href="#1-3-2-分析阶段" class="headerlink" title="1.3.2 分析阶段"></a>1.3.2 分析阶段</h5><blockquote>
+<p>通过各种工具或手段，初步定位性能瓶颈点</p>
+</blockquote>
+<h6 id="1-3-2-1-定位问题"><a href="#1-3-2-1-定位问题" class="headerlink" title="1.3.2.1 定位问题"></a>1.3.2.1 定位问题</h6><blockquote>
+<p>如果定位到了问题基本上调优就已经完成了80%</p>
+</blockquote>
+<p>​		在性能调优或者改bug的时候定位问题是最困难的，反而解决问题是比较简单的，有些问题比如OOM，线程死锁，执行速度慢，并不是很简单就能找到的问题的，可能改完代码后性能并没有提高多少，有时候性能反而不升反降，这些都是没有找准问题而导致的，我们需要通过各种性能分析工具来找到问题的根源。</p>
+<h6 id="1-3-2-2-评估分析"><a href="#1-3-2-2-评估分析" class="headerlink" title="1.3.2.2 评估分析"></a>1.3.2.2 评估分析</h6><blockquote>
+<p>找到问题并不代表马上问题就可以解决了，还需要评估分析</p>
+</blockquote>
+<p>​		评估问题修改后是否可以达到预期的效果，以及修改后可能造成的问题，如果评估后发现修改后并不会打到预期的效果，那么这个问题可以先搁置，优化别的地方，然后在分析是否有更好的解决方案，以及评估分析修改后可能造成的问题，不要因为优化一个地方导致十个地方有问题。</p>
+<h5 id="1-3-3-调优阶段"><a href="#1-3-3-调优阶段" class="headerlink" title="1.3.3 调优阶段"></a>1.3.3 调优阶段</h5><blockquote>
+<p>根据定位到的瓶颈点，进行应用性能调优</p>
+</blockquote>
+<p>​		到了调优阶段就是将上面我们找到问题，并且将评审过后的方案实现出来，然后本地测试，并且通过工具监控压测等手段检查是否有所优化，如果没有达到预期，重新评估分析，然后进行调优测试，一直到本地达到了预期为止。</p>
+<h5 id="1-3-4-测试阶段"><a href="#1-3-4-测试阶段" class="headerlink" title="1.3.4 测试阶段"></a>1.3.4 测试阶段</h5><blockquote>
+<p>让调优过的应用进行性能测试</p>
+</blockquote>
+<p>​		调优完成后也就是我们自己验证通过了，但是这个只是我们本地或者测试环境的结果，模拟生产环境进行模拟测试检查是否达到指标，然后还需要进行功能测试，检查是否因为改bug改出了什么问题，如果一切都通过了就可以考虑上线的事项了。</p>
+<h3 id="2-如何调优"><a href="#2-如何调优" class="headerlink" title="2. 如何调优"></a>2. 如何调优</h3><p><img src="/posts/devops-monitor-arthas/image-20230927221134822.png" alt="image-20230927221134822"></p>
+<h4 id="2-1-发现问题"><a href="#2-1-发现问题" class="headerlink" title="2.1 发现问题"></a>2.1 发现问题</h4><blockquote>
+<p>建议先从应用层入手，分析图中标注的高频指标，抓出最重要的、最可疑的、最有可能导致性能的点</p>
+</blockquote>
+<p>​		首先，虽然从系统、组件、应用两个三个角度去描述瓶颈点的分布，但在实际运行时，这三者往往是相辅相成、相互影响的。系统是为应用提供了运行时环境，性能问题的本质就是系统资源达到了使用的上限，反映在应用层，就是应用&#x2F;组件的各项指标开始下降；而应用&#x2F;组件的不合理使用和设计，也会加速系统资源的耗尽。因此，分析瓶颈点时，<strong>需要我们结合从不同角度分析出的结果，抽出共性，得到最终的结论。</strong></p>
+<p>​		得到初步的结论后，再去系统层进行验证。这样做的好处是：很多性能瓶颈点体现在系统层，会是多变量呈现的，譬如，应用层的垃圾回收（GC）指标出现了异常，通过 JDK 自带的工具很容易观测到，但是体现在系统层上，会发现系统当前的 CPU 利用率、内存指标都不太正常，这就给我们的分析思路带来了困扰。</p>
+<h4 id="2-2-善用调优工具"><a href="#2-2-善用调优工具" class="headerlink" title="2.2 善用调优工具"></a>2.2 善用调优工具</h4><p>​		如果瓶颈点在应用层和系统层均呈现出多变量分布，建议此时使用 ZProfiler、JProfiler 等工具对应用进行 Profiling，<strong>获取应用的综合性能信息</strong>（注：Profiling 指的是在应用运行时，通过事件（Event-based）、统计抽样（Sampling Statistical）或植入附加指令（Byte-Code instrumentation）等方法，收集应用运行时的信息，来研究应用行为的动态分析方法）。譬如，可以对 CPU 进行抽样统计，结合各种符号表信息，得到一段时间内应用内的代码热点。</p>
+<h4 id="2-3-看懂监控指标"><a href="#2-3-看懂监控指标" class="headerlink" title="2.3 看懂监控指标"></a>2.3 看懂监控指标</h4><h5 id="2-3-1-CPU指标"><a href="#2-3-1-CPU指标" class="headerlink" title="2.3.1 CPU指标"></a>2.3.1 CPU指标</h5><blockquote>
+<p>和 CPU 相关的指标主要有以下几个，常用的工具有 top、 ps、uptime、 vmstat、 pidstat等</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221140806.png" alt="image-20230927221140806"></p>
+<ul>
+<li>CPU利用率（CPU Utilization）</li>
+<li>CPU 平均负载（Load Average）</li>
+<li>上下文切换次数（Context Switch）</li>
+</ul>
+<h6 id="2-3-1-1-查看线程"><a href="#2-3-1-1-查看线程" class="headerlink" title="2.3.1.1 查看线程"></a>2.3.1.1 查看线程</h6><blockquote>
+<p>可以通过<code>top -Hp pid</code>来查看哪一个进程里面的线程导致CPU很高的</p>
+<p>top指令参看：<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man1/top.1.html#top_of_page">https://man7.org/linux/man-pages/man1/top.1.html#top_of_page</a></p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">top -Hp pid</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221144130.png" alt="image-20230927221144130"></p>
+<h5 id="2-3-2-虚拟内存"><a href="#2-3-2-虚拟内存" class="headerlink" title="2.3.2 虚拟内存"></a>2.3.2 虚拟内存</h5><blockquote>
+<p><code>vmstat</code>是Virtual Memory Statistics（虚拟内存统计）的缩写</p>
+</blockquote>
+<p>​		利用vmstat命令可以对操作系统的内存信息、进程状态和CPU活动等进行监视。但是只能对系统的整体情况进行统计，无法对某个进程进行深入分析。</p>
+<p>​		他是对系统的整体情况进行统计，不足之处是无法对某个进程进行深入分析，因为 vmstat 本身就是低开销工具，在非常高负荷的服务器上，你需要查看并监控系统的健康情况,在控制窗口还是能够使用vmstat 输出结果。</p>
+<h6 id="2-3-2-1-物理内存和虚拟内存区别"><a href="#2-3-2-1-物理内存和虚拟内存区别" class="headerlink" title="2.3.2.1 物理内存和虚拟内存区别"></a>2.3.2.1 物理内存和虚拟内存区别</h6><p>​		我们知道，直接从物理内存读写数据要比从硬盘读写数据要快的多，因此，我们希望所有数据的读取和写入都在内存完成，而内存是有限的，这样就引出了物理内存与虚拟内存的概念。</p>
+<p>​		物理内存就是系统硬件提供的内存大小，是真正的内存，相对于物理内存，在linux下还有一个虚拟内存的概念，虚拟内存就是为了满足物理内存的不足而提出的策略，它是利用磁盘空间虚拟出的一块逻辑内存，用作虚拟内存的磁盘空间被称为交换空间（Swap Space）。</p>
+<p>​		如果大量使用虚拟内存的话服务器性能会下降的很厉害</p>
+<h6 id="2-3-2-2-使用示例"><a href="#2-3-2-2-使用示例" class="headerlink" title="2.3.2.2 使用示例"></a>2.3.2.2 使用示例</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vmstat 5 6</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>tips：5s打一次，共打6次</p>
+<p>参看：<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man8/vmstat.8.html">https://man7.org/linux/man-pages/man8/vmstat.8.html</a></p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221148169.png" alt="image-20230927221148169"></p>
+<h6 id="2-3-2-3-字段说明"><a href="#2-3-2-3-字段说明" class="headerlink" title="2.3.2.3 字段说明"></a>2.3.2.3 字段说明</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">Procs（进程）：</span><br><span class="line">r: 运行队列中进程数量</span><br><span class="line">b: 等待IO的进程数量</span><br><span class="line">Memory（内存）：</span><br><span class="line">swpd: 使用虚拟内存大小</span><br><span class="line">free: 可用内存大小</span><br><span class="line">buff: 用作缓冲的内存大小</span><br><span class="line">cache: 用作缓存的内存大小</span><br><span class="line">Swap：</span><br><span class="line">si: 每秒从交换区写到内存的大小</span><br><span class="line">so: 每秒写入交换区的内存大小</span><br><span class="line">IO：（现在的Linux版本块的大小为1024bytes）</span><br><span class="line">bi: 每秒读取的块数</span><br><span class="line">bo: 每秒写入的块数</span><br><span class="line">System（系统）：</span><br><span class="line">in: 每秒中断数，包括时钟中断。</span><br><span class="line">cs: 每秒上下文切换数。</span><br><span class="line">CPU（以百分比表示）：</span><br><span class="line">us: 用户进程执行时间(user time)</span><br><span class="line">sy: 系统进程执行时间(system time)</span><br><span class="line">id: 空闲时间(包括IO等待时间),中央处理器的空闲时间 。以百分比表示。</span><br><span class="line">wa: 等待IO时间</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-调优工具"><a href="#3-调优工具" class="headerlink" title="3 调优工具"></a>3 调优工具</h3><h4 id="3-1-JVM调优工具"><a href="#3-1-JVM调优工具" class="headerlink" title="3.1 JVM调优工具"></a>3.1 JVM调优工具</h4><blockquote>
+<p>运用jvm自带的命令可以方便的在生产监控和打印堆栈的日志信息帮忙我们来定位问题</p>
+</blockquote>
+<p>​		虽然jvm调优成熟的工具已经有很多：jconsole、大名鼎鼎的VisualVM，IBM的Memory Analyzer等等，但是在生产环境出现问题的时候，一方面工具的使用会有所限制，另一方面喜欢装X的我们，总喜欢在出现问题的时候在终端输入一些命令来解决。所有的工具几乎都是依赖于jdk的接口和底层的这些命令，研究这些命令的使用也让我们更能了解jvm构成和特性。</p>
+<h5 id="3-1-1-jps"><a href="#3-1-1-jps" class="headerlink" title="3.1.1 jps"></a>3.1.1 jps</h5><blockquote>
+<p>JVM Process Status Tool,显示指定系统内所有的HotSpot虚拟机进程。</p>
+</blockquote>
+<h6 id="3-1-1-1-参数"><a href="#3-1-1-1-参数" class="headerlink" title="3.1.1.1 参数"></a>3.1.1.1 参数</h6><ul>
+<li>-l : 输出主类全名或jar路径</li>
+<li>-q : 只输出LVMID</li>
+<li>-m : 输出JVM启动时传递给main()的参数</li>
+<li>-v : 输出JVM启动时显示指定的JVM参数</li>
+</ul>
+<h5 id="3-1-2-jstat"><a href="#3-1-2-jstat" class="headerlink" title="3.1.2 jstat"></a>3.1.2 jstat</h5><blockquote>
+<p>jstat(JVM statistics Monitoring)是用于监视虚拟机运行时状态信息的命令，它可以显示出虚拟机进程中的类装载、内存、垃圾收集、JIT编译等运行数据。</p>
+</blockquote>
+<h6 id="3-1-2-1-参数"><a href="#3-1-2-1-参数" class="headerlink" title="3.1.2.1 参数"></a>3.1.2.1 参数</h6><ul>
+<li>[option] : 操作参数</li>
+<li>LVMID : 本地虚拟机进程ID</li>
+<li>[interval] : 连续输出的时间间隔</li>
+<li>[count] : 连续输出的次数</li>
+</ul>
+<h6 id="3-1-2-2-垃圾回收统计"><a href="#3-1-2-2-垃圾回收统计" class="headerlink" title="3.1.2.2 垃圾回收统计"></a>3.1.2.2 垃圾回收统计</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gc pid [interval] [count]</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>可以显示gc的信息，查看gc的次数，及时间，下面是显示列的具体描述</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>具体列名</th>
+<th>具体描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>S0C</td>
+<td>第一个幸存区的大小</td>
+</tr>
+<tr>
+<td>S1C</td>
+<td>第二个幸存区的大小</td>
+</tr>
+<tr>
+<td>S0U</td>
+<td>第一个幸存区的使用大小</td>
+</tr>
+<tr>
+<td>S1U</td>
+<td>第二个幸存区的使用大小</td>
+</tr>
+<tr>
+<td>EC</td>
+<td>伊甸园区的大小</td>
+</tr>
+<tr>
+<td>EU</td>
+<td>伊甸园区的使用大小</td>
+</tr>
+<tr>
+<td>OC</td>
+<td>老年代大小</td>
+</tr>
+<tr>
+<td>OU</td>
+<td>老年代使用大小</td>
+</tr>
+<tr>
+<td>MC</td>
+<td>方法区大小</td>
+</tr>
+<tr>
+<td>MU</td>
+<td>方法区使用大小</td>
+</tr>
+<tr>
+<td>CCSC:压缩类空间大小</td>
+<td></td>
+</tr>
+<tr>
+<td>CCSU:压缩类空间使用大小</td>
+<td></td>
+</tr>
+<tr>
+<td>YGC</td>
+<td>年轻代垃圾回收次数</td>
+</tr>
+<tr>
+<td>YGCT</td>
+<td>年轻代垃圾回收消耗时间</td>
+</tr>
+<tr>
+<td>FGC</td>
+<td>老年代垃圾回收次数</td>
+</tr>
+<tr>
+<td>FGCT</td>
+<td>老年代垃圾回收消耗时间</td>
+</tr>
+<tr>
+<td>GCT</td>
+<td>垃圾回收消耗总时间</td>
+</tr>
+</tbody></table>
+<h6 id="3-1-2-3-老年代垃圾回收统计"><a href="#3-1-2-3-老年代垃圾回收统计" class="headerlink" title="3.1.2.3 老年代垃圾回收统计"></a>3.1.2.3 老年代垃圾回收统计</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gcold pid [interval] [count]</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>可以查看老年代的垃圾回收统计，具体列描述如下</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>具体列名</th>
+<th>具体描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MC</td>
+<td>方法区大小</td>
+</tr>
+<tr>
+<td>MU</td>
+<td>方法区使用大小</td>
+</tr>
+<tr>
+<td>CCSC</td>
+<td>压缩类空间大小</td>
+</tr>
+<tr>
+<td>CCSU</td>
+<td>压缩类空间使用大小</td>
+</tr>
+<tr>
+<td>OC</td>
+<td>老年代大小</td>
+</tr>
+<tr>
+<td>OU</td>
+<td>老年代使用大小</td>
+</tr>
+<tr>
+<td>YGC</td>
+<td>年轻代垃圾回收次数</td>
+</tr>
+<tr>
+<td>FGC</td>
+<td>老年代垃圾回收次数</td>
+</tr>
+<tr>
+<td>FGCT</td>
+<td>老年代垃圾回收消耗时间</td>
+</tr>
+<tr>
+<td>GCT</td>
+<td>垃圾回收消耗总时间</td>
+</tr>
+</tbody></table>
+<h5 id="3-1-3-jmap"><a href="#3-1-3-jmap" class="headerlink" title="3.1.3 jmap"></a>3.1.3 jmap</h5><blockquote>
+<p>jmap(JVM Memory Map)命令用于生成heap dump文件，如果不使用这个命令，还可以使用-XX:+HeapDumpOnOutOfMemoryError参数来让虚拟机出现OOM的时候·自动生成dump文件。</p>
+</blockquote>
+<p>​		 jmap不仅能生成dump文件，还阔以查询finalize执行队列、Java堆和永久代的详细信息，如当前使用率、当前使用的是哪种收集器等。</p>
+<h6 id="3-1-3-1-参数"><a href="#3-1-3-1-参数" class="headerlink" title="3.1.3.1 参数"></a>3.1.3.1 参数</h6><ul>
+<li>dump : 生成堆转储快照</li>
+<li>finalizerinfo : 显示在F-Queue队列等待Finalizer线程执行finalizer方法的对象</li>
+<li>heap : 显示Java堆详细信息</li>
+<li>histo : 显示堆中对象的统计信息</li>
+<li>permstat : to print permanent generation statistics</li>
+<li>F : 当-dump没有响应时，强制生成dump快照</li>
+</ul>
+<h5 id="3-1-4-jstack"><a href="#3-1-4-jstack" class="headerlink" title="3.1.4 jstack"></a>3.1.4 jstack</h5><blockquote>
+<p>jstack用于生成java虚拟机当前时刻的线程快照。</p>
+</blockquote>
+<p>​		线程快照是当前java虚拟机内每一条线程正在执行的方法堆栈的集合，生成线程快照的主要目的是定位线程出现长时间停顿的原因，如线程间死锁、死循环、请求外部资源导致的长时间等待等。 线程出现停顿的时候通过jstack来查看各个线程的调用堆栈，就可以知道没有响应的线程到底在后台做什么事情，或者等待什么资源。 如果java程序崩溃生成core文件，jstack工具可以用来获得core文件的java stack和native stack的信息，从而可以轻松地知道java程序是如何崩溃和在程序何处发生问题。另外，jstack工具还可以附属到正在运行的java程序中，看到当时运行的java程序的java stack和native stack的信息, 如果现在运行的java程序呈现hung的状态，jstack是非常有用的。</p>
+<h6 id="3-1-4-1-参数"><a href="#3-1-4-1-参数" class="headerlink" title="3.1.4.1 参数"></a>3.1.4.1 参数</h6><ul>
+<li>-F : 当正常输出请求不被响应时，强制输出线程堆栈</li>
+<li>-l : 除堆栈外，显示关于锁的附加信息</li>
+<li>-m : 如果调用到本地方法的话，可以显示C&#x2F;C++的堆栈</li>
+</ul>
+<h4 id="3-2-JConsole"><a href="#3-2-JConsole" class="headerlink" title="3.2 JConsole"></a>3.2 JConsole</h4><blockquote>
+<p>Jconsole （Java Monitoring and Management Console），一种基于JMX的可视化监视、管理工具。</p>
+</blockquote>
+<p>​		JConsole 基本包括以下基本功能：<code>概述</code>、<code>内存</code>、<code>线程</code>、<code>类</code>、<code>VM概要</code>、<code>MBean</code></p>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221153642.png" alt="image-20230927221153642"></p>
+<h4 id="3-3-VisualVM"><a href="#3-3-VisualVM" class="headerlink" title="3.3 VisualVM"></a>3.3 VisualVM</h4><blockquote>
+<p>VisualVM（All-in-One Java Troubleshooting Tool）;功能最强大的运行监视和故障处理程序</p>
+</blockquote>
+<h5 id="3-3-1-功能描述"><a href="#3-3-1-功能描述" class="headerlink" title="3.3.1 功能描述"></a>3.3.1 功能描述</h5><ul>
+<li>显示虚拟机进程以及进程的配置、环境信息（jps、jinfo）。</li>
+<li>监视应用程序的CPU、GC、堆、方法区(1.7及以前)，元空间（JDK1.8及以后）以及线程的信息（jstat、jstack）。</li>
+<li>dump以及分析堆转储快照（jmap、jhat）。</li>
+<li>方法级的程序运行性能分析，找出被调用最多、运行时间最长的方法。</li>
+<li>离线程序快照：收集程序的运行时配置、线程dump、内存dump等信息建立一个快照</li>
+</ul>
+<h4 id="3-4-jprofiler"><a href="#3-4-jprofiler" class="headerlink" title="3.4 jprofiler"></a>3.4 jprofiler</h4><blockquote>
+<p>JProfiler 是一个商业授权的 Java 剖析工具,用于分析Java EE和Java SE应用程序。</p>
+<p>下载：<a target="_blank" rel="noopener" href="https://www.ej-technologies.com/">https://www.ej-technologies.com/</a></p>
+<p>帮助文档：<a target="_blank" rel="noopener" href="https://www.ej-technologies.com/resources/jprofiler/v/13.0/help_zh_CN/doc/main/introduction.html">JProfiler帮助文档 - 前言 (ej-technologies.com)</a></p>
+</blockquote>
+<h5 id="3-4-1-特点"><a href="#3-4-1-特点" class="headerlink" title="3.4.1 特点"></a>3.4.1 特点</h5><ul>
+<li>使用方便</li>
+<li>界面操作友好</li>
+<li>对被分析的应用影响小</li>
+<li>CPU,Thread,Memory分析功能尤其强大</li>
+<li>支持对jdbc,noSql, jsp, servlet, socket等进行分析</li>
+<li>支持多种模式(离线，在线)的分析</li>
+<li>跨平台</li>
+</ul>
+<h4 id="3-5-Arthas"><a href="#3-5-Arthas" class="headerlink" title="3.5 Arthas"></a>3.5 Arthas</h4><blockquote>
+<p>Arthas 是Alibaba开源的Java诊断工具，采用命令行交互模式，提供了丰富的功能，是排查jvm相关问题的利器</p>
+<p>网站：<a target="_blank" rel="noopener" href="https://arthas.aliyun.com/zh-cn/">https://arthas.aliyun.com/zh-cn/</a></p>
+</blockquote>
+<h5 id="3-5-1-特点"><a href="#3-5-1-特点" class="headerlink" title="3.5.1 特点"></a>3.5.1 特点</h5><ul>
+<li>提供性能看板，包括线程、cpu、内存等信息，并且会定时的刷新。</li>
+<li>根据各种条件查看线程快照。比如找出cpu占用率最高的n个线程等</li>
+<li>输出jvm的各种信息，如gc算法、jdk版本、ClassPath等</li>
+<li>查看&#x2F;设置sysprop和sysenv</li>
+<li>查看某个类的静态属性，也可以通过ognl语法执行一些语句</li>
+<li>查看已加载的类的详细信息，比如这个类从哪个jar包加载的。也可以查看类的方法的信息</li>
+<li>dump某个类的字节码到指定目录</li>
+<li>直接反编译指定的类</li>
+<li>查看类加载器的一些信息</li>
+<li>可以让jvm重新加载某个类</li>
+<li>监控方法的执行，同时可以获取到执行的入参、出参以及抛出的异常</li>
+<li>追踪方法执行的调用栈，以及各个方法的调用时间</li>
+</ul>
+<h3 id="4-调优案例"><a href="#4-调优案例" class="headerlink" title="4. 调优案例"></a>4. 调优案例</h3><h4 id="4-1-排查消耗CPU的方法"><a href="#4-1-排查消耗CPU的方法" class="headerlink" title="4.1 排查消耗CPU的方法"></a>4.1 排查消耗CPU的方法</h4><blockquote>
+<p>这个也是经常面试的一个面试题，如何排查CPU超高的JAVA线程，这里我们分为开发环境以及生产环境来说</p>
+</blockquote>
+<h5 id="4-1-1-使用Jprofiler工具"><a href="#4-1-1-使用Jprofiler工具" class="headerlink" title="4.1.1 使用Jprofiler工具"></a>4.1.1 使用Jprofiler工具</h5><blockquote>
+<p>在开发环境可以通过Jprofiler进行快速排查CPU过高的代码</p>
+</blockquote>
+<h6 id="4-1-1-1-打开Jprofiler工具"><a href="#4-1-1-1-打开Jprofiler工具" class="headerlink" title="4.1.1.1 打开Jprofiler工具"></a>4.1.1.1 打开Jprofiler工具</h6><blockquote>
+<p>打开Jprofile并选择需要织入的应用服务</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221157654.png" alt="image-20230927221157654"></p>
+<blockquote>
+<p>接着选择确认就可以看到如下界面，这样就可以监控我们的应用程序</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221200641.png" alt="image-20230927221200641"></p>
+<h6 id="4-1-1-2-监视CPU视图"><a href="#4-1-1-2-监视CPU视图" class="headerlink" title="4.1.1.2 监视CPU视图"></a>4.1.1.2 监视CPU视图</h6><blockquote>
+<p>默认情况下CPU视图是关闭的，我们需要打开才可以，点击录制开始开启CPU录制</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221203441.png" alt="image-20230927221203441"></p>
+<blockquote>
+<p>接着就会看到如下信息</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221206761.png" alt="image-20230927221206761"></p>
+<h6 id="4-1-1-3-访问测试"><a href="#4-1-1-3-访问测试" class="headerlink" title="4.1.1.3 访问测试"></a>4.1.1.3 访问测试</h6><blockquote>
+<p>我们需要调用接口来触发服务调用来检测性能问题</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221209524.png" alt="image-20230927221209524"></p>
+<blockquote>
+<p>触发后我们找到了一个非常消耗系统资源的代码，我们到具体代码检查下，并且进行修复</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">private static final List&lt;String&gt; list = new ArrayList&lt;&gt;();</span><br><span class="line">private static final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2 + 1);</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 有问题的代码</span><br><span class="line"> */</span><br><span class="line">public HandlerTask() &#123;</span><br><span class="line">    executorService.execute(() -&gt; &#123;</span><br><span class="line">        //会不管的死循环需要用到阻塞队列</span><br><span class="line">        while (true) &#123;</span><br><span class="line">            if (list.size() &gt; 0) &#123;</span><br><span class="line">                execute(list.remove(0));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h5 id="4-1-2-通过命令排查"><a href="#4-1-2-通过命令排查" class="headerlink" title="4.1.2 通过命令排查"></a>4.1.2 通过命令排查</h5><blockquote>
+<p>有的时候在生产环境是无法使用Jprofiler等工具的，我们只能借助jdk提供的相关命令进行排查</p>
+</blockquote>
+<h6 id="4-1-2-1-使用Top命令"><a href="#4-1-2-1-使用Top命令" class="headerlink" title="4.1.2.1 使用Top命令"></a>4.1.2.1 使用Top命令</h6><blockquote>
+<p>使用Top命令排查CPU消耗很高的进行</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">top</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221213194.png" alt="image-20230927221213194"></p>
+<blockquote>
+<p>通过排查可以发现进程<code>95891</code>占用的CPU资源很高</p>
+</blockquote>
+<h6 id="4-1-2-2-查找线程"><a href="#4-1-2-2-查找线程" class="headerlink" title="4.1.2.2 查找线程"></a>4.1.2.2 查找线程</h6><blockquote>
+<p>查到进程消耗的CPU很高的情况下我们可以通过以下命令来定位到那个线程消耗的CPU高</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">top -H -p pid</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>通过这个命令可以定位到当前的这个线程消耗CPU很高</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221217355.png" alt="image-20230927221217355"></p>
+<blockquote>
+<p>到这里我们发现<code>95911</code>线程占用的CPU很高</p>
+</blockquote>
+<p><strong>转换16进制</strong></p>
+<blockquote>
+<p>因为java中查看线程号使用的是16进制我们需要将linux中的线程号转换为java中能够使用的16进制</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print &quot;%x&quot; 95911</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221221124.png" alt="image-20230927221221124"></p>
+<blockquote>
+<p>执行后获取到执行16进制的pid是<code>176a7</code></p>
+</blockquote>
+<p><strong>查看进行运行状态</strong></p>
+<blockquote>
+<p>使用<code>jstack 进程id|grep tid</code>转换成16进制后的数字，查看该线程是否运行</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstack 95891|grep 176a7</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221225503.png" alt="image-20230927221225503"></p>
+<blockquote>
+<p>可以看出该线程一会处于运行状态</p>
+</blockquote>
+<h6 id="4-1-2-3-排查代码"><a href="#4-1-2-3-排查代码" class="headerlink" title="4.1.2.3 排查代码"></a>4.1.2.3 排查代码</h6><blockquote>
+<p>使用<code>jstack pid</code>，查看该进程中线程的详细信息，因为默认<code>jstack</code>会显示当前进程下的所有线程堆栈信息，所有我们只需要显示我们运行的消费CPU最高的代码即可，使用如下命令就可以显示当前线程后面CPU消耗很高的线程的堆栈信息，找到代码就可以解决问题了</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstack 95891|grep 176a7 -A20 -B20</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221228314.png" alt="image-20230927221228314"></p>
+<blockquote>
+<p>到这里我们基本上就定位到问题了，然后解决问题</p>
+</blockquote>
+<h5 id="4-1-3-Arthas排查"><a href="#4-1-3-Arthas排查" class="headerlink" title="4.1.3 Arthas排查"></a>4.1.3 Arthas排查</h5><blockquote>
+<p>生产环境下通过上面命令排查毕竟是比较繁琐的，如果有条件用Arthas可以让我们排查起来更加方便</p>
+</blockquote>
+<h6 id="4-1-3-1-运行Arthas"><a href="#4-1-3-1-运行Arthas" class="headerlink" title="4.1.3.1 运行Arthas"></a>4.1.3.1 运行Arthas</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar arthas-boot.jar</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>选择加载第一个java进程</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221231255.png" alt="image-20230927221231255"></p>
+<h6 id="4-1-3-2-dashboard"><a href="#4-1-3-2-dashboard" class="headerlink" title="4.1.3.2 dashboard"></a>4.1.3.2 dashboard</h6><blockquote>
+<p>使用<code>dashboard</code>来查看全局的性能监控</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dashboard</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221234829.png" alt="image-20230927221234829"></p>
+<blockquote>
+<p>我们发现有一个线程占用CPU超高，，并且运行的时间也比较长，接下来我们用线程来看下</p>
+</blockquote>
+<h6 id="4-1-3-3-thread"><a href="#4-1-3-3-thread" class="headerlink" title="4.1.3.3 thread"></a>4.1.3.3 thread</h6><blockquote>
+<p>我们发现在线程视图里面，这个线程也是占用的CPU负载是很高的</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221237730.png" alt="image-20230927221237730"></p>
+<blockquote>
+<p>我们使用<code>thread pid</code>的形式开查看具体线程内容</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">thread 15</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221240695.png" alt="image-20230927221240695"></p>
+<blockquote>
+<p>我们就直接查找到了问题，接着我们来解决问题。</p>
+</blockquote>
+<h6 id="4-1-3-4-反编译代码"><a href="#4-1-3-4-反编译代码" class="headerlink" title="4.1.3.4 反编译代码"></a>4.1.3.4 反编译代码</h6><blockquote>
+<p>可以使用jad工具进行反编译，查看具体哪里有问题</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jad com.heima.test.handler.HandlerTask</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>通过反编译我们发现是因为阻塞队列没有使用阻塞获取方法导致不断的死循环导致系统CPU超高</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221243666.png" alt="image-20230927221243666"></p>
+<blockquote>
+<p>导出当前的内内存中的类的原代码</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jad --source-only com.heima.test.handler.HandlerTask &gt; /tmp/HandlerTask.java</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>导出来原代码后供后面使用</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221246893.png" alt="image-20230927221246893"></p>
+<h6 id="4-1-3-5-跟踪方法调用"><a href="#4-1-3-5-跟踪方法调用" class="headerlink" title="4.1.3.5 跟踪方法调用"></a>4.1.3.5 跟踪方法调用</h6><blockquote>
+<p>怀疑这个方法有问题，可以尝试用<code>trace</code>方法来进行调用一次</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">trace com.heima.test.handler.HandlerTask execute</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>我们发现速度特别快，可以确定就是这里的问题</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221249636.png" alt="image-20230927221249636"></p>
+<h6 id="4-1-3-6-修改原代码"><a href="#4-1-3-6-修改原代码" class="headerlink" title="4.1.3.6 修改原代码"></a>4.1.3.6 修改原代码</h6><blockquote>
+<p>修改刚刚解决的类的原代码</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /tmp/HandlerTask.java</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>修改原代码，解决我们发现的一个bug</p>
+<p>注意：推荐本地修改代码，编译好后再上传到服务器上</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221252179.png" alt="image-20230927221252179"></p>
+<h6 id="4-1-3-7-查找类加载器"><a href="#4-1-3-7-查找类加载器" class="headerlink" title="4.1.3.7 查找类加载器"></a>4.1.3.7 查找类加载器</h6><blockquote>
+<p>有的时候服务不能轻易的上线，我们可以只编译当前的类，然后替换内存中，实现快速上线</p>
+</blockquote>
+<p><strong>查找类加载器</strong></p>
+<blockquote>
+<p>我们需要用替换类的类加载器对于我们修改后的原代码进行编译</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sc -d com.heima.test.handler.HandlerTask | grep classLoaderHash</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221256911.png" alt="image-20230927221256911"></p>
+<p><strong>热编译</strong></p>
+<blockquote>
+<p>通过类加载器将我们的类进行编译</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mc -c 31cefde0 /tmp/HandlerTask.java -d /tmp</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221300322.png" alt="image-20230927221300322"></p>
+<p><strong>加载新类</strong></p>
+<blockquote>
+<p>编译后就可以在不重启的情况下加载新类，使用redefine命令重新加载新编译好的HandlerTask.class</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redefine /tmp/com/heima/test/handler/HandlerTask.class</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221304314.png" alt="image-20230927221304314"></p>
+<h6 id="4-1-3-8-再次查看线程视图"><a href="#4-1-3-8-再次查看线程视图" class="headerlink" title="4.1.3.8 再次查看线程视图"></a>4.1.3.8 再次查看线程视图</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">thread</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>我们发现线程消耗的CPU已经下来了，做到了热更新代码，但是下次重启还是会出现问题，我们就需要马上修复了。</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221307617.png" alt="image-20230927221307617"></p>
+<h6 id="4-1-3-9-再次用跟踪方法"><a href="#4-1-3-9-再次用跟踪方法" class="headerlink" title="4.1.3.9 再次用跟踪方法"></a>4.1.3.9 再次用跟踪方法</h6><blockquote>
+<p>再次使用<code>trace</code>方法跟踪下方法执行</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">trace com.heima.test.handler.HandlerTask execute</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221310712.png" alt="image-20230927221310712"></p>
+<h4 id="4-2-排查内存泄漏"><a href="#4-2-排查内存泄漏" class="headerlink" title="4.2 排查内存泄漏"></a>4.2 排查内存泄漏</h4><h5 id="4-2-1-什么是内存泄漏"><a href="#4-2-1-什么是内存泄漏" class="headerlink" title="4.2.1 什么是内存泄漏"></a>4.2.1 什么是内存泄漏</h5><p>​		内存泄露是指：内存泄漏也称作”存储渗漏”，用动态存储分配函数动态开辟的空间，在使用完毕后未释放，结果导致一直占据该内存单元。直到程序结束。(其实说白了就是该内存空间使用完毕之后未回收)即所谓内存泄漏。</p>
+<p>​		也就是说内存刚开始不会出现什么问题，但是过一段时间就会频繁的进行GC，应用程序不会有什么响应，造成服务假死的情况</p>
+<h5 id="4-2-2-命令排查"><a href="#4-2-2-命令排查" class="headerlink" title="4.2.2 命令排查"></a>4.2.2 命令排查</h5><p>启动参数：<code>-Xms10M -Xmx15M</code></p>
+<h6 id="4-2-1-检查FGC情况"><a href="#4-2-1-检查FGC情况" class="headerlink" title="4.2.1 检查FGC情况"></a>4.2.1 检查FGC情况</h6><blockquote>
+<p>首先需要排查下FGC的情况，看看是否在频繁的进行FGC，可以使用<code>jstat -gc pid 间隔时间 显示次数</code>来查看GC情况</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jcmd</span><br><span class="line">jstat -gc 97598 3000 30</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>我们发现JVM在频繁的进行FGC并且FullGC的平均时间越来越长。</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221314684.png" alt="image-20230927221314684"></p>
+<h6 id="4-2-2-查看消耗CPU的线程"><a href="#4-2-2-查看消耗CPU的线程" class="headerlink" title="4.2.2 查看消耗CPU的线程"></a>4.2.2 查看消耗CPU的线程</h6><blockquote>
+<p>根据上面排查CPU的方法我们排查下那个线程消耗的CPU比较多，一般是FGC的垃圾回收线程，对FGC做一个佐证</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">top</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221318977.png" alt="image-20230927221318977"></p>
+<blockquote>
+<p>查看消耗CPU比较高的线程</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">top -H -p 97598</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221325436.png" alt="image-20230927221325436"></p>
+<blockquote>
+<p>接下来将线程ID转换为对应的16进制进行排查</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">printf &quot;%x&quot; 97600</span><br><span class="line">jstack 97598|grep 17d40 -A20</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>我们发现CPU很高的线程都是FGC线程，并且是ParallelGC，其他几个都可以排查下发现都是GC线程</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221328820.png" alt="image-20230927221328820"></p>
+<h6 id="4-2-3-查看内存对象"><a href="#4-2-3-查看内存对象" class="headerlink" title="4.2.3 查看内存对象"></a>4.2.3 查看内存对象</h6><blockquote>
+<p>可以通过jmap导出dump转储文件，但是不推荐使用，导出的时候服务将会不响应请求，如果导出的文件很大，则可能造成服务长时间假死，可以使用<code>jmap -histo pid</code>来查看那些对象占用的内存大</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 列出来存活对象占用的内存大小，并且只显示前20行</span><br><span class="line">jmap -histo:live 97598|head -20</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221331658.png" alt="image-20230927221331658"></p>
+<blockquote>
+<p>这个时候发现<code>Message</code>对象占用内存最大，这个时候就可以排查下调用<code>Message</code>对象的代码</p>
+</blockquote>
+<h4 id="4-3-死锁排查"><a href="#4-3-死锁排查" class="headerlink" title="4.3 死锁排查"></a>4.3 死锁排查</h4><blockquote>
+<p>死锁也是业务上可能陪碰到的问题，如何排查死锁</p>
+</blockquote>
+<h5 id="4-3-1-jconsole排查死锁"><a href="#4-3-1-jconsole排查死锁" class="headerlink" title="4.3.1 jconsole排查死锁"></a>4.3.1 jconsole排查死锁</h5><h6 id="4-3-1-1-打开jconsole控制台"><a href="#4-3-1-1-打开jconsole控制台" class="headerlink" title="4.3.1.1 打开jconsole控制台"></a>4.3.1.1 打开jconsole控制台</h6><blockquote>
+<p>在开发环境可以使用jconsole工具来排查死锁，可以在本地cmd命令行输入<code>jsoncole</code>命令打开图形界面</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jconsole</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221336723.png" alt="image-20230927221336723"></p>
+<blockquote>
+<p>双击对应的应用就可以进入管理页面，比较简介</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221339515.png" alt="image-20230927221339515"></p>
+<h6 id="4-3-1-2-检查死锁"><a href="#4-3-1-2-检查死锁" class="headerlink" title="4.3.1.2 检查死锁"></a>4.3.1.2 检查死锁</h6><blockquote>
+<p>排查死锁也比简单，点击对应的线程选项卡，选择检查死锁按钮就可以检查死锁了</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221342551.png" alt="image-20230927221342551"></p>
+<blockquote>
+<p>点击检查死锁，然后根据显示的线程堆栈信息查看具体死锁位置就可以了</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221347071.png" alt="image-20230927221347071"></p>
+<h5 id="4-3-2-命令检查死锁"><a href="#4-3-2-命令检查死锁" class="headerlink" title="4.3.2 命令检查死锁"></a>4.3.2 命令检查死锁</h5><blockquote>
+<p>在生产环境下很不可以直接使用图形界面，我们可以使用命令行的方式来进行死锁检查</p>
+</blockquote>
+<h6 id="4-3-2-1-jstack-死锁检查"><a href="#4-3-2-1-jstack-死锁检查" class="headerlink" title="4.3.2.1 jstack 死锁检查"></a>4.3.2.1 jstack 死锁检查</h6><blockquote>
+<p>可以使用jstack快速进行死锁检查</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">jcmd</span><br><span class="line"># 检查是否存在死锁</span><br><span class="line">jstack -l 100460|grep &quot;deadlock&quot;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这样可以快速检查是否存在死锁问题</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221352071.png" alt="image-20230927221352071"></p>
+<h6 id="4-3-2-2-排查死锁"><a href="#4-3-2-2-排查死锁" class="headerlink" title="4.3.2.2 排查死锁"></a>4.3.2.2 排查死锁</h6><blockquote>
+<p>如果排查出现死锁问题后，接着就可以使用<code>jstack</code>导出堆栈信息，死锁信息就在最后</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstack -l 100460</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>拉到最后就可以看到死锁信息以及具体线程的堆栈信息，我们就可以针对性的找到具体代码位置</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221354865.png" alt="image-20230927221354865"></p>
+<h5 id="4-3-3-Arthas排查"><a href="#4-3-3-Arthas排查" class="headerlink" title="4.3.3 Arthas排查"></a>4.3.3 Arthas排查</h5><blockquote>
+<p>生产环境下还可以通过Arthas来排查死锁</p>
+</blockquote>
+<p>重新运行案例：java -jar spring-boot-test-1.0-SNAPSHOT.jar</p>
+<h6 id="4-3-3-1-运行Arthas"><a href="#4-3-3-1-运行Arthas" class="headerlink" title="4.3.3.1 运行Arthas"></a>4.3.3.1 运行Arthas</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar arthas-boot.jar</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221357501.png" alt="image-20230927221357501"></p>
+<h6 id="4-3-3-2-排查死锁"><a href="#4-3-3-2-排查死锁" class="headerlink" title="4.3.3.2 排查死锁"></a>4.3.3.2 排查死锁</h6><blockquote>
+<p>可以使用<code>thread -b</code>命令来进行排查死锁</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">thread -b</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里面已经打印出来发现一个死锁，以及死锁阻塞的线程id</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221400224.png" alt="image-20230927221400224"></p>
+<h6 id="4-3-3-3-查看堆栈信息"><a href="#4-3-3-3-查看堆栈信息" class="headerlink" title="4.3.3.3 查看堆栈信息"></a>4.3.3.3 查看堆栈信息</h6><blockquote>
+<p>找到死锁的线程id后就可以查看具体堆栈信息了</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">thread 15</span><br><span class="line">thread 17</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221403426.png" alt="image-20230927221403426"></p>
+<blockquote>
+<p>找到死锁的堆栈信息接着就可以代码调优了</p>
+</blockquote>
+<h6 id="4-3-3-4-查看具体死锁代码"><a href="#4-3-3-4-查看具体死锁代码" class="headerlink" title="4.3.3.4 查看具体死锁代码"></a>4.3.3.4 查看具体死锁代码</h6><blockquote>
+<p>可以使用Arthas进行反编译进行查看死锁的代码</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jad com.heima.test.handler.HandlerTask</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>反编译后可以检查具体那个位置存在问题</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221407664.png" alt="image-20230927221407664"></p>
+<h3 id="5-arthas高级使用"><a href="#5-arthas高级使用" class="headerlink" title="5 arthas高级使用"></a>5 arthas高级使用</h3><h4 id="5-1-动态调整日志等级"><a href="#5-1-动态调整日志等级" class="headerlink" title="5.1 动态调整日志等级"></a>5.1 动态调整日志等级</h4><blockquote>
+<p>线上环境一般都是打印INFO级别的日志信息，但是出现问题的时候为了打印debug信息一般需要重启服务，临时使用的话可以尝试通过<code>arthas</code>来调整日志等级</p>
+</blockquote>
+<h5 id="5-1-1-打印日志代码"><a href="#5-1-1-打印日志代码" class="headerlink" title="5.1.1 打印日志代码"></a>5.1.1 打印日志代码</h5><blockquote>
+<p>默认是打印INFO级别的信息，这些信息是输出不出来的</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public void execute() &#123;</span><br><span class="line">    Message message = null;</span><br><span class="line">    try &#123;</span><br><span class="line">        message = queue.takeLast();</span><br><span class="line">    &#125; catch (InterruptedException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    if (null != message) &#123;</span><br><span class="line">        logger.debug(&quot;输出消息内存:&#123;&#125;&quot;,message);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>tips：打印 &#x2F;req7</p>
+</blockquote>
+<h5 id="5-1-2-监控日志打印"><a href="#5-1-2-监控日志打印" class="headerlink" title="5.1.2 监控日志打印"></a>5.1.2 监控日志打印</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tail -f nohup.out</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>发现没有日志输出</p>
+</blockquote>
+<h5 id="5-1-3-查找类"><a href="#5-1-3-查找类" class="headerlink" title="5.1.3 查找类"></a>5.1.3 查找类</h5><blockquote>
+<p>因为有时候不太清楚类的完全包名，可以通过sc进行查找</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sc -d *HandlerTask</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这种方式可以打印类的详细信息</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221411622.png" alt="image-20230927221411622"></p>
+<blockquote>
+<p>我们需要获取classLoaderHash 还可以使用以下命令</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sc -d com.heima.test.handler.HandlerTask | grep classLoaderHash</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221417909.png" alt="image-20230927221417909"></p>
+<h5 id="5-1-4-查看日志级别"><a href="#5-1-4-查看日志级别" class="headerlink" title="5.1.4 查看日志级别"></a>5.1.4 查看日志级别</h5><blockquote>
+<p>通过logger命令可以查看当前类的日志级别</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logger -c 31cefde0</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221414933.png" alt="image-20230927221414933"></p>
+<h5 id="5-1-5-修改日志级别"><a href="#5-1-5-修改日志级别" class="headerlink" title="5.1.5 修改日志级别"></a>5.1.5 修改日志级别</h5><blockquote>
+<p>通过logger是可以动态修改类的日志等级</p>
+<p>参看：<a target="_blank" rel="noopener" href="https://arthas.gitee.io/logger.html#logger-level">https://arthas.gitee.io/logger.html#logger-level</a></p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logger -c 31cefde0 --name ROOT --level debug</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221421638.png" alt="image-20230927221421638"></p>
+<h5 id="5-1-6-查看日志输出"><a href="#5-1-6-查看日志输出" class="headerlink" title="5.1.6 查看日志输出"></a>5.1.6 查看日志输出</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tail -f nohup.out</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221424739.png" alt="image-20230927221424739"></p>
+<h4 id="5-2-动态打印参数"><a href="#5-2-动态打印参数" class="headerlink" title="5.2 动态打印参数"></a>5.2 动态打印参数</h4><blockquote>
+<p>有的时候发现问题，有些地方正好没有打印日志，这个时候在修改再上线会很麻烦，并且容易引起其他地方的问题，这个时候可以考虑使用<code>watch</code>来打印参数</p>
+</blockquote>
+<h5 id="5-2-1-启动arthas"><a href="#5-2-1-启动arthas" class="headerlink" title="5.2.1 启动arthas"></a>5.2.1 启动arthas</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar arthas-boot.jar</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221428058.png" alt="image-20230927221428058"></p>
+<h5 id="5-2-2-查找方法"><a href="#5-2-2-查找方法" class="headerlink" title="5.2.2 查找方法"></a>5.2.2 查找方法</h5><blockquote>
+<p>我们知道我们的入口类是ApiController，我们先通过<code>sc</code>查找类，然后对于该类进行反编译，查看我们需要查询的方法</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sc *ApiController</span><br><span class="line">jad com.heima.test.api.ApiController</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221430590.png" alt="image-20230927221430590"></p>
+<blockquote>
+<p>经过查看源码，我们发现我们需要查找的源码是<code>req</code>方法</p>
+</blockquote>
+<h5 id="5-2-3-监听req方法参数"><a href="#5-2-3-监听req方法参数" class="headerlink" title="5.2.3 监听req方法参数"></a>5.2.3 监听req方法参数</h5><blockquote>
+<p>我们可以通过监听req方法的如看查看具体输入输出参数</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">watch com.heima.test.api.ApiController req -x 2</span><br></pre></td></tr></table></figure>
+
+<p>然后发起调用：<code>curl http://localhost:8080/req?message=fadsfadfa</code></p>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221435019.png" alt="image-20230927221435019"></p>
+<blockquote>
+<p>我们发现参数有点多，我们可以通过以下参数只观察入参和出参</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">watch com.heima.test.api.ApiController req &#123;params[0],returnObj&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221438651.png" alt="image-20230927221438651"></p>
+<blockquote>
+<p>但是呢这样打印的需要每一个参数都需要拦截，但是我们只需要拦截特定的参数可以通过以下方法来实现</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">watch com.heima.test.api.ApiController req &#123;params[0],returnObj,throwExp&#125; &#x27;params[0]==&quot;XXYY&quot;&#x27;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>只有入参是XXYY才打印参数其他情况是不打印参数的</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221441629.png" alt="image-20230927221441629"></p>
+<blockquote>
+<p>还有些情况下调用速度非常快，如果这届这样操作很容易刷屏，这种情况下可以考虑加入<code>-n</code>参数限制打印行数</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">watch com.heima.test.api.ApiController req &#123;params[0],returnObj,throwExp&#125; &#x27;params[0]==&quot;XXYY&quot;&#x27; -n 3</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221444536.png" alt="image-20230927221444536"></p>
+<h3 id="6-常见问题排查"><a href="#6-常见问题排查" class="headerlink" title="6. 常见问题排查"></a>6. 常见问题排查</h3><h4 id="6-1-内存溢出"><a href="#6-1-内存溢出" class="headerlink" title="6.1 内存溢出"></a>6.1 内存溢出</h4><h5 id="6-1-1-什么是内存溢出"><a href="#6-1-1-什么是内存溢出" class="headerlink" title="6.1.1 什么是内存溢出"></a>6.1.1 什么是内存溢出</h5><p>​		<strong>内存溢出</strong> 是指程序员在申请内存时，没有足够的内存空间供其实用。比如 你申请了 2kb 的内存空间。 但是给了一个需要4kb才能存下的数据。 这就是内存溢出了。内存溢出就是， 你要求分配的内存超出了系统能够给你的内存。从而系统不能够满足需求，于是产生了溢出。</p>
+<h5 id="4-3-2-内存溢出分类"><a href="#4-3-2-内存溢出分类" class="headerlink" title="4.3.2 内存溢出分类"></a>4.3.2 内存溢出分类</h5><h6 id="4-3-2-1-堆内存溢出"><a href="#4-3-2-1-堆内存溢出" class="headerlink" title="4.3.2.1 堆内存溢出"></a>4.3.2.1 堆内存溢出</h6><blockquote>
+<p>堆内存是存放由 new 创建的对象和数组，在堆中分配的内存，由 Java 虚拟机的自动垃圾回收器来管理 </p>
+</blockquote>
+<ul>
+<li>异常类型：java.lang.OutOfMemoryError: Java heap space </li>
+<li>优化：通过-Xmn（最小值）–Xms（初始值） -Xmx（最大值）参数手动设置 Heap（堆）的大小</li>
+</ul>
+<h6 id="4-3-2-2-元空间溢出"><a href="#4-3-2-2-元空间溢出" class="headerlink" title="4.3.2.2 元空间溢出"></a>4.3.2.2 元空间溢出</h6><blockquote>
+<p>元空间的本质和永久代类似，都是对JVM规范中方法区的实现。不过元空间与永久代之间最大的区别在于：元空间并不在虚拟机中，而是使用本地内存</p>
+</blockquote>
+<ul>
+<li>异常类型：Java.Lang.OutOfMemoryError：Metaspace</li>
+<li>优化：通过调整<code>-XX:MaxMetaspaceSize</code>设置元空间大小</li>
+</ul>
+<h6 id="4-3-2-3-栈溢出"><a href="#4-3-2-3-栈溢出" class="headerlink" title="4.3.2.3 栈溢出"></a>4.3.2.3 栈溢出</h6><blockquote>
+<p>栈内存在函数中定义的一些基本类型的变量和对象的引用变量都是在函数的栈内存中分配（更准确地说是保存了引用的堆内存空间的地址,java中的“指针”）</p>
+</blockquote>
+<ul>
+<li>异常类型： java.lang.StackOverflowError </li>
+<li>优化：通过Xss参数调整</li>
+</ul>
+<h5 id="4-3-3-调整JVM参数"><a href="#4-3-3-调整JVM参数" class="headerlink" title="4.3.3 调整JVM参数"></a>4.3.3 调整JVM参数</h5><blockquote>
+<p>一般一旦产生JVM内存溢出，服务也将会停止，这个时候需要生成内存转储文件，也需要打印一些JVM的GC参数来进行分析</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">#出现OOM则导出heapdump日志</span><br><span class="line">-XX:+HeapDumpOnOutOfMemoryError</span><br><span class="line"># 导出heapdump日志的路径</span><br><span class="line">-XX:HeapDumpPath=d:/tmp/heapdump-%t.hprof</span><br><span class="line"># 打印GC的详细信息</span><br><span class="line">-XX:+PrintGCDetails</span><br><span class="line"># 打印GC的时间戳</span><br><span class="line">-XX:+PrintGCDateStamps</span><br><span class="line"># 打印出幸存区中对象的年龄分布</span><br><span class="line">-XX:+PrintTenuringDistribution</span><br><span class="line"># 打印GC前后堆的概况</span><br><span class="line">-XX:+PrintHeapAtGC</span><br><span class="line"># 打印各种引用的处理时间</span><br><span class="line">-XX:+PrintReferenceGC</span><br><span class="line">#打印 stw 暂停时间,GC 最重要的指标</span><br><span class="line">-XX:+PrintGCApplicationStoppedTime</span><br><span class="line"># GC日志输出位置</span><br><span class="line">-Xloggc:d:/tmp/jvm-%t.log</span><br><span class="line"># 开启日志文件分割</span><br><span class="line">-XX:+UseGCLogFileRotation</span><br><span class="line"># 最多分割几个文件，超过之后从头开始写</span><br><span class="line">-XX:NumberOfGCLogFiles=14</span><br><span class="line"># 每个文件上限大小，超过就触发分割</span><br><span class="line">-XX:GCLogFileSize=100M</span><br></pre></td></tr></table></figure>
+
+<h4 id="6-2-堆内存"><a href="#6-2-堆内存" class="headerlink" title="6.2 堆内存"></a>6.2 堆内存</h4><h5 id="6-2-1-heap-space"><a href="#6-2-1-heap-space" class="headerlink" title="6.2.1 heap space"></a>6.2.1 heap space</h5><h6 id="6-2-1-1-代码"><a href="#6-2-1-1-代码" class="headerlink" title="6.2.1.1 代码"></a>6.2.1.1 代码</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">private static final List&lt;Message&gt; list = new ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void execute(Message message) &#123;</span><br><span class="line">    getExecutorService().execute(() -&gt; &#123;</span><br><span class="line">        while (true) &#123;</span><br><span class="line">            list.add(MessageUtils.generate(&quot;xxxxxx&quot;));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h6 id="6-2-1-2-启动GC日志"><a href="#6-2-1-2-启动GC日志" class="headerlink" title="6.2.1.2 启动GC日志"></a>6.2.1.2 启动GC日志</h6><h6 id="6-2-1-3-分析dump文件"><a href="#6-2-1-3-分析dump文件" class="headerlink" title="6.2.1.3 分析dump文件"></a>6.2.1.3 分析dump文件</h6><blockquote>
+<p>通过分析因为OOM导出的dump文件，发现Message对象占用的空间最大，可以在系统中查看调用的位置</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221449388.png" alt="image-20230927221449388"></p>
+<blockquote>
+<p>结合上问下可以看到是因为我们的message对象都扔进了list中，并且list是GC Root 所以不会被回收</p>
+</blockquote>
+<h5 id="6-2-2-GC-overhead-limit-exceeded"><a href="#6-2-2-GC-overhead-limit-exceeded" class="headerlink" title="6.2.2 GC overhead limit exceeded"></a>6.2.2 GC overhead limit exceeded</h5><p>​	当JVM资源利用出现问题时抛出，更具体地说，这个错误是由于JVM花费太长时间执行GC且只能回收很少的堆内存时抛出的。根据Oracle官方文档，默认情况下，如果Java进程花费98%以上的时间执行GC，并且每次只有不到2%的堆被恢复，则JVM抛出此错误。换句话说，这意味着我们的应用程序几乎耗尽了所有可用内存，垃圾收集器花了太长时间试图清理它，并多次失败。 		在这种情况下，用户会体验到应用程序响应非常缓慢，通常只需要几毫秒就能完成的某些操作，此时则需要更长的时间来完成，这是因为所有的<code>CPU</code>正在进行垃圾收集，因此无法执行其他任务。</p>
+<h6 id="6-2-2-1-错误复现"><a href="#6-2-2-1-错误复现" class="headerlink" title="6.2.2.1 错误复现"></a>6.2.2.1 错误复现</h6><blockquote>
+<p>这种情况下因为出现内存泄漏，无法进行回收老年代对象，GC一直处于工作状态就会出现<code>GC overhead limit exceeded</code>错误</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 内存泄漏问题</span><br><span class="line"> */</span><br><span class="line">public class HandlerTaskMemoryLeak implements HandlerTask &#123;</span><br><span class="line">    private static final BlockingDeque&lt;Message&gt; blockingDeque = new LinkedBlockingDeque&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void execute(Message message) &#123;</span><br><span class="line">        blockingDeque.offerFirst(message);</span><br><span class="line">        try &#123;</span><br><span class="line">            Thread.sleep(1);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="6-3-栈内存"><a href="#6-3-栈内存" class="headerlink" title="6.3 栈内存"></a>6.3 栈内存</h4><h5 id="6-3-1-StackOverFlowError"><a href="#6-3-1-StackOverFlowError" class="headerlink" title="6.3.1 StackOverFlowError"></a>6.3.1 StackOverFlowError</h5><p>​		栈主要是被线程所使用的，存放着线程上下文的一些数据，这块空间相对堆来说是比较小的，对于栈是有可能出现溢出的，也就是我们熟知的StackOverFlowError，接下来用程序来模拟一下此异常，典型发生的场景就是使用不正确的递归</p>
+<h6 id="6-3-1-1-代码重现"><a href="#6-3-1-1-代码重现" class="headerlink" title="6.3.1.1 代码重现"></a>6.3.1.1 代码重现</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">private static final Logger logger = LoggerFactory.getLogger(HandlerTaskStackOverflow.class);</span><br><span class="line"></span><br><span class="line">private static final AtomicLong depth = new AtomicLong();</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void execute(Message message) &#123;</span><br><span class="line">    logger.info(&quot;入栈深度:&#123;&#125;&quot;, depth.incrementAndGet());</span><br><span class="line">    execute(message);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="6-3-2-OutOfMemoryError"><a href="#6-3-2-OutOfMemoryError" class="headerlink" title="6.3.2 OutOfMemoryError"></a>6.3.2 OutOfMemoryError</h5><blockquote>
+<p>栈有时候也会出现OOM</p>
+</blockquote>
+<p>​		很多人在做多线程开发时，当创建很多线程时，容易出现OOM(OutOfMemoryError),这时可以通过具体情况，减少最大堆容量，或者栈容量来解决问题，这是为什么呢。</p>
+<blockquote>
+<p>下面是整个机器内存的分配情况</p>
+</blockquote>
+<p><strong>线程数*(最大栈容量)+最大堆值+其他内存(忽略不计或者一般不改动)&#x3D;机器最大内存</strong></p>
+<p>​		当线程数比较多时，且无法通过业务上削减线程数，那么再不换机器的情况下，你只能把最大栈容量设置小一点，或者把最大堆值设置小一点。</p>
+<h5 id="6-3-3-unable-to-create-new-native-thread"><a href="#6-3-3-unable-to-create-new-native-thread" class="headerlink" title="6.3.3 unable to create new native thread"></a>6.3.3 unable to create new native thread</h5><blockquote>
+<p>这也是常见的OOM类型，当应用程序无法创建新线程时会生成这种类型的异常</p>
+</blockquote>
+<p>​		JVM 向操作系统申请创建新的 native thread(原生线程)时，就有可能会碰到 java.lang.OutOfMemoryError: Unable to create new native thread 错误。如果底层操作系统创建新的 native thread 失败，JVM 就会抛出相应的 OutOfMemoryError。</p>
+<blockquote>
+<p>有以下原因会导致这个问题发生</p>
+</blockquote>
+<h6 id="6-3-3-1-没有可用的内存空间"><a href="#6-3-3-1-没有可用的内存空间" class="headerlink" title="6.3.3.1 没有可用的内存空间"></a>6.3.3.1 没有可用的内存空间</h6><blockquote>
+<p>内存中没有空间容纳新线程：分配的JVM内存太大，导致没有操作系统和JVM线程的映射对象无法申请</p>
+</blockquote>
+<ul>
+<li>运行在 JVM 中的应用程序收到一个新的 Java 请求创建线程；</li>
+<li>JVM 系统会把创建新线程的请求转到操作系统；</li>
+<li>操作系统尝试创建新线程，并为该线程分配内存；</li>
+<li>如果已经超过操作系统的最大线程数限制，或者堆外内存不足，操作系统会拒绝创建线程，紧接着<code>java.lang.OutOfMemoryError: Unable to create new native thread error is thrown.</code>。</li>
+</ul>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221453839.png" alt="image-20230927221453839"></p>
+<blockquote>
+<p>可用通过增加内存或者减少JVM内存，提高堆外内存比例来解决</p>
+</blockquote>
+<h6 id="6-3-3-2-线程数超过操作系统限制"><a href="#6-3-3-2-线程数超过操作系统限制" class="headerlink" title="6.3.3.2 线程数超过操作系统限制"></a>6.3.3.2 线程数超过操作系统限制</h6><blockquote>
+<p>操作系统可以创建的线程数存在限制。</p>
+</blockquote>
+<p>​		可以通过发出ulimit –u命令找到限制，在某些服务器上，这个值设置较低，例如 1024。这意味着在这台机器上总共只能创建 1024 个线程。因此，如果您的应用程序正在创建超过 1024 个线程，它将遇到java.lang.OutOfMemoryError: unable to create new native thread.在这种情况下，可以修改此限制。</p>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221457141.png" alt="image-20230927221457141"></p>
+<h6 id="6-3-3-3-错误复现"><a href="#6-3-3-3-错误复现" class="headerlink" title="6.3.3.3 错误复现"></a>6.3.3.3 错误复现</h6><blockquote>
+<p>将大部分内存都设置JVM的内存，给操作系统留下较少的内存容易复现这种问题</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 模拟堆内存溢出</span><br><span class="line"> */</span><br><span class="line">public class HandlerTaskStackOverflow implements HandlerTask &#123;</span><br><span class="line"></span><br><span class="line">    private static final Logger logger = LoggerFactory.getLogger(HandlerTaskStackOverflow.class);</span><br><span class="line"></span><br><span class="line">    private static final AtomicLong depth = new AtomicLong();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void execute(Message message) &#123;</span><br><span class="line">        while (true) &#123;</span><br><span class="line">            new Thread(() -&gt; &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    Thread.sleep(Integer.MAX_VALUE);</span><br><span class="line">                &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();</span><br><span class="line">            logger.info(&quot;创建第&#123;&#125;个新线程&quot;, depth.incrementAndGet());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h6 id="监控内存变化"><a href="#监控内存变化" class="headerlink" title="监控内存变化"></a>监控内存变化</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vmstat 5</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>前面随着创建线程不断消耗操作系统的内存</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221500473.png" alt="image-20230927221500473"></p>
+<blockquote>
+<p>都后面突然增加是因为操作系统将JVM进程给杀死了</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221502876.png" alt="image-20230927221502876"></p>
+<h6 id="查看日志"><a href="#查看日志" class="headerlink" title="查看日志"></a>查看日志</h6><p><img src="/posts/devops-monitor-arthas/image-20230927221506454.png" alt="image-20230927221506454"></p>
+<blockquote>
+<p>具体原因发现是因为无法分配内存</p>
+</blockquote>
+<p><img src="/posts/devops-monitor-arthas/image-20230927221509278.png" alt="image-20230927221509278"></p>
+<h4 id="6-4-元空间"><a href="#6-4-元空间" class="headerlink" title="6.4 元空间"></a>6.4 元空间</h4><p>​		Jdk8以后开始把类的元数据放在本地堆内存中，这一块区域就叫做Metaspace，该区域在jdk7及以前是属于永久带的，元空间和永久代都是用来存储class相关信息，包括class对象的Method，Field等，元空间和永久代其实都是方法区的实现，只是实现有所不同，所以说方法区其实只是一种JVM的规范。</p>
+<p>​		默认情况下，类元数据只受可用的本地内存限制（容量取决于是32位或是64位操作系统的可用虚拟内存大小）</p>
+<p>​		新参数（MaxMetaspaceSize）用于限制本地内存分配给类元数据的大小。如果没有指定这个参数，元空间会在运行时根据需要动态调整。</p>
+<p>​		对于僵死的类及类加载器的垃圾回收将在元数据使用到“MaxMetaspaceSize”参数的设定值时进行。</p>
+<p>​		适时地监控和调整元空间对于减小垃圾回收频率和减少延时是很有必要的。持续的元空间垃圾回收说明，可能存在类、类加载器导致的内存泄漏或是大小设置不合适。</p>
+<h5 id="6-4-1-OutOfMemoryError"><a href="#6-4-1-OutOfMemoryError" class="headerlink" title="6.4.1 OutOfMemoryError"></a>6.4.1 OutOfMemoryError</h5><blockquote>
+<p>这个<code>java.lang.OutOfMemoryError：Metaspace</code>表示为Java类元数据分配的本机内存量已被耗尽</p>
+</blockquote>
+<h6 id="6-4-1-1-问题复现"><a href="#6-4-1-1-问题复现" class="headerlink" title="6.4.1.1 问题复现"></a>6.4.1.1 问题复现</h6><blockquote>
+<p>一般来说，可以在命令行上设置<strong>MaxMetaSpaceSize</strong>，如果不设置则会随着class文件增多耗尽操作系统内存</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">-XX:MetaspaceSize=1024m</span><br><span class="line">-XX:MaxMetaspaceSize=1024m</span><br><span class="line">/**</span><br><span class="line"> * 模拟元空间溢出</span><br><span class="line"> */</span><br><span class="line">public class HandlerTaskMetaspaceOverflow extends ClassLoader implements HandlerTask &#123;</span><br><span class="line"></span><br><span class="line">    private static final AtomicLong aLong = new AtomicLong();</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void execute(Message message) &#123;</span><br><span class="line">        for (int i = 0; i &lt; 20000; i++) &#123;</span><br><span class="line">            aLong.incrementAndGet();</span><br><span class="line">            Enhancer enhancer = new Enhancer();</span><br><span class="line">            enhancer.setSuperclass(OomObject.class);</span><br><span class="line">            enhancer.setUseCache(false);</span><br><span class="line">            enhancer.setCallback(new MethodInterceptor() &#123;</span><br><span class="line">                @Override</span><br><span class="line">                public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable &#123;</span><br><span class="line">                    return proxy.invoke(obj, args);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">            Object o=enhancer.create();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h6 id="6-4-1-2-启动服务"><a href="#6-4-1-2-启动服务" class="headerlink" title="6.4.1.2 启动服务"></a>6.4.1.2 启动服务</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup java -jar -XX:MetaspaceSize=100m -XX:MaxMetaspaceSize=100m spring-boot-test-1.0-SNAPSHOT.jar &amp;</span><br></pre></td></tr></table></figure>
+
+<h6 id="6-4-1-3-监控元空间变化"><a href="#6-4-1-3-监控元空间变化" class="headerlink" title="6.4.1.3 监控元空间变化"></a>6.4.1.3 监控元空间变化</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gc 33900 5000</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/devops-monitor-arthas/image-20230927221513528.png" alt="image-20230927221513528"></p>
+<h6 id="6-4-1-4-查看日志文件"><a href="#6-4-1-4-查看日志文件" class="headerlink" title="6.4.1.4 查看日志文件"></a>6.4.1.4 查看日志文件</h6><p><img src="/posts/devops-monitor-arthas/image-20230927224707194.png" alt="image-20230927224707194"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbchen.com">左耳</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbchen.com/posts/devops-monitor-arthas.html">https://nbchen.com/posts/devops-monitor-arthas.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbchen.com" target="_blank">左耳</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/">数据存储</a><a class="post-meta__tags" href="/tags/%E7%9B%91%E6%8E%A7%E5%B7%A5%E5%85%B7/">监控工具</a><a class="post-meta__tags" href="/tags/Arthas/">Arthas</a></div><div class="post-share"><div class="social-share" data-image="/img/cover/post_cover_2.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赛博打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/site/wechat.png" target="_blank"><img class="post-qr-code-img" src="/img/site/wechat.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/site/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/site/alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><a class="prev-post pull-left" href="/posts/devops-monitor-zabbix.html" title="【数据存储系列】手牵手学习Zabbix"><img class="cover" src="/img/cover/post_cover_1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【数据存储系列】手牵手学习Zabbix</div></div></a><a class="next-post pull-right" href="/posts/devops-ci-jenkins.html" title="【数据存储系列】手牵手学习Jenkins"><img class="cover" src="/img/cover/post_cover_2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【数据存储系列】手牵手学习Jenkins</div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a href="/posts/devops-monitor-fulllinktest.html" title="【数据存储系列】手牵手学习全链路测试"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【数据存储系列】手牵手学习全链路测试</div></div></a><a href="/posts/devops-monitor-zabbix.html" title="【数据存储系列】手牵手学习Zabbix"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【数据存储系列】手牵手学习Zabbix</div></div></a><a href="/posts/devops-ci-jenkins.html" title="【数据存储系列】手牵手学习Jenkins"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【数据存储系列】手牵手学习Jenkins</div></div></a><a href="/posts/devops-yun-ucloud.html" title="【数据存储系列】手牵手学习UCloud"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【数据存储系列】手牵手学习UCloud</div></div></a><a href="/posts/ds-search-solr.html" title="【数据存储系列】手牵手学习Solr"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【数据存储系列】手牵手学习Solr</div></div></a><a href="/posts/ds-search-lucene.html" title="【数据存储系列】手牵手学习Lucene"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-12</div><div class="title">【数据存储系列】手牵手学习Lucene</div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info is-center"><div class="avatar-img"><img src="/img/logo/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">左耳</div><div class="author-info-description">一夜鱼龙舞</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">243</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">196</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/zuoer96"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/zuoer96" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:1745233303@gmail.com" target="_blank" title="QQ邮箱"><i class="fas fa-envelope" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎光临小站，这里是我日常收集和整理的总结，希望能对你有所帮助：）<br/><br/>本站的内容经过个人加工总结而来，也参考了网友们分享的资料，如有侵权，请第一时间联系我，我将及时进行修改和删除😊</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E5%B7%A5%E5%85%B7"><span class="toc-number">1.</span> <span class="toc-text">性能调优工具</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BB%80%E4%B9%88%E6%98%AF%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98"><span class="toc-number">1.1.</span> <span class="toc-text">1 什么是性能调优</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.1. 为什么需要性能调优</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E9%9C%80%E8%A6%81%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2 什么时候需要性能调优</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-2-1-%E4%B8%8A%E7%BA%BF%E5%89%8D-%E5%9F%BA%E6%9C%AC%E4%BC%98%E5%8C%96"><span class="toc-number">1.1.2.1.</span> <span class="toc-text">1.2.1 上线前(基本优化)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#1-2-2-%E4%B8%8A%E7%BA%BF%E5%90%8E-%E6%8C%81%E7%BB%AD%E4%BC%98%E5%8C%96"><span class="toc-number">1.1.2.2.</span> <span class="toc-text">1.2.2 上线后(持续优化)</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E6%B5%81%E7%A8%8B"><span class="toc-number">1.1.3.</span> <span class="toc-text">1.3 性能优化的流程</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-3-1-%E5%87%86%E5%A4%87%E9%98%B6%E6%AE%B5"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">1.3.1 准备阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#1-3-1-1-%E5%AF%B9%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98%E8%BF%9B%E8%A1%8C%E7%B2%97%E7%95%A5%E8%AF%84%E4%BC%B0"><span class="toc-number">1.1.3.1.1.</span> <span class="toc-text">1.3.1.1 对性能问题进行粗略评估</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#1-3-1-2-%E4%BA%86%E8%A7%A3%E5%BA%94%E7%94%A8%E7%9A%84%E7%9A%84%E6%80%BB%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="toc-number">1.1.3.1.2.</span> <span class="toc-text">1.3.1.2 了解应用的的总体架构</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#1-3-1-3-%E4%BA%86%E8%A7%A3%E5%BA%94%E7%94%A8%E5%AF%B9%E5%BA%94%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BF%A1%E6%81%AF"><span class="toc-number">1.1.3.1.3.</span> <span class="toc-text">1.3.1.3 了解应用对应的服务器信息</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#1-3-2-%E5%88%86%E6%9E%90%E9%98%B6%E6%AE%B5"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">1.3.2 分析阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#1-3-2-1-%E5%AE%9A%E4%BD%8D%E9%97%AE%E9%A2%98"><span class="toc-number">1.1.3.2.1.</span> <span class="toc-text">1.3.2.1 定位问题</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#1-3-2-2-%E8%AF%84%E4%BC%B0%E5%88%86%E6%9E%90"><span class="toc-number">1.1.3.2.2.</span> <span class="toc-text">1.3.2.2 评估分析</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#1-3-3-%E8%B0%83%E4%BC%98%E9%98%B6%E6%AE%B5"><span class="toc-number">1.1.3.3.</span> <span class="toc-text">1.3.3 调优阶段</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#1-3-4-%E6%B5%8B%E8%AF%95%E9%98%B6%E6%AE%B5"><span class="toc-number">1.1.3.4.</span> <span class="toc-text">1.3.4 测试阶段</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%A6%82%E4%BD%95%E8%B0%83%E4%BC%98"><span class="toc-number">1.2.</span> <span class="toc-text">2. 如何调优</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1-%E5%8F%91%E7%8E%B0%E9%97%AE%E9%A2%98"><span class="toc-number">1.2.1.</span> <span class="toc-text">2.1 发现问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-%E5%96%84%E7%94%A8%E8%B0%83%E4%BC%98%E5%B7%A5%E5%85%B7"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.2 善用调优工具</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-%E7%9C%8B%E6%87%82%E7%9B%91%E6%8E%A7%E6%8C%87%E6%A0%87"><span class="toc-number">1.2.3.</span> <span class="toc-text">2.3 看懂监控指标</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#2-3-1-CPU%E6%8C%87%E6%A0%87"><span class="toc-number">1.2.3.1.</span> <span class="toc-text">2.3.1 CPU指标</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#2-3-1-1-%E6%9F%A5%E7%9C%8B%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.2.3.1.1.</span> <span class="toc-text">2.3.1.1 查看线程</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-3-2-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98"><span class="toc-number">1.2.3.2.</span> <span class="toc-text">2.3.2 虚拟内存</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#2-3-2-1-%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98%E5%92%8C%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E5%8C%BA%E5%88%AB"><span class="toc-number">1.2.3.2.1.</span> <span class="toc-text">2.3.2.1 物理内存和虚拟内存区别</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#2-3-2-2-%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="toc-number">1.2.3.2.2.</span> <span class="toc-text">2.3.2.2 使用示例</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#2-3-2-3-%E5%AD%97%E6%AE%B5%E8%AF%B4%E6%98%8E"><span class="toc-number">1.2.3.2.3.</span> <span class="toc-text">2.3.2.3 字段说明</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E8%B0%83%E4%BC%98%E5%B7%A5%E5%85%B7"><span class="toc-number">1.3.</span> <span class="toc-text">3 调优工具</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-JVM%E8%B0%83%E4%BC%98%E5%B7%A5%E5%85%B7"><span class="toc-number">1.3.1.</span> <span class="toc-text">3.1 JVM调优工具</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#3-1-1-jps"><span class="toc-number">1.3.1.1.</span> <span class="toc-text">3.1.1 jps</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#3-1-1-1-%E5%8F%82%E6%95%B0"><span class="toc-number">1.3.1.1.1.</span> <span class="toc-text">3.1.1.1 参数</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-1-2-jstat"><span class="toc-number">1.3.1.2.</span> <span class="toc-text">3.1.2 jstat</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#3-1-2-1-%E5%8F%82%E6%95%B0"><span class="toc-number">1.3.1.2.1.</span> <span class="toc-text">3.1.2.1 参数</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#3-1-2-2-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%BB%9F%E8%AE%A1"><span class="toc-number">1.3.1.2.2.</span> <span class="toc-text">3.1.2.2 垃圾回收统计</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#3-1-2-3-%E8%80%81%E5%B9%B4%E4%BB%A3%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%BB%9F%E8%AE%A1"><span class="toc-number">1.3.1.2.3.</span> <span class="toc-text">3.1.2.3 老年代垃圾回收统计</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-1-3-jmap"><span class="toc-number">1.3.1.3.</span> <span class="toc-text">3.1.3 jmap</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#3-1-3-1-%E5%8F%82%E6%95%B0"><span class="toc-number">1.3.1.3.1.</span> <span class="toc-text">3.1.3.1 参数</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-1-4-jstack"><span class="toc-number">1.3.1.4.</span> <span class="toc-text">3.1.4 jstack</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#3-1-4-1-%E5%8F%82%E6%95%B0"><span class="toc-number">1.3.1.4.1.</span> <span class="toc-text">3.1.4.1 参数</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-JConsole"><span class="toc-number">1.3.2.</span> <span class="toc-text">3.2 JConsole</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-3-VisualVM"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.3 VisualVM</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#3-3-1-%E5%8A%9F%E8%83%BD%E6%8F%8F%E8%BF%B0"><span class="toc-number">1.3.3.1.</span> <span class="toc-text">3.3.1 功能描述</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-4-jprofiler"><span class="toc-number">1.3.4.</span> <span class="toc-text">3.4 jprofiler</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#3-4-1-%E7%89%B9%E7%82%B9"><span class="toc-number">1.3.4.1.</span> <span class="toc-text">3.4.1 特点</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-5-Arthas"><span class="toc-number">1.3.5.</span> <span class="toc-text">3.5 Arthas</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#3-5-1-%E7%89%B9%E7%82%B9"><span class="toc-number">1.3.5.1.</span> <span class="toc-text">3.5.1 特点</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E8%B0%83%E4%BC%98%E6%A1%88%E4%BE%8B"><span class="toc-number">1.4.</span> <span class="toc-text">4. 调优案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-1-%E6%8E%92%E6%9F%A5%E6%B6%88%E8%80%97CPU%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-number">1.4.1.</span> <span class="toc-text">4.1 排查消耗CPU的方法</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#4-1-1-%E4%BD%BF%E7%94%A8Jprofiler%E5%B7%A5%E5%85%B7"><span class="toc-number">1.4.1.1.</span> <span class="toc-text">4.1.1 使用Jprofiler工具</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#4-1-1-1-%E6%89%93%E5%BC%80Jprofiler%E5%B7%A5%E5%85%B7"><span class="toc-number">1.4.1.1.1.</span> <span class="toc-text">4.1.1.1 打开Jprofiler工具</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-1-1-2-%E7%9B%91%E8%A7%86CPU%E8%A7%86%E5%9B%BE"><span class="toc-number">1.4.1.1.2.</span> <span class="toc-text">4.1.1.2 监视CPU视图</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-1-1-3-%E8%AE%BF%E9%97%AE%E6%B5%8B%E8%AF%95"><span class="toc-number">1.4.1.1.3.</span> <span class="toc-text">4.1.1.3 访问测试</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-1-2-%E9%80%9A%E8%BF%87%E5%91%BD%E4%BB%A4%E6%8E%92%E6%9F%A5"><span class="toc-number">1.4.1.2.</span> <span class="toc-text">4.1.2 通过命令排查</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#4-1-2-1-%E4%BD%BF%E7%94%A8Top%E5%91%BD%E4%BB%A4"><span class="toc-number">1.4.1.2.1.</span> <span class="toc-text">4.1.2.1 使用Top命令</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-1-2-2-%E6%9F%A5%E6%89%BE%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.4.1.2.2.</span> <span class="toc-text">4.1.2.2 查找线程</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-1-2-3-%E6%8E%92%E6%9F%A5%E4%BB%A3%E7%A0%81"><span class="toc-number">1.4.1.2.3.</span> <span class="toc-text">4.1.2.3 排查代码</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-1-3-Arthas%E6%8E%92%E6%9F%A5"><span class="toc-number">1.4.1.3.</span> <span class="toc-text">4.1.3 Arthas排查</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#4-1-3-1-%E8%BF%90%E8%A1%8CArthas"><span class="toc-number">1.4.1.3.1.</span> <span class="toc-text">4.1.3.1 运行Arthas</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-1-3-2-dashboard"><span class="toc-number">1.4.1.3.2.</span> <span class="toc-text">4.1.3.2 dashboard</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-1-3-3-thread"><span class="toc-number">1.4.1.3.3.</span> <span class="toc-text">4.1.3.3 thread</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-1-3-4-%E5%8F%8D%E7%BC%96%E8%AF%91%E4%BB%A3%E7%A0%81"><span class="toc-number">1.4.1.3.4.</span> <span class="toc-text">4.1.3.4 反编译代码</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-1-3-5-%E8%B7%9F%E8%B8%AA%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8"><span class="toc-number">1.4.1.3.5.</span> <span class="toc-text">4.1.3.5 跟踪方法调用</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-1-3-6-%E4%BF%AE%E6%94%B9%E5%8E%9F%E4%BB%A3%E7%A0%81"><span class="toc-number">1.4.1.3.6.</span> <span class="toc-text">4.1.3.6 修改原代码</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-1-3-7-%E6%9F%A5%E6%89%BE%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="toc-number">1.4.1.3.7.</span> <span class="toc-text">4.1.3.7 查找类加载器</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-1-3-8-%E5%86%8D%E6%AC%A1%E6%9F%A5%E7%9C%8B%E7%BA%BF%E7%A8%8B%E8%A7%86%E5%9B%BE"><span class="toc-number">1.4.1.3.8.</span> <span class="toc-text">4.1.3.8 再次查看线程视图</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-1-3-9-%E5%86%8D%E6%AC%A1%E7%94%A8%E8%B7%9F%E8%B8%AA%E6%96%B9%E6%B3%95"><span class="toc-number">1.4.1.3.9.</span> <span class="toc-text">4.1.3.9 再次用跟踪方法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-2-%E6%8E%92%E6%9F%A5%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F"><span class="toc-number">1.4.2.</span> <span class="toc-text">4.2 排查内存泄漏</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#4-2-1-%E4%BB%80%E4%B9%88%E6%98%AF%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F"><span class="toc-number">1.4.2.1.</span> <span class="toc-text">4.2.1 什么是内存泄漏</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-2-2-%E5%91%BD%E4%BB%A4%E6%8E%92%E6%9F%A5"><span class="toc-number">1.4.2.2.</span> <span class="toc-text">4.2.2 命令排查</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#4-2-1-%E6%A3%80%E6%9F%A5FGC%E6%83%85%E5%86%B5"><span class="toc-number">1.4.2.2.1.</span> <span class="toc-text">4.2.1 检查FGC情况</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-2-2-%E6%9F%A5%E7%9C%8B%E6%B6%88%E8%80%97CPU%E7%9A%84%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.4.2.2.2.</span> <span class="toc-text">4.2.2 查看消耗CPU的线程</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-2-3-%E6%9F%A5%E7%9C%8B%E5%86%85%E5%AD%98%E5%AF%B9%E8%B1%A1"><span class="toc-number">1.4.2.2.3.</span> <span class="toc-text">4.2.3 查看内存对象</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-3-%E6%AD%BB%E9%94%81%E6%8E%92%E6%9F%A5"><span class="toc-number">1.4.3.</span> <span class="toc-text">4.3 死锁排查</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#4-3-1-jconsole%E6%8E%92%E6%9F%A5%E6%AD%BB%E9%94%81"><span class="toc-number">1.4.3.1.</span> <span class="toc-text">4.3.1 jconsole排查死锁</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#4-3-1-1-%E6%89%93%E5%BC%80jconsole%E6%8E%A7%E5%88%B6%E5%8F%B0"><span class="toc-number">1.4.3.1.1.</span> <span class="toc-text">4.3.1.1 打开jconsole控制台</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-3-1-2-%E6%A3%80%E6%9F%A5%E6%AD%BB%E9%94%81"><span class="toc-number">1.4.3.1.2.</span> <span class="toc-text">4.3.1.2 检查死锁</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-3-2-%E5%91%BD%E4%BB%A4%E6%A3%80%E6%9F%A5%E6%AD%BB%E9%94%81"><span class="toc-number">1.4.3.2.</span> <span class="toc-text">4.3.2 命令检查死锁</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#4-3-2-1-jstack-%E6%AD%BB%E9%94%81%E6%A3%80%E6%9F%A5"><span class="toc-number">1.4.3.2.1.</span> <span class="toc-text">4.3.2.1 jstack 死锁检查</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-3-2-2-%E6%8E%92%E6%9F%A5%E6%AD%BB%E9%94%81"><span class="toc-number">1.4.3.2.2.</span> <span class="toc-text">4.3.2.2 排查死锁</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-3-3-Arthas%E6%8E%92%E6%9F%A5"><span class="toc-number">1.4.3.3.</span> <span class="toc-text">4.3.3 Arthas排查</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#4-3-3-1-%E8%BF%90%E8%A1%8CArthas"><span class="toc-number">1.4.3.3.1.</span> <span class="toc-text">4.3.3.1 运行Arthas</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-3-3-2-%E6%8E%92%E6%9F%A5%E6%AD%BB%E9%94%81"><span class="toc-number">1.4.3.3.2.</span> <span class="toc-text">4.3.3.2 排查死锁</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-3-3-3-%E6%9F%A5%E7%9C%8B%E5%A0%86%E6%A0%88%E4%BF%A1%E6%81%AF"><span class="toc-number">1.4.3.3.3.</span> <span class="toc-text">4.3.3.3 查看堆栈信息</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-3-3-4-%E6%9F%A5%E7%9C%8B%E5%85%B7%E4%BD%93%E6%AD%BB%E9%94%81%E4%BB%A3%E7%A0%81"><span class="toc-number">1.4.3.3.4.</span> <span class="toc-text">4.3.3.4 查看具体死锁代码</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-arthas%E9%AB%98%E7%BA%A7%E4%BD%BF%E7%94%A8"><span class="toc-number">1.5.</span> <span class="toc-text">5 arthas高级使用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#5-1-%E5%8A%A8%E6%80%81%E8%B0%83%E6%95%B4%E6%97%A5%E5%BF%97%E7%AD%89%E7%BA%A7"><span class="toc-number">1.5.1.</span> <span class="toc-text">5.1 动态调整日志等级</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#5-1-1-%E6%89%93%E5%8D%B0%E6%97%A5%E5%BF%97%E4%BB%A3%E7%A0%81"><span class="toc-number">1.5.1.1.</span> <span class="toc-text">5.1.1 打印日志代码</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-1-2-%E7%9B%91%E6%8E%A7%E6%97%A5%E5%BF%97%E6%89%93%E5%8D%B0"><span class="toc-number">1.5.1.2.</span> <span class="toc-text">5.1.2 监控日志打印</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-1-3-%E6%9F%A5%E6%89%BE%E7%B1%BB"><span class="toc-number">1.5.1.3.</span> <span class="toc-text">5.1.3 查找类</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-1-4-%E6%9F%A5%E7%9C%8B%E6%97%A5%E5%BF%97%E7%BA%A7%E5%88%AB"><span class="toc-number">1.5.1.4.</span> <span class="toc-text">5.1.4 查看日志级别</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-1-5-%E4%BF%AE%E6%94%B9%E6%97%A5%E5%BF%97%E7%BA%A7%E5%88%AB"><span class="toc-number">1.5.1.5.</span> <span class="toc-text">5.1.5 修改日志级别</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-1-6-%E6%9F%A5%E7%9C%8B%E6%97%A5%E5%BF%97%E8%BE%93%E5%87%BA"><span class="toc-number">1.5.1.6.</span> <span class="toc-text">5.1.6 查看日志输出</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-%E5%8A%A8%E6%80%81%E6%89%93%E5%8D%B0%E5%8F%82%E6%95%B0"><span class="toc-number">1.5.2.</span> <span class="toc-text">5.2 动态打印参数</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#5-2-1-%E5%90%AF%E5%8A%A8arthas"><span class="toc-number">1.5.2.1.</span> <span class="toc-text">5.2.1 启动arthas</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-2-2-%E6%9F%A5%E6%89%BE%E6%96%B9%E6%B3%95"><span class="toc-number">1.5.2.2.</span> <span class="toc-text">5.2.2 查找方法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-2-3-%E7%9B%91%E5%90%ACreq%E6%96%B9%E6%B3%95%E5%8F%82%E6%95%B0"><span class="toc-number">1.5.2.3.</span> <span class="toc-text">5.2.3 监听req方法参数</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="toc-number">1.6.</span> <span class="toc-text">6. 常见问题排查</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#6-1-%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="toc-number">1.6.1.</span> <span class="toc-text">6.1 内存溢出</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#6-1-1-%E4%BB%80%E4%B9%88%E6%98%AF%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="toc-number">1.6.1.1.</span> <span class="toc-text">6.1.1 什么是内存溢出</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-3-2-%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E5%88%86%E7%B1%BB"><span class="toc-number">1.6.1.2.</span> <span class="toc-text">4.3.2 内存溢出分类</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#4-3-2-1-%E5%A0%86%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="toc-number">1.6.1.2.1.</span> <span class="toc-text">4.3.2.1 堆内存溢出</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-3-2-2-%E5%85%83%E7%A9%BA%E9%97%B4%E6%BA%A2%E5%87%BA"><span class="toc-number">1.6.1.2.2.</span> <span class="toc-text">4.3.2.2 元空间溢出</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-3-2-3-%E6%A0%88%E6%BA%A2%E5%87%BA"><span class="toc-number">1.6.1.2.3.</span> <span class="toc-text">4.3.2.3 栈溢出</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-3-3-%E8%B0%83%E6%95%B4JVM%E5%8F%82%E6%95%B0"><span class="toc-number">1.6.1.3.</span> <span class="toc-text">4.3.3 调整JVM参数</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-2-%E5%A0%86%E5%86%85%E5%AD%98"><span class="toc-number">1.6.2.</span> <span class="toc-text">6.2 堆内存</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#6-2-1-heap-space"><span class="toc-number">1.6.2.1.</span> <span class="toc-text">6.2.1 heap space</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#6-2-1-1-%E4%BB%A3%E7%A0%81"><span class="toc-number">1.6.2.1.1.</span> <span class="toc-text">6.2.1.1 代码</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#6-2-1-2-%E5%90%AF%E5%8A%A8GC%E6%97%A5%E5%BF%97"><span class="toc-number">1.6.2.1.2.</span> <span class="toc-text">6.2.1.2 启动GC日志</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#6-2-1-3-%E5%88%86%E6%9E%90dump%E6%96%87%E4%BB%B6"><span class="toc-number">1.6.2.1.3.</span> <span class="toc-text">6.2.1.3 分析dump文件</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#6-2-2-GC-overhead-limit-exceeded"><span class="toc-number">1.6.2.2.</span> <span class="toc-text">6.2.2 GC overhead limit exceeded</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#6-2-2-1-%E9%94%99%E8%AF%AF%E5%A4%8D%E7%8E%B0"><span class="toc-number">1.6.2.2.1.</span> <span class="toc-text">6.2.2.1 错误复现</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-3-%E6%A0%88%E5%86%85%E5%AD%98"><span class="toc-number">1.6.3.</span> <span class="toc-text">6.3 栈内存</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#6-3-1-StackOverFlowError"><span class="toc-number">1.6.3.1.</span> <span class="toc-text">6.3.1 StackOverFlowError</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#6-3-1-1-%E4%BB%A3%E7%A0%81%E9%87%8D%E7%8E%B0"><span class="toc-number">1.6.3.1.1.</span> <span class="toc-text">6.3.1.1 代码重现</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#6-3-2-OutOfMemoryError"><span class="toc-number">1.6.3.2.</span> <span class="toc-text">6.3.2 OutOfMemoryError</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#6-3-3-unable-to-create-new-native-thread"><span class="toc-number">1.6.3.3.</span> <span class="toc-text">6.3.3 unable to create new native thread</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#6-3-3-1-%E6%B2%A1%E6%9C%89%E5%8F%AF%E7%94%A8%E7%9A%84%E5%86%85%E5%AD%98%E7%A9%BA%E9%97%B4"><span class="toc-number">1.6.3.3.1.</span> <span class="toc-text">6.3.3.1 没有可用的内存空间</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#6-3-3-2-%E7%BA%BF%E7%A8%8B%E6%95%B0%E8%B6%85%E8%BF%87%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%99%90%E5%88%B6"><span class="toc-number">1.6.3.3.2.</span> <span class="toc-text">6.3.3.2 线程数超过操作系统限制</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#6-3-3-3-%E9%94%99%E8%AF%AF%E5%A4%8D%E7%8E%B0"><span class="toc-number">1.6.3.3.3.</span> <span class="toc-text">6.3.3.3 错误复现</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E7%9B%91%E6%8E%A7%E5%86%85%E5%AD%98%E5%8F%98%E5%8C%96"><span class="toc-number">1.6.3.3.4.</span> <span class="toc-text">监控内存变化</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E6%97%A5%E5%BF%97"><span class="toc-number">1.6.3.3.5.</span> <span class="toc-text">查看日志</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-4-%E5%85%83%E7%A9%BA%E9%97%B4"><span class="toc-number">1.6.4.</span> <span class="toc-text">6.4 元空间</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#6-4-1-OutOfMemoryError"><span class="toc-number">1.6.4.1.</span> <span class="toc-text">6.4.1 OutOfMemoryError</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#6-4-1-1-%E9%97%AE%E9%A2%98%E5%A4%8D%E7%8E%B0"><span class="toc-number">1.6.4.1.1.</span> <span class="toc-text">6.4.1.1 问题复现</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#6-4-1-2-%E5%90%AF%E5%8A%A8%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.6.4.1.2.</span> <span class="toc-text">6.4.1.2 启动服务</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#6-4-1-3-%E7%9B%91%E6%8E%A7%E5%85%83%E7%A9%BA%E9%97%B4%E5%8F%98%E5%8C%96"><span class="toc-number">1.6.4.1.3.</span> <span class="toc-text">6.4.1.3 监控元空间变化</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#6-4-1-4-%E6%9F%A5%E7%9C%8B%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6"><span class="toc-number">1.6.4.1.4.</span> <span class="toc-text">6.4.1.4 查看日志文件</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/dairy-20241114.html" title="【正经人谁写日记】一：社会临死前的幻想罢了"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【正经人谁写日记】一：社会临死前的幻想罢了"/></a><div class="content"><a class="title" href="/posts/dairy-20241114.html" title="【正经人谁写日记】一：社会临死前的幻想罢了">【正经人谁写日记】一：社会临死前的幻想罢了</a><time datetime="2024-11-14T11:50:27.000Z" title="发表于 2024-11-14 19:50:27">2024-11-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-14.html" title="【项目系列】人力资源项目（十四）：表单校验"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十四）：表单校验"/></a><div class="content"><a class="title" href="/posts/project-hrm-14.html" title="【项目系列】人力资源项目（十四）：表单校验">【项目系列】人力资源项目（十四）：表单校验</a><time datetime="2024-11-13T15:28:20.000Z" title="发表于 2024-11-13 23:28:20">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-13.html" title="【项目系列】人力资源项目（十三）：打包上线"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十三）：打包上线"/></a><div class="content"><a class="title" href="/posts/project-hrm-13.html" title="【项目系列】人力资源项目（十三）：打包上线">【项目系列】人力资源项目（十三）：打包上线</a><time datetime="2024-11-13T15:28:12.000Z" title="发表于 2024-11-13 23:28:12">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-12.html" title="【项目系列】人力资源项目（十二）：多语言tab页全屏主题"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十二）：多语言tab页全屏主题"/></a><div class="content"><a class="title" href="/posts/project-hrm-12.html" title="【项目系列】人力资源项目（十二）：多语言tab页全屏主题">【项目系列】人力资源项目（十二）：多语言tab页全屏主题</a><time datetime="2024-11-13T15:28:02.000Z" title="发表于 2024-11-13 23:28:02">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-hrm-11.html" title="【项目系列】人力资源项目（十一）：主页审批图表"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】人力资源项目（十一）：主页审批图表"/></a><div class="content"><a class="title" href="/posts/project-hrm-11.html" title="【项目系列】人力资源项目（十一）：主页审批图表">【项目系列】人力资源项目（十一）：主页审批图表</a><time datetime="2024-11-13T15:27:45.000Z" title="发表于 2024-11-13 23:27:45">2024-11-13</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 By 左耳</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/#/Integrated/index"><span>备案号：闽ICP备2022007849号-1</span></a> <a target="_blank" rel="noopener" href="https://beian.mps.gov.cn/#/query/webSearch"><img class="icp-icon" src="/img/site/icp.png"><span>闽ICP备2022007849号</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const initGitalk = () => {
+    const gitalk = new Gitalk(Object.assign({
+      clientID: 'f5adbf6afe0a4b1a5259',
+      clientSecret: '2aa273b1981e0841b91db860a815d252d7fce5b2',
+      repo: 'zuoer96.github.io',
+      owner: 'zuoer96',
+      admin: ['zuoer96'],
+      id: '3fcd0a90dd17dfe200762979a383cdcb',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  const loadGitalk = async() => {
+    if (typeof Gitalk === 'function') initGitalk()
+    else {
+      await btf.getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+      await btf.getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js')
+      initGitalk()
+    }
+  }
+  
+  const commentCount = n => {
+    const isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+    if (isCommentCount) {
+      isCommentCount.textContent= n
+    }
+  }
+
+  if ('Gitalk' === 'Gitalk' || !false) {
+    if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+    else loadGitalk()
+  } else {
+    window.loadOtherComment = loadGitalk
+  }
+})()</script></div><script src="/js/webstack.js?1"></script><script src="/js/movie.js?1"></script><script src="/js/echarts.min.js"></script><script src="/js/common.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: true,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><script src="/js/markmap.js"></script></body></html>
