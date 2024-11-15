@@ -1,0 +1,643 @@
+<hr>
+<h2 id="title-【项目系列】人力资源项目（四）：主页模块id-project-hrm-4-htmltags-项目-人力资源项目categories-编程keywords-‘语法-基础-Java-微服务-编程-数据存储’description-项目实战date-2024-11-13-23-26-36"><a href="#title-【项目系列】人力资源项目（四）：主页模块id-project-hrm-4-htmltags-项目-人力资源项目categories-编程keywords-‘语法-基础-Java-微服务-编程-数据存储’description-项目实战date-2024-11-13-23-26-36" class="headerlink" title="title: 【项目系列】人力资源项目（四）：主页模块id: project-hrm-4.htmltags:  - 项目  - 人力资源项目categories:  - 编程keywords: ‘语法,基础,Java,微服务,编程,数据存储’description: 项目实战date: 2024-11-13 23:26:36"></a>title: 【项目系列】人力资源项目（四）：主页模块<br>id: project-hrm-4.html<br>tags:<br>  - 项目<br>  - 人力资源项目<br>categories:<br>  - 编程<br>keywords: ‘语法,基础,Java,微服务,编程,数据存储’<br>description: 项目实战<br>date: 2024-11-13 23:26:36</h2><h2 id="主页的token拦截处理"><a href="#主页的token拦截处理" class="headerlink" title="主页的token拦截处理"></a>主页的token拦截处理</h2><p>**<code>目标</code>**：根据token处理主页的访问权限问题</p>
+<h3 id="权限拦截的流程图"><a href="#权限拦截的流程图" class="headerlink" title="权限拦截的流程图"></a>权限拦截的流程图</h3><blockquote>
+<p>我们已经完成了登录的过程，并且存储了token，但是此时主页并没有因为token的有无而被控制访问权限</p>
+</blockquote>
+<p>接下来我们需要实现以下如下的流程图</p>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200714093601730-1696348761213-148.png" alt="image-20200714093601730"></p>
+<blockquote>
+<p>在基础框架阶段，我们已经知道**<code>src/permission.js</code>**是专门处理路由权限的，所以我们在这里处理</p>
+</blockquote>
+<h3 id="流程图转化代码"><a href="#流程图转化代码" class="headerlink" title="流程图转化代码"></a>流程图转化代码</h3><p><strong>流程图转化的代码</strong></p>
+<pre><code class="js">// 权限拦截 导航守卫 路由守卫  router
+import router from &#39;@/router&#39; // 引入路由实例
+import store from &#39;@/store&#39; // 引入vuex store实例
+import NProgress from &#39;nprogress&#39; // 引入一份进度条插件
+import &#39;nprogress/nprogress.css&#39; // 引入进度条样式
+
+const whiteList = [&#39;/login&#39;, &#39;/404&#39;] // 定义白名单  所有不受权限控制的页面
+// 路由的前置守卫
+router.beforeEach(function(to, from, next) {
+  NProgress.start() // 开启进度条
+  //  首先判断有无token
+  if (store.getters.token) {
+    //   如果有token 继续判断是不是去登录页
+    if (to.path === &#39;/login&#39;) {
+      //  表示去的是登录页
+      next(&#39;/&#39;) // 跳到主页
+    } else {
+      next() // 直接放行
+    }
+  } else {
+    // 如果没有token
+    if (whiteList.indexOf(to.path) &gt; -1) {
+      // 如果找到了 表示在在名单里面
+      next()
+    } else {
+      next(&#39;/login&#39;) // 跳到登录页
+    }
+  }
+  NProgress.done() // 手动强制关闭一次  为了解决 手动切换地址时  进度条的不关闭的问题
+})
+// 后置守卫
+router.afterEach(function() {
+  NProgress.done() // 关闭进度条
+})
+</code></pre>
+<blockquote>
+<p>在导航守卫的位置，我们添加了NProgress的插件，可以完成进入时的进度条效果</p>
+</blockquote>
+<p><strong>提交代码</strong></p>
+<p>**<code>本节任务</code>**：完成主页中根据有无token，进行页面访问的处理</p>
+<h2 id="主页的左侧导航样式"><a href="#主页的左侧导航样式" class="headerlink" title="主页的左侧导航样式"></a>主页的左侧导航样式</h2><p>**<code>目标</code>**设置左侧的导航样式</p>
+<blockquote>
+<p>接下来我们需要将左侧导航设置成如图样式</p>
+</blockquote>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200714142517337.png" alt="image-20200714142517337"></p>
+<blockquote>
+<p>主页的布局组件位置**<code>src/layout</code>**</p>
+</blockquote>
+<p><strong>主页布局架构</strong></p>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200812023354631-1696348761213-151.png" alt="image-20200812023354631"></p>
+<p><strong>左侧导航组件的样式文件</strong><code>styles/siderbar.scss</code></p>
+<p><strong>设置背景渐变色</strong></p>
+<pre><code class="css">.sidebar-container {
+      background: -webkit-linear-gradient(bottom, #3d6df8, #5b8cff);
+}
+</code></pre>
+<p><strong>设置左侧导航背景图片</strong></p>
+<pre><code class="scss">.scrollbar-wrapper { 
+    background: url(&#39;~@/assets/common/leftnavBg.png&#39;) no-repeat 0 100%;
+}
+</code></pre>
+<p>**<code>注意</code><strong>：在scss中，如果我们想要使用</strong><code>@</code><strong>别名，需要在前面加上一个</strong><code>~</code>**才可以</p>
+<p><strong>设置菜单选中颜色</strong></p>
+<pre><code class="bash">    .el-menu {
+      border: none;
+      height: 100%;
+      width: 100% !important;
+      a{
+        li{
+          .svg-icon{
+            color: #fff;
+            font-size: 18px;
+            vertical-align: middle;
+            .icon{
+              color:#fff;
+            }
+          }
+          span{
+            color: #fff;
+          }
+          &amp;:hover{
+            .svg-icon{
+              color: #43a7fe
+            }
+            span{
+              color: #43a7fe;
+            }
+          }
+        }
+      }
+    }
+</code></pre>
+<p>**<code>注意</code>**：因为我们后期没有二级菜单，所以这里暂时不用对二级菜单的样式进行控制</p>
+<p><strong>显示左侧logo图片</strong> <strong><code>src/setttings.js</code></strong></p>
+<pre><code class="js">module.exports = {
+
+  title: &#39;人力资源管理平台&#39;,
+
+  /**
+   * @type {boolean} true | false
+   * @description Whether fix the header
+   */
+  fixedHeader: false,
+
+  /**
+   * @type {boolean} true | false
+   * @description Whether show the logo in sidebar
+   */
+  sidebarLogo: true // 显示logo
+}
+</code></pre>
+<p><strong>设置头部图片结构</strong> <strong><code>src/layout/components/Sidebar/Logo.vue</code></strong></p>
+<pre><code class="vue">&lt;div class=&quot;sidebar-logo-container&quot; :class=&quot;{&#39;collapse&#39;:collapse}&quot;&gt;
+    &lt;transition name=&quot;sidebarLogoFade&quot;&gt;
+      &lt;router-link key=&quot;collapse&quot; class=&quot;sidebar-logo-link&quot; to=&quot;/&quot;&gt;
+        &lt;img src=&quot;@/assets/common/logo.png&quot; class=&quot;sidebar-logo  &quot;&gt;
+      &lt;/router-link&gt;
+    &lt;/transition&gt;
+  &lt;/div&gt;
+</code></pre>
+<p><strong>设置大图和小图的样式</strong></p>
+<pre><code class="scss">  &amp;.collapse {
+    .sidebar-logo {
+      margin-right: 0px;
+      width: 32px;
+      height: 32px;
+    }
+  }
+// 小图样式
+</code></pre>
+<pre><code class="scss">.sidebar-logo {
+      width: 140px;
+      vertical-align: middle;
+      margin-right: 12px;
+}
+// 大图样式
+</code></pre>
+<p><strong>去除logo的背景色</strong></p>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200827104724769-1696348761213-150.png" alt="image-20200827104724769"></p>
+<p><strong>提交代码</strong></p>
+<p>**<code>本节任务</code>**： 完成主页的左侧导航样式</p>
+<p>**<code>本节注意</code>**：我们该项目中没有二级显示菜单，所以二级菜单的样式并没有做过多处理，同学们不必在意</p>
+<h2 id="设置头部内容的布局和样式"><a href="#设置头部内容的布局和样式" class="headerlink" title="设置头部内容的布局和样式"></a>设置头部内容的布局和样式</h2><p>**<code>目标</code>**设置头部内容的布局和样式</p>
+<blockquote>
+<p>我们需要把页面设置成如图样式</p>
+</blockquote>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200714172602305.png" alt="image-20200714172602305"></p>
+<p><strong>头部组件位置</strong> <strong><code>layout/components/Navbar.vue</code></strong></p>
+<p><strong>添加公司名称</strong>，<strong>注释面包屑</strong></p>
+<pre><code class="html">  &lt;div class=&quot;app-breadcrumb&quot;&gt;
+      江苏传智播客教育科技股份有限公司
+      &lt;span class=&quot;breadBtn&quot;&gt;体验版&lt;/span&gt;
+  &lt;/div&gt;
+ &lt;!-- &lt;breadcrumb class=&quot;breadcrumb-container&quot; /&gt; --&gt;
+</code></pre>
+<p><strong>公司样式</strong></p>
+<pre><code class="scss">.app-breadcrumb {
+  display: inline-block;
+  font-size: 18px;
+  line-height: 50px;
+  margin-left: 10px;
+  color: #ffffff;
+  cursor: text;
+  .breadBtn {
+    background: #84a9fe;
+    font-size: 14px;
+    padding: 0 10px;
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 10px;
+    margin-left: 15px;
+  }
+}
+</code></pre>
+<p><strong>头部背景渐变色</strong></p>
+<pre><code class="scss">.navbar {
+    background-image: -webkit-linear-gradient(left, #3d6df8, #5b8cff);
+}
+</code></pre>
+<p><strong>汉堡组件图标颜色</strong>  <strong><code>src/components/Hamburger/index.vue</code></strong></p>
+<p><strong><code>注意</code><strong>这里的图标我们使用了</strong><code>svg</code><strong>，设置颜色需要使用svg标签的</strong><code>fill属性</code></strong></p>
+<blockquote>
+<p>设置svg图标为白色</p>
+</blockquote>
+<pre><code class="vue">&lt;svg
+      :class=&quot;{&#39;is-active&#39;:isActive}&quot;
+      class=&quot;hamburger&quot;
+      viewBox=&quot;0 0 1024 1024&quot;
+      xmlns=&quot;http://www.w3.org/2000/svg&quot;
+      width=&quot;64&quot;
+      height=&quot;64&quot;
+      fill=&quot;#fff&quot; 
+    &gt;
+</code></pre>
+<p><strong>右侧下拉菜单设置</strong></p>
+<blockquote>
+<p>将下拉菜单调节成**<code>首页/项目地址/退出登录</code>**</p>
+</blockquote>
+<pre><code class="vue">    &lt;div class=&quot;right-menu&quot;&gt;
+      &lt;el-dropdown class=&quot;avatar-container&quot; trigger=&quot;click&quot;&gt;
+        &lt;div class=&quot;avatar-wrapper&quot;&gt;
+          &lt;img src=&quot;@/assets/common/bigUserHeader.png&quot; class=&quot;user-avatar&quot;&gt;
+          &lt;span class=&quot;name&quot;&gt;管理员&lt;/span&gt;
+          &lt;i class=&quot;el-icon-caret-bottom&quot; style=&quot;color:#fff&quot; /&gt;
+        &lt;/div&gt;
+        &lt;el-dropdown-menu slot=&quot;dropdown&quot; class=&quot;user-dropdown&quot;&gt;
+          &lt;router-link to=&quot;/&quot;&gt;
+            &lt;el-dropdown-item&gt;
+              首页
+            &lt;/el-dropdown-item&gt;
+          &lt;/router-link&gt;
+          &lt;a target=&quot;_blank&quot; href=&quot;https://gitee.com/shuiruohanyu/hrsaas53&quot;&gt;
+            &lt;el-dropdown-item&gt;项目地址&lt;/el-dropdown-item&gt;
+          &lt;/a&gt;
+          &lt;el-dropdown-item divided @click.native=&quot;logout&quot;&gt;
+            &lt;span style=&quot;display:block;&quot;&gt;退出登录&lt;/span&gt;
+          &lt;/el-dropdown-item&gt;
+        &lt;/el-dropdown-menu&gt;
+      &lt;/el-dropdown&gt;
+    &lt;/div&gt;
+</code></pre>
+<p><strong>头像和下拉菜单样式</strong></p>
+<pre><code class="css">  .user-avatar {
+          cursor: pointer;
+          width: 30px;
+          height: 30px;
+          border-radius: 15px;
+          vertical-align: middle;
+
+   }
+   .name {
+          color: #fff;
+          vertical-align: middle;
+          margin-left:5px;
+   }
+   .user-dropdown {
+           color: #fff;
+    }
+</code></pre>
+<p>用户名和头像我们先用了假数据进行，下小章节，会进行这份数据的获取</p>
+<p><strong>最终效果</strong></p>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200716015113164.png"></p>
+<p><strong>提交代码</strong></p>
+<h2 id="获取用户资料接口和token注入"><a href="#获取用户资料接口和token注入" class="headerlink" title="获取用户资料接口和token注入"></a>获取用户资料接口和token注入</h2><p><strong><code>目标</code></strong> 封装获取用户资料的资料信息</p>
+<blockquote>
+<p>上小节中，我们完成了头部菜单的基本布局，但是用户的头像和名称并没有，我们需要通过接口调用的方式获取当前用户的资料信息</p>
+</blockquote>
+<p><strong>获取用户资料接口</strong></p>
+<p>在**<code>src/api/user.js</code>**中封装获取用户资料的方法</p>
+<pre><code class="js">/**
+ *  获取用户的基本资料
+ *
+ * **/
+export function getUserInfo() {
+  return request({
+    url: &#39;/sys/profile&#39;,
+    method: &#39;post&#39;
+  })
+}
+</code></pre>
+<blockquote>
+<p>我们忽略了一个问题！我们的headers参数并没有在这里传入，为什么呢</p>
+</blockquote>
+<p>headers中的<strong>Authorization</strong>相当于我们<strong>开门</strong>（<strong>调用接口</strong>）时**<code>钥匙(token)</code><strong>，我们在打开任何带安全权限的门的时候都需要</strong><code>钥匙(token)</code>** 如图</p>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200715233339927-1696348761213-153.png" alt="image-20200715233339927"></p>
+<p>每次在接口中携带**<code>钥匙（token）</code>**很麻烦，所以我们可以在axios拦截器中统一注入token </p>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200716000203862-1696348761213-155.png" alt="image-20200716000203862"></p>
+<p><strong>统一注入token</strong> <strong><code>src/utils/request.js</code></strong></p>
+<pre><code class="js">service.interceptors.request.use(config =&gt; {
+  // 在这个位置需要统一的去注入token
+  if (store.getters.token) {
+    // 如果token存在 注入token
+    config.headers[&#39;Authorization&#39;] = `Bearer ${store.getters.token}`
+  }
+  return config // 必须返回配置
+}, error =&gt; {
+  return Promise.reject(error)
+}) 
+</code></pre>
+<p>**<code>本节任务</code>**： 完成获取用户资料接口和token注入</p>
+<h2 id="封装获取用户资料的action并共享用户状态"><a href="#封装获取用户资料的action并共享用户状态" class="headerlink" title="封装获取用户资料的action并共享用户状态"></a>封装获取用户资料的action并共享用户状态</h2><p>**<code>目标</code>**： 在用户的vuex模块中封装获取用户资料的action，并设置相关状态</p>
+<blockquote>
+<p>用户状态会在后续的开发中，频繁用到，所以我们将用户状态同样的封装到action中</p>
+</blockquote>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200827111324564-1696348761213-156.png" alt="image-20200827111324564"></p>
+<p><strong>封装获取用户资料action</strong>   <strong><code>action</code></strong>  <strong><code>src/store/modules/user.js</code></strong></p>
+<pre><code class="js">import { login, getUserInfo } from &#39;@/api/user&#39;
+  
+  // 获取用户资料action
+  async getUserInfo (context) {
+    const result = await getUserInfo()  // 获取返回值
+    context.commit(&#39;setUserInfo&#39;, result) // 将整个的个人信息设置到用户的vuex数据中
+    return result // 这里为什么要返回 为后面埋下伏笔
+  }
+</code></pre>
+<blockquote>
+<p>同时，配套的我们还进行了关于用户状态的mutations方法的设计</p>
+</blockquote>
+<p><strong>初始化state</strong>  <strong><code>state</code></strong></p>
+<pre><code class="js">const state = {
+  token: getToken(), // 设置token初始状态   token持久化 =&gt; 放到缓存中
+  userInfo: {} // 定义一个空的对象 不是null 因为后边我要开发userInfo的属性给别人用  userInfo.name
+}
+</code></pre>
+<blockquote>
+<p>userInfo为什么我们不设置为null，而是设置为 {} </p>
+</blockquote>
+<p>因为我们会在**<code>getters</code>**中引用userinfo的变量，如果设置为null，则会引起异常和报错</p>
+<p><strong>设置和删除用户资料</strong>   <strong><code>mutations</code></strong></p>
+<pre><code class="js"> // 设置用户信息
+  setUserInfo(state, userInfo) {
+    state.userInfo = { ...userInfo } // 用 浅拷贝的方式去赋值对象 因为这样数据更新之后，才会触发组件的更新
+  },
+  // 删除用户信息
+  reomveUserInfo(state) {
+    state.userInfo = {}
+  }
+</code></pre>
+<blockquote>
+<p>同学们，我们将所有的资料设置到了<strong>userInfo</strong>这个对象中，如果想要取其中一个值，我们还可以在getters中建立相应的映射</p>
+</blockquote>
+<p>因为我们要做映射，如果初始值为null，一旦引用了getters，就会报错</p>
+<p><strong>建立用户名的映射</strong>  <strong><code>src/store/getters.js</code></strong></p>
+<pre><code class="js">const getters = {
+  sidebar: state =&gt; state.app.sidebar,
+  device: state =&gt; state.app.device,
+  token: state =&gt; state.user.token,
+  name: state =&gt; state.user.userInfo.username // 建立用户名称的映射
+}
+export default getters
+</code></pre>
+<p>到现在为止，我们将用户资料的<strong>action &#x3D;&gt;  mutation &#x3D;&gt; state &#x3D;&gt;  getters</strong> 都设置好了， 那么我们应该在什么位置来调用这个action呢 ？</p>
+<blockquote>
+<p>别着急，先提交代码，下个小节，我们来揭晓答案</p>
+</blockquote>
+<p><strong>提交代码</strong></p>
+<p>**<code>本节任务</code>**封装获取用户资料的action并共享用户状态</p>
+<h2 id="权限拦截处调用获取资料action"><a href="#权限拦截处调用获取资料action" class="headerlink" title="权限拦截处调用获取资料action"></a>权限拦截处调用获取资料action</h2><p>**<code>目标</code>**在权限拦截处调用aciton</p>
+<h3 id="权限拦截器调用action"><a href="#权限拦截器调用action" class="headerlink" title="权限拦截器调用action"></a>权限拦截器调用action</h3><blockquote>
+<p>在上小节中，我们完成了用户资料的整个流程，那么这个action在哪里调用呢？</p>
+</blockquote>
+<p>用户资料有个硬性要求，**<code>必须有token</code>**才可以获取，那么我们就可以在确定有token的位置去获取用户资料</p>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200716004526838-1696348761213-157.png" alt="image-20200716004526838"></p>
+<blockquote>
+<p>由上图可以看出，一旦确定我们进行了放行，就可以获取用户资料</p>
+</blockquote>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200813013009294-1696348761213-158.png" alt="image-20200813013009294"></p>
+<p><strong>调用action</strong> <strong><code>src/permission.js</code></strong></p>
+<pre><code class="js"> if(!store.state.user.userInfo.userId) {
+       await store.dispatch(&#39;user/getUserInfo&#39;)
+ }
+</code></pre>
+<p>如果我们觉得获取用户id的方式写了太多层级，可以在vuex中的getters中设置一个映射 <strong><code>src/store/getters.js</code></strong></p>
+<pre><code class="js">  userId: state =&gt; state.user.userInfo.userId // 建立用户id的映射
+</code></pre>
+<p>代码就变成了</p>
+<pre><code class="js"> if (!store.getters.userId) {
+        // 如果没有id这个值 才会调用 vuex的获取资料的action
+        await store.dispatch(&#39;user/getUserInfo&#39;)
+        // 为什么要写await 因为我们想获取完资料再去放行
+      }
+</code></pre>
+<p>此时，我们可以通过dev-tools工具在控制台清楚的看到数据已经获取</p>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200716012120619.png" alt="image-20200716012120619"></p>
+<blockquote>
+<p>最后一步，只需要将头部菜单中的名称换成真实的用户名即可</p>
+</blockquote>
+<h3 id="获取头像接口合并数据"><a href="#获取头像接口合并数据" class="headerlink" title="获取头像接口合并数据"></a>获取头像接口合并数据</h3><p><strong>头像怎么办？</strong></p>
+<blockquote>
+<p>我们发现头像并不在接口的返回体中（接口原因），我们可以通过另一个接口来获取头像，并把头像合并到当前的资料中</p>
+</blockquote>
+<p><strong>封装获取用户信息接口</strong>  <strong><code>src/api/user.js</code></strong></p>
+<pre><code class="js">/** *
+ *
+ * 获取用户的基本信息  现在写它 完全是为了显示头像
+ * **/
+export function getUserDetailById(id) {
+  return request({
+    url: `/sys/user/${id}`
+  })
+}
+</code></pre>
+<blockquote>
+<p>这个接口需要用户的userId，在前一个接口处，我们已经获取到了，所以可以直接在后面的内容去衔接</p>
+</blockquote>
+<pre><code class="js">import { login, getUserInfo, getUserDetailById } from &#39;@/api/user&#39;
+ 
+// 获取用户资料action
+ async getUserInfo(context) {
+    const result = await getUserInfo() // result就是用户的基本资料
+    const baseInfo = await getUserDetailById(result.userId) // 为了获取头像
+    const baseResult = { ...result, ...baseInfo } // 将两个接口结果合并
+    // 此时已经获取到了用户的基本资料 迫不得已 为了头像再次调用一个接口
+    context.commit(&#39;setUserInfo&#39;, baseResult) // 提交mutations
+    // 加一个点睛之笔  这里这一步，暂时用不到，但是请注意，这给我们后边会留下伏笔
+    return baseResult
+  }
+</code></pre>
+<blockquote>
+<p>为了更好地获取头像，同样可以把头像放于getters中</p>
+</blockquote>
+<pre><code class="js">  staffPhoto: state =&gt; state.user.userInfo.staffPhoto // 建立用户头像的映射
+</code></pre>
+<p>此时，我们的头像和名称已经获取到了，可以直接将之前的假数据换成真正的头像和名称</p>
+<p><strong>用户名</strong>  <strong><code>layout/components/Navbar.vue</code></strong></p>
+<pre><code class="js"> ...mapGetters([
+      &#39;sidebar&#39;,
+      &#39;name&#39;,
+      &#39;staffPhoto&#39;
+    ])
+     &lt;img :src=&quot;staffPhoto&quot; class=&quot;user-avatar&quot;&gt;
+     &lt;span class=&quot;name&quot;&gt;{{ name }}&lt;/span&gt;
+</code></pre>
+<blockquote>
+<p>通过设置，用户名已经显示，头像依然没有显示，这是因为虽然有地址，但是地址来源是私有云，目前已经失效，所以需要额外处理下图片的异常</p>
+</blockquote>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200827140451144-1696348761213-160.png" alt="image-20200827140451144"></p>
+<p>至于处理图片的异常，我们在下一节中，可采用自定义指令的形式来进行处理</p>
+<p>**<code>本节任务</code>**：实现权限拦截处调用获取资料action</p>
+<h2 id="自定义指令-解决异常图片情况"><a href="#自定义指令-解决异常图片情况" class="headerlink" title="自定义指令-解决异常图片情况"></a>自定义指令-解决异常图片情况</h2><p>**<code>目标</code>**： 通过自定义指令的形式解决异常图片的处理</p>
+<h3 id="自定义指令"><a href="#自定义指令" class="headerlink" title="自定义指令"></a>自定义指令</h3><p>注册自定义指令</p>
+<pre><code class="js">Vue.directive(&#39;指令名称&#39;, {
+    // 会在当前指令作用的dom元素 插入之后执行
+    // options 里面是指令的表达式
+    inserted: function (dom,options) {
+        
+    }
+})
+</code></pre>
+<blockquote>
+<p>自定义指令可以采用统一的文件来管理  <strong><code>src/directives/index.js</code></strong>,这个文件负责管理所有的自定义指令</p>
+</blockquote>
+<p>首先定义第一个自定义指令  <strong><code>v-imagerror</code></strong></p>
+<pre><code class="js">export const imagerror = {
+  // 指令对象 会在当前的dom元素插入到节点之后执行
+  inserted(dom, options) {
+    // options是 指令中的变量的解释  其中有一个属性叫做 value
+    // dom 表示当前指令作用的dom对象
+    // dom认为此时就是图片
+    // 当图片有地址 但是地址没有加载成功的时候 会报错 会触发图片的一个事件 =&gt; onerror
+    dom.onerror = function() {
+      // 当图片出现异常的时候 会将指令配置的默认图片设置为该图片的内容
+      // dom可以注册error事件
+      dom.src = options.value // 这里不能写死
+    }
+  }
+}
+</code></pre>
+<h3 id="在main-js完成自定义指令全局注册"><a href="#在main-js完成自定义指令全局注册" class="headerlink" title="在main.js完成自定义指令全局注册"></a>在main.js完成自定义指令全局注册</h3><p>然后，在**<code>main.js</code>**中完成对于该文件中所有指令的全局注册 </p>
+<pre><code class="js">import * as directives from &#39;@/directives&#39;
+// 注册自定义指令
+// 遍历所有的导出的指令对象 完成自定义全局注册
+Object.keys(directives).forEach(key =&gt; {
+  // 注册自定义指令
+  Vue.directive(key, directives[key])
+})
+</code></pre>
+<p>针对上面的引入语法  <strong><code>import *  as  变量</code></strong>  得到的是一个对象**<code>{ 变量1：对象1，变量2： 对象2 ...   }</code>**, 所以可以采用对象遍历的方法进行处理</p>
+<p>指令注册成功，可以在**<code>navbar.vue</code>**中直接使用了</p>
+<pre><code class="vue">&lt;img v-imageerror=&quot;defaultImg&quot; :src=&quot;staffPhoto&quot; class=&quot;user-avatar&quot;&gt;
+</code></pre>
+<pre><code class="js"> data() {
+    return {
+      defaultImg: require(&#39;@/assets/common/head.jpg&#39;)
+    }
+  },
+</code></pre>
+<p>**<code>本节任务</code>**：实现一个自定义指令，解决图片加载异常的问题</p>
+<h2 id="实现登出功能"><a href="#实现登出功能" class="headerlink" title="实现登出功能"></a>实现登出功能</h2><p>**<code>目标</code>**：实现用户的登出操作</p>
+<blockquote>
+<p>登出仅仅是跳到登录页吗？</p>
+</blockquote>
+<p>不，当然不是，我们要处理如下</p>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200827143847893-1696348761213-161.png" alt="image-20200827143847893"></p>
+<p>同样的，登出功能，我们在vuex中的用户模块中实现对应的<strong>action</strong></p>
+<p><strong>登出action</strong>  <strong><code>src/store/modules/user.js</code></strong></p>
+<pre><code class="js">// 登出的action
+  logout(context) {
+    // 删除token
+    context.commit(&#39;removeToken&#39;) // 不仅仅删除了vuex中的 还删除了缓存中的
+    // 删除用户资料
+    context.commit(&#39;removeUserInfo&#39;) // 删除用户信息
+  }
+</code></pre>
+<p><strong>头部菜单调用action</strong>  <strong><code>src/layout/components/Navbar.vue</code></strong></p>
+<pre><code class="js">  async logout() {
+      await this.$store.dispatch(&#39;user/logout&#39;) // 这里不论写不写 await 登出方法都是同步的
+      this.$router.push(`/login`) // 跳到登录
+  }
+</code></pre>
+<p>**<code>注意</code>**我们这里也可以采用vuex中的模块化引入辅助函数</p>
+<pre><code class="js">import { mapGetters, createNamespacedHelpers  } from &#39;vuex&#39;
+const {  mapActions } = createNamespacedHelpers(&#39;user&#39;) // 这是的mapAction直接对应模块下的action辅助函数
+  methods: {
+    ...mapActions([&#39;lgout&#39;]),
+  }
+</code></pre>
+<p>以上代码，实际上直接对user模块下的action进行了引用，</p>
+<p><strong>提交代码</strong></p>
+<p>**<code>本节任务</code>**： 实现登出功能</p>
+<h2 id="Token失效的主动介入"><a href="#Token失效的主动介入" class="headerlink" title="Token失效的主动介入"></a>Token失效的主动介入</h2><p>**<code>目标</code>**： 处理当token失效时业务</p>
+<h3 id="主动介入token处理的业务逻辑"><a href="#主动介入token处理的业务逻辑" class="headerlink" title="主动介入token处理的业务逻辑"></a>主动介入token处理的业务逻辑</h3><blockquote>
+<p>开门的钥匙不是一直有效的，如果一直有效，会有安全风险，所以我们尝试在客户端进行一下token的时间检查</p>
+</blockquote>
+<p>具体业务图如下</p>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200716231205153-1696348761213-162.png" alt="image-20200716231205153"></p>
+<h3 id="流程图转化代码-1"><a href="#流程图转化代码-1" class="headerlink" title="流程图转化代码"></a>流程图转化代码</h3><p><strong>流程图转化代码</strong> <strong><code>src/utils/auth.js</code></strong></p>
+<pre><code class="js">const timeKey = &#39;hrsaas-timestamp-key&#39; // 设置一个独一无二的key
+
+// 获取时间戳
+export function getTimeStamp() {
+  return Cookies.get(timeKey)
+}
+// 设置时间戳
+export function setTimeStamp() {
+  Cookies.set(timeKey, Date.now())
+}
+
+
+
+</code></pre>
+<p><strong><code>src/utils/request.js</code></strong></p>
+<pre><code class="js">import axios from &#39;axios&#39;
+import store from &#39;@/store&#39;
+import router from &#39;@/router&#39;
+import { Message } from &#39;element-ui&#39;
+import { getTimeStamp } from &#39;@/utils/auth&#39;
+const TimeOut = 3600 // 定义超时时间
+
+const service = axios.create({
+// 当执行 npm run dev  =&gt; .evn.development =&gt; /api =&gt; 跨域代理
+  baseURL: process.env.VUE_APP_BASE_API, // npm  run dev  =&gt; /api npm run build =&gt;  /prod-api
+  timeout: 5000 // 设置超时时间
+})
+// 请求拦截器
+service.interceptors.request.use(config =&gt; {
+  // config 是请求的配置信息
+  // 注入token
+  if (store.getters.token) {
+    // 只有在有token的情况下 才有必要去检查时间戳是否超时
+    if (IsCheckTimeOut()) {
+      // 如果它为true表示 过期了
+      // token没用了 因为超时了
+      store.dispatch(&#39;user/logout&#39;) // 登出操作
+      // 跳转到登录页
+      router.push(&#39;/login&#39;)
+      return Promise.reject(new Error(&#39;token超时了&#39;))
+    }
+    config.headers[&#39;Authorization&#39;] = `Bearer ${store.getters.token}`
+  }
+  return config // 必须要返回的
+}, error =&gt; {
+  return Promise.reject(error)
+})
+// 响应拦截器
+service.interceptors.response.use(response =&gt; {
+  // axios默认加了一层data
+  const { success, message, data } = response.data
+  //   要根据success的成功与否决定下面的操作
+  if (success) {
+    return data
+  } else {
+    // 业务已经错误了 还能进then ? 不能 ！ 应该进catch
+    Message.error(message) // 提示错误消息
+    return Promise.reject(new Error(message))
+  }
+}, error =&gt; {
+  Message.error(error.message) // 提示错误信息
+  return Promise.reject(error) // 返回执行错误 让当前的执行链跳出成功 直接进入 catch
+})
+// 是否超时
+// 超时逻辑  (当前时间  - 缓存中的时间) 是否大于 时间差
+function IsCheckTimeOut() {
+  var currentTime = Date.now() // 当前时间戳
+  var timeStamp = getTimeStamp() // 缓存时间戳
+  return (currentTime - timeStamp) / 1000 &gt; TimeOut
+}
+export default service
+</code></pre>
+<p>**<code>本节注意</code>**：我们在调用登录接口的时候 一定是没有token的，所以token检查不会影响登录接口的调用</p>
+<blockquote>
+<p>同理，在登录的时候，如果登录成功，我们应该设置时间戳</p>
+</blockquote>
+<pre><code class="js">  // 定义login action  也需要参数 调用action时 传递过来的参数
+  // async 标记的函数其实就是一个异步函数 -&gt; 本质是还是 一个promise
+  async login(context, data) {
+    // 经过响应拦截器的处理之后 这里的result实际上就是 token
+    const result = await login(data) // 实际上就是一个promise  result就是执行的结果
+    // axios默认给数据加了一层data
+    // 表示登录接口调用成功 也就是意味着你的用户名和密码是正确的
+    // 现在有用户token
+    // actions 修改state 必须通过mutations
+    context.commit(&#39;setToken&#39;, result)
+    // 写入时间戳
+    setTimeStamp() // 将当前的最新时间写入缓存
+  }
+</code></pre>
+<p><strong>提交代码</strong></p>
+<blockquote>
+<p>有主动处理就有被动处理，也就是后端告诉我们超时了，我们被迫做出反应，如果后端接口没有做处理，主动介入就是一种简单的方式</p>
+</blockquote>
+<p>**<code>本节任务</code>**：完成token超时的主动介入</p>
+<h2 id="Token失效的被动处理"><a href="#Token失效的被动处理" class="headerlink" title="Token失效的被动处理"></a>Token失效的被动处理</h2><p>**<code>目标</code>**： 实现token失效的被动处理</p>
+<blockquote>
+<p>除了token的主动介入之外，我们还可以对token进行被动的处理，如图</p>
+</blockquote>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200818155842864-1696348761213-163.png" alt="image-20200818155842864"></p>
+<p>token超时的错误码是**<code>10002</code>**</p>
+<p><strong>代码实现</strong>  <strong><code>src/utils/request.js</code></strong></p>
+<pre><code class="js">error =&gt; {
+  // error 信息 里面 response的对象
+  if (error.response &amp;&amp; error.response.data &amp;&amp; error.response.data.code === 10002) {
+    // 当等于10002的时候 表示 后端告诉我token超时了
+    store.dispatch(&#39;user/logout&#39;) // 登出action 删除token
+    router.push(&#39;/login&#39;)
+  } else {
+    Message.error(error.message) // 提示错误信息
+  }
+  return Promise.reject(error)
+}
+</code></pre>
+<blockquote>
+<p>无论是主动介入还是被动处理，这些操作都是为了更好地处理token，减少错误异常的可能性</p>
+</blockquote>
+<p><strong><code>本节任务</code></strong>  Token失效的被动处理</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本章节我们一步步实现了如下的效果</p>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200716015113164.png" alt="image-20200716015113164"></p>
+<p>实际的业务走向</p>
+<p><img src="/./04_%E4%B8%BB%E9%A1%B5%E6%A8%A1%E5%9D%97/image-20200827152601712-1696348761213-164.png" alt="image-20200827152601712"></p>
+<p>实际上，我们的主页功能有一个重要的**<code>角色权限</code>**功能还没有完成，此功能等到我们完成基本业务之后再进行展开</p>
+<p>中台大型后端平台的深入是一个**<code>抽丝剥茧</code>**的过程，循序渐进的明白每一步的操作是非常关键的。</p>
