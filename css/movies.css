@@ -184,3 +184,34 @@
 .hexo-douban-picture a img {
   border-radius: 8px !important;
 }
+
+
+.mv-tabs {
+  display: flex;
+  cursor: pointer;
+}
+.mv-tab {
+  padding: 10px 20px;
+  margin-right: 10px;
+  background-color: #f1f1f1;
+  border: 1px solid #ccc;
+  border-radius: 4px 4px 0 0;
+  transition: background-color 0.3s;
+}
+.mv-tab:hover {
+  background-color: #ddd;
+}
+.mv-tab.active {
+  background-color: #fff;
+  border-bottom: 1px solid #fff;
+}
+.mv-tab-content {
+  display: none;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-top: none;
+  background-color: #f9f9f9;
+}
+.mv-tab-content.active {
+  display: block;
+}
