@@ -1,0 +1,241 @@
+.flag-container {
+  width: 80%;
+  margin: 0 auto;
+  padding-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.flag-card-main {
+  column-count: 5; /* 设置列数 */
+  column-gap: 20px; /* 列之间的间距 */
+  width: 100%;
+}
+
+@media (max-width: 768px) { /* 针对小屏幕的媒体查询 */
+  .flag-card-main {
+    column-count: 3; /* 小屏幕时设置为 3 列 */
+  }
+}
+
+.flag-card {
+  position: relative; /* 为了使用绝对定位 */
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column; /* 内容上下布局 */
+  align-items: center;
+  margin-bottom: 20px; /* 控制卡片之间的垂直间距 */
+  padding: 10px;
+  width: 100%;
+  max-width: 320px; /* 设置最大宽度 */
+  break-inside: avoid; /* 防止卡片被截断 */
+  overflow: hidden; /* 隐藏超出卡片的内容 */
+}
+
+.flag-card.completed {
+  background-color: #d4edda; /* 淡绿色背景 */
+  border: 1px solid #81d8d0; /* 边框颜色 */
+}
+
+.flag-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.flag-card:hover .flag-card-icon,
+.flag-card:hover .flag-card-body, 
+.flag-card:hover .flag-card-header,
+.flag-card:hover .flag-card-footer {
+  visibility: hidden; /* 隐藏卡片内容，但仍占据空间 */
+  opacity: 0; /* 完全透明 */
+  transition: opacity 0.3s ease; /* 过渡效果 */
+}
+
+.flag-card:hover::after {
+  content: attr(data-remark); /* 使用 data-remark 属性的值 */
+  position: absolute;
+  top: 0; /* 放置在卡片的顶部 */
+  left: 0; /* 对齐到左侧 */
+  width: 100%; /* 让备注宽度覆盖卡片 */
+  height: 100%; /* 让备注高度覆盖卡片 */
+  background-color: rgba(0, 0, 0, 0.8); /* 更深的半透明背景 */
+  color: #fff;
+  display: flex;
+  align-items: center; /* 垂直居中 */
+  justify-content: center; /* 水平居中 */
+  border-radius: 8px; /* 与卡片一致的圆角 */
+  z-index: 1; /* 确保在卡片上方 */
+  opacity: 0; /* 初始状态为透明 */
+  transition: opacity 0.3s ease; /* 过渡效果 */
+}
+
+.flag-card:hover::after {
+  opacity: 1; /* 悬浮时显示 */
+}
+
+.flag-card-icon {
+  font-size: 40px;
+  text-align: center;
+  margin-right: 15px;
+}
+
+.flag-card-header {
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.flag-card-body {
+  font-size: 12px;
+  color: #333;
+  text-indent: 2em; /* 2个字符宽度的缩进 */
+}
+
+.flag-card-footer {
+  /* display: flex; */
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  margin: 0 auto;
+  margin-top: 8px;
+}
+
+
+.flag-card-time {
+  font-size: 12px;
+  color: #666;
+  margin-top: 8px;
+}
+.flag-card-link {
+  position: relative; /* 确保可以使用 z-index */
+  z-index: 10; /* 提高层级 */
+  color: inherit; /* 继承父元素的颜色 */
+  width: 100%; /* 确保链接宽度覆盖整个卡片 */
+  height: 100%; /* 确保链接高度覆盖整个卡片 */
+}
+
+.flag-card:hover .flag-card-link {
+  color: inherit; /* 悬浮时不改变颜色 */
+}
+
+.flag-card-timeline {
+  display: flex;
+  align-items: center;
+}
+
+.flag-time {
+  display: flex;
+  align-items: center;
+  margin-right: 10px; /* 调整间距 */
+}
+
+.circle-dot {
+  width: 10px; /* 圆环小点的直径 */
+  height: 10px;
+  border-radius: 50%;
+  background-color: #000; /* 小点颜色 */
+  margin-right: 5px; /* 小点与时间文本之间的间距 */
+}
+
+.arrow-container {
+  flex-grow: 1; /* 让箭头和小车占据剩余空间 */
+  position: relative; /* 为了定位小车 */
+  margin: 0 10px; /* 调整间距 */
+}
+
+.arrow {
+  position: absolute;
+  top: 50%; /* 垂直居中 */
+  left: 0;
+  right: 0;
+  height: 1px; /* 箭头的高度 */
+  border-top: 1px dashed #000; /* 虚线箭头 */
+  transform: translateY(-50%); /* 使箭头垂直居中 */
+}
+
+.car-icon {
+  position: absolute; /* 绝对定位 */
+  top: -20px; /* 根据需要调整 */
+  left: 0; /* 从箭头的起始位置开始 */
+  font-size: 12px; /* 根据设计需求调整大小 */
+  color: #000; /* 颜色 */
+  animation: move-car 2s linear infinite; /* 添加移动动画 */
+}
+
+@keyframes move-car {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(500%); /* 调整移动的宽度 */
+  }
+}
+
+
+.implement-time {
+  display: flex;
+  align-items: center;
+  margin-left: 10px; /* 调整间距 */
+  margin-right: 0;
+}
+
+.triangle-icon {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent; /* 左边透明 */
+  border-right: 5px solid transparent; /* 右边透明 */
+  border-bottom: 10px solid #000; /* 底部颜色 */
+  margin-right: 5px; /* 图标与时间文本之间的间距 */
+}
+
+
+.seal {
+  width: 80px;
+  height: 80px;
+  border: solid 2px #B4B4B4;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+  position: absolute; /* 改为绝对定位 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+  top: 0px;
+  right: 0px;
+  opacity: 0.7; /* 整体透明度 */
+  backdrop-filter: blur(5px); /* 背景模糊效果 */
+}
+.seal-son {
+  width: 74px;
+  height: 74px;
+  border: solid 1px #B4B4B4;
+  border-radius: 50%; /* 确保内园为圆形 */
+  background-color: rgba(255, 255, 255, 0.5); /* 半透明背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.seal-text {
+  position: relative;
+  font-size: 18px;
+  font-weight: bold;
+  color: #B4B4B4;
+  transform: rotate(-30deg);
+  margin-bottom: -8px;
+  margin-left: -6px;
+}
+.seal-date {
+  position: relative;
+  font-size: 10px;
+  color: #B4B4B4;
+  transform: rotate(-30deg);
+  text-align: center;
+  line-height: 1.2;
+  margin-left: 20px;
+  margin-bottom: 5px;
+}

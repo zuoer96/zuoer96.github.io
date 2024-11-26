@@ -215,3 +215,16 @@
 .mv-tab-content.active {
   display: block;
 }
+
+
+.hexo-douban-status {
+  display: inline-block;
+  background-color: #f0f0f0; /* 浅灰色背景 */
+  color: #000; /* 黑色字体 */
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: 4px; /* 圆角 */
+  border: 1px solid #dcdcdc; /* 边框颜色 */
+  font-weight: 500; /* 字体粗细 */
+  margin-top: 10px;
+}
