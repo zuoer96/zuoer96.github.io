@@ -1,0 +1,526 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>【手牵手学习Midjourney】Midjourney基础教程(二)：基础概念 | 左耳</title><meta name="author" content="左耳"><meta name="copyright" content="左耳"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="知道了它的强大，人类会变得更加狂热和浮躁，某种程度上也是好事，但是我们更应该关注个人的心理健康。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【手牵手学习Midjourney】Midjourney基础教程(二)：基础概念">
+<meta property="og:url" content="https://nbchen.com/posts/ai-chatgpt-draw-mj-base-concept.html">
+<meta property="og:site_name" content="左耳">
+<meta property="og:description" content="知道了它的强大，人类会变得更加狂热和浮躁，某种程度上也是好事，但是我们更应该关注个人的心理健康。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbchen.com/img/cover/post_cover_2.png">
+<meta property="article:published_time" content="2024-12-09T11:18:08.000Z">
+<meta property="article:modified_time" content="2024-12-09T12:35:24.053Z">
+<meta property="article:author" content="左耳">
+<meta property="article:tag" content="chatgpt">
+<meta property="article:tag" content="openai">
+<meta property="article:tag" content="midjourney">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbchen.com/img/cover/post_cover_2.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://nbchen.com/posts/ai-chatgpt-draw-mj-base-concept.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lWO9QTcbfhCMrpHW2Iz8w1cT6iVDffApIJepQIhimJU"/><meta name="baidu-site-verification" content="17911f388d35a0ab926c0cfff1ca6ea7"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?17911f388d35a0ab926c0cfff1ca6ea7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-3FC1C6JTVL"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-3FC1C6JTVL')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-3FC1C6JTVL', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":100,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【手牵手学习Midjourney】Midjourney基础教程(二)：基础概念',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-12-09 20:35:24'
+}</script><link rel="stylesheet" href="/css/equipment.css"><link rel="stylesheet" href="/css/movies.css"><link rel="stylesheet" href="/css/webstack.css"><link rel="stylesheet" href="/css/flag.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/logo/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">275</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">248</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 影视</span></a></li><li><a class="site-page child" href="/books/"><i class="fa-fw fa-brands fa-readme"></i><span> 书籍</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover/post_cover_2.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">左耳</span></a><a class="nav-page-title" href="/"><span class="site-name">【手牵手学习Midjourney】Midjourney基础教程(二)：基础概念</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 影视</span></a></li><li><a class="site-page child" href="/books/"><i class="fa-fw fa-brands fa-readme"></i><span> 书籍</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">【手牵手学习Midjourney】Midjourney基础教程(二)：基础概念</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-12-09T11:18:08.000Z" title="发表于 2024-12-09 19:18:08">2024-12-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-12-09T12:35:24.053Z" title="更新于 2024-12-09 20:35:24">2024-12-09</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI/">AI</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">3.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>12分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="Midjourney基础概念"><a href="#Midjourney基础概念" class="headerlink" title="Midjourney基础概念"></a>Midjourney基础概念</h2><h3 id="是什么"><a href="#是什么" class="headerlink" title="是什么"></a>是什么</h3><blockquote>
+<p>文本到图像的AI，基于Discord搭建 &#x3D;&gt; 你输入文字，它生成图片</p>
+</blockquote>
+<h3 id="MJ和SD区别"><a href="#MJ和SD区别" class="headerlink" title="MJ和SD区别"></a>MJ和SD区别</h3><p>Midjourney：商业，主打模型开发、训练、良好的界面，用户体验</p>
+<p>Stable Diffusion: 一个开源的软件，只是一串模型代码，需要本地安装，用本机GPU渲染，上手麻烦，但是可定制化高，构图和<strong>姿势</strong>可控</p>
+<p>选哪个?</p>
+<ul>
+<li>如果你很忙、钱多、想要无需深入就可生成惊人图片 &#x3D;&gt; MJ</li>
+<li>如果你喜欢本机跑、免费、可调整参数更多的控制图片&#x3D;&gt;SD</li>
+</ul>
+<p>其他的文章：</p>
+<ul>
+<li>Stable Diffusion VS Midjourney：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/619216872">https://zhuanlan.zhihu.com/p/619216872</a></li>
+</ul>
+<p>咨询GPT，摄影学：姿态光影</p>
+<p>教程：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.uisdc.com/midjourney">https://www.uisdc.com/midjourney</a></li>
+<li>设计logo：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/vCNm8sZlIQ6jLyClGP6qsQ">https://mp.weixin.qq.com/s/vCNm8sZlIQ6jLyClGP6qsQ</a></li>
+<li>中文教程：<a target="_blank" rel="noopener" href="http://www.midjourney-zh.com/">http://www.midjourney-zh.com/</a></li>
+<li>玩王者？玩这个把：<a target="_blank" rel="noopener" href="https://articles.zsxq.com/id_7mcfo8k8tcqh.html">https://articles.zsxq.com/id_7mcfo8k8tcqh.html</a></li>
+<li>命令：<a target="_blank" rel="noopener" href="https://afvaywpgyr.feishu.cn/docx/GUVhdsCRRoL1kmx4sB5cJEJpngh">https://afvaywpgyr.feishu.cn/docx/GUVhdsCRRoL1kmx4sB5cJEJpngh</a></li>
+<li>创建一致的角色：<a target="_blank" rel="noopener" href="https://esouqpttmy.feishu.cn/docx/Gkv3dhtCmo2jcux7vYscepu3nLb">https://esouqpttmy.feishu.cn/docx/Gkv3dhtCmo2jcux7vYscepu3nLb</a></li>
+<li>Midjourney提示词工具：<a target="_blank" rel="noopener" href="https://aijiaolian.chat/midjourney">https://aijiaolian.chat/midjourney</a></li>
+</ul>
+<h3 id="注册"><a href="#注册" class="headerlink" title="注册"></a>注册</h3><blockquote>
+<p>前提：需要魔法，梯子打开，确定能够访问外网</p>
+</blockquote>
+<h4 id="注册并创建服务器"><a href="#注册并创建服务器" class="headerlink" title="注册并创建服务器"></a>注册并创建服务器</h4><p>1.注册服务器：打开Midjourney官网，右下角选择”Join the Beta”按钮，页面会跳转到”Discord”服务器</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512223357462.png" alt="image-20230512223357462"></p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512223800086.png" alt="image-20230512223800086"></p>
+<p><em>页面如果显示邀请无效无需理会，直接点击”继续使用 Discord”按钮即可</em></p>
+<p>2.注册<a target="_blank" rel="noopener" href="https://discord.com/download">Discord</a>: 一个游戏社区，有点上手门槛，但是别怕，它不是主角。跳转到登录页面，点击左下角的注册按钮，依次完成注册及验证</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512223605969.png" alt="image-20230512223605969"></p>
+<p>3.验证完成后会跳转到Discord首页，并让我们建立属于自己的Discord服务器；依次选择：亲自创建——仅供我和我的朋友使用——输入服务器名称——点击创建</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512223723525.png" alt="image-20230512223723525"></p>
+<p><em>如果跳过了创建，之后可以在侧边栏里点击加号进行个人服务器创建</em></p>
+<p>4.创建完个人服务器后，要到之前留的邮箱里进行验证；验证完成后会跳转到成功页面，点击”继续使用Discord”按钮即可</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512223745933.png" alt="image-20230512223745933"></p>
+<h4 id="下载客户端"><a href="#下载客户端" class="headerlink" title="下载客户端"></a>下载客户端</h4><p>1.进入 Discord 默认对话页面，点击左侧导航栏的下载按钮下载客户端</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512223917152.png" alt="image-20230512223917152"></p>
+<h4 id="链接MJ服务器"><a href="#链接MJ服务器" class="headerlink" title="链接MJ服务器"></a>链接MJ服务器</h4><p>1.打开软件进行登录，在默认对话页面，点击顶部的”寻找或开始新的对话”输入框，搜索”Midjourney Bot”</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512223959796.png" alt="image-20230512223959796"></p>
+<p>2.打开与Midjourney Bot的对话：点击顶部的名称，在弹窗里选择”添加至服务器”；</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512224124888.png" alt="image-20230512224124888"></p>
+<p>3.选择个人的服务器点击继续；</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512224151532.png" alt="image-20230512224151532"></p>
+<p>4.最后点击授权并验证，这样个人服务器就和Midjourney连接上了，之后可以输入指令进行创作</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512224215120.png" alt="image-20230512224215120"></p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512224222000.png" alt="image-20230512224222000"></p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512224233851.png" alt="image-20230512224233851"></p>
+<h4 id="创建房间和添加机器人"><a href="#创建房间和添加机器人" class="headerlink" title="创建房间和添加机器人"></a>创建房间和添加机器人</h4><p>1.先添加自己的房间</p>
+<p>2.将MJ服务器添加到自己的房间</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230817214102524.png" alt="image-20230817214102524"></p>
+<h3 id="作品查看-存放"><a href="#作品查看-存放" class="headerlink" title="作品查看&#x2F;存放"></a>作品查看&#x2F;存放</h3><p>点击 Midjourney 服务器，可以在房间里找到其他人的作品；</p>
+<p>自己创作的作品可以进入 Midjourney 官网，点击”Sign in”进入查看</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512234209033.png" alt="image-20230512234209033"></p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512234218713.png" alt="image-20230512234218713"></p>
+<h3 id="升级会员"><a href="#升级会员" class="headerlink" title="升级会员"></a>升级会员</h3><p>个人页面点击 Manage Sub 进入查看会员套餐，有按年和按月两种方式，不同价位有不同的套餐，购买最低档即可满足日常使用；需要信用卡支付。</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512234237117.png" alt="image-20230512234237117"></p>
+<p>开通会员后，默认为每月扣费；如果想要取消：</p>
+<p>① 可以在对话框中输入<code>/subscribe</code>回车；</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512234257221.png" alt="image-20230512234257221"></p>
+<p>② 在弹出的信息中点击“open subscription page”按钮，跳转到付款页面；</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512234309462.png" alt="image-20230512234309462"></p>
+<p>③ 选择“manager”</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230512234320942.png" alt="image-20230512234320942"></p>
+<p>④ 再选择“cancel plan”，点击确认即可。</p>
+<blockquote>
+<p>有点小贵，建议TB买,或者和其他小伙伴一起用</p>
+</blockquote>
+<h3 id="版本说明"><a href="#版本说明" class="headerlink" title="版本说明"></a>版本说明</h3><ul>
+<li>5.1</li>
+</ul>
+<p>Midjourney V5.1 模型是最新最先进的，于 2023 年 5 月 4 日发布。要使用此模型，请将参数添加<code>--v 5.1</code>到提示末尾，或使用<code>/settings</code>命令并选择<code>5️⃣ MJ Version 5.1</code></p>
+<p><strong>此模型具有更强的默认美感</strong>，使其更易于使用简单的文本提示。它还具有高连贯性，擅长准确解释自然语言提示，产生更少的不需要的伪影和边界，提高了图像清晰度，并支持高级功能，如重复模式<a target="_blank" rel="noopener" href="https://docs.midjourney.com/tile"><code>--tile</code></a></p>
+<p><code>--style</code>Midjourney 模型版本 5.1 可以使用参数进行微调，<code>--raw</code>以删除一些默认的 Midjourney 美学风格。</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230513090811554.png" alt="image-20230513090811554"></p>
+<ul>
+<li>5</li>
+</ul>
+<p>Midjourney V5 模型比默认的 5.1 模型产生更多的摄影世代。此模型生成的图像与提示非常匹配，<strong>但可能需要更长的提示才能达到您想要的美感。</strong></p>
+<p>要使用此模型，请将<code>--v 5</code>参数添加到提示末尾，或使用<code>/settings</code>命令并选择<code>5️⃣ MJ Version 5</code></p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230513090756053.png" alt="image-20230513090756053"></p>
+<ul>
+<li>4</li>
+</ul>
+<p>Midjourney V4 是 2022 年 11 月至 2023 年 5 月的默认模型。该模型具有全新的代码库和全新的 AI 架构，由 Midjourney 设计并在新的 Midjourney AI 超级集群上进行训练。与之前的模型相比，模型版本 4 对生物、地点和物体的了解有所增加。</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230513090745228.png" alt="image-20230513090745228"></p>
+<ul>
+<li>Niji 5</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://spellbrush.com/">Niji 模型是 Midjourney 和Spellbrush</a>之间的合作，经过调整可以制作动漫和插图风格，并具有更多的动漫、动漫风格和动漫美学知识。它在动态和动作镜头以及以角色为中心的构图方面表现出色。</p>
+<p>要使用此模型，请将<code>--niji 5</code>参数添加到提示末尾，或使用<code>/settings</code>命令并选择<code>🍏 Niji version 5</code></p>
+<p><a target="_blank" rel="noopener" href="https://docs.midjourney.com/docs/stylize"><code>--stylize</code>该模型对参数</a>敏感。尝试不同的风格化范围来微调您的图像。</p>
+<p>参数：</p>
+<p>Niji Model Version 5 也可以通过<code>--style</code>参数微调来实现独特的外观。尝试 <code>--style cute</code>、<code>--style scenic</code>或<code>--style expressive</code>。</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230513090719773.png" alt="image-20230513090719773"></p>
+<ul>
+<li>niji5 Vs Mj5.1</li>
+</ul>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230513091100402.png" alt="image-20230513091100402"></p>
+<h3 id="升级器-Upscalers"><a href="#升级器-Upscalers" class="headerlink" title="升级器 Upscalers"></a>升级器 Upscalers</h3><p>MJ先生成低分辨率小图，然后你可以选择MJ upscalers生成大图，并且添加更多的细节。</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230513092129574.png" alt="image-20230513092129574"></p>
+<p><code>*</code>是默认的，<code>**</code>是旧的资源密集升级器，fast模式可用</p>
+<blockquote>
+<p>最新的<a target="_blank" rel="noopener" href="https://docs.midjourney.com/models">Midjourney 模型版本 5</a>（和 Niji 5）可生成高分辨率的 1024 x1024 像素图像网格，而无需额外的步骤来放大每张图像。使用 Midjourney 模型版本 5 时，每个图像网格下方的按钮会将所选图像与初始图像网格分开。<code>U1</code> <code>U2</code> <code>U3</code> <code>U4</code></p>
+</blockquote>
+<ul>
+<li>默认升级器：在平滑或细化细节的同时增加了图像尺寸</li>
+</ul>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230513092429838.png" alt="image-20230513092429838"></p>
+<ul>
+<li>Light Upscaler，轻型升级器， 创建一个 1024px x 1024px 的图像并添加适量的细节和纹理。</li>
+</ul>
+<p>使用该<code>--uplight</code>参数更改升级按钮的行为以使用 Light Upscaler。<code>U1</code> <code>U2</code> <code>U3</code> <code>U4</code></p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230513092556930.png" alt="image-20230513092556930"></p>
+<ul>
+<li>Detail Upscaler，详细升级器，创建一个 1024px x 1024px 图像并向图像添加许多额外的精细细节。</li>
+</ul>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230513092645820.png" alt="image-20230513092645820"></p>
+<ul>
+<li>Beta Upscaler，Beta 升级器，创建了一个 2048px x 2048px 的图像，而没有添加许多额外的细节</li>
+</ul>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230513092714261.png" alt="image-20230513092714261"></p>
+<ul>
+<li>remaster 重置</li>
+</ul>
+<p>会使用 <code>--test</code> and <code>--creative</code>参数升级图像，要重新制作非常旧的作业，请使用<a target="_blank" rel="noopener" href="https://docs.midjourney.com/v1/docs/show-job"><code>/show</code>命令</a>在 Discord 中刷新该作业。</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230513093440238.png" alt="image-20230513093440238"></p>
+<h3 id="看别人的示例"><a href="#看别人的示例" class="headerlink" title="看别人的示例"></a>看别人的示例</h3><blockquote>
+<p>放一些别的做的图片找找感觉</p>
+</blockquote>
+<p>示例：好看 </p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510132049042.png" alt="image-20230510132049042"></p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510132105398.png" alt="image-20230510132105398"></p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510132231130.png" alt="image-20230510132231130"></p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510132225988.png" alt="image-20230510132225988"></p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510132222745.png" alt="image-20230510132222745"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510132724502.png" alt="image-20230510132724502"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230507141417831.png" alt="宋子龙"></p>
+<p>示例：青花瓷狐狸</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230507171516630.png" alt="颜"></p>
+<p>示例：国风插画</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230507175228037.png" alt="image-20230507175228037"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230507181816779.png" alt="Bruce孔"></p>
+<p>示例：大海女孩游泳</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230507185801308.png" alt="image-20230507185801308"></p>
+<p>示例：<code>rabbit mechanical - mj</code></p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230507212200745.png" alt="image-20230507212200745"></p>
+<p>示例：a cute girl from Ai</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230508143406644.png" alt="image-20230508143406644"></p>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a super kawaii girl with a beautiful face ，with various flowers on her head and flowers in her hands,wearing a skirt, looking at viewer,full body,pop mart ,IP,blind box ,isometric 3D,studio lighting,solid color background,c4d,blender,HD,8K --ar 3:4 --q 2 --v 5</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230509062533631.png" alt="image-20230509062533631"></p>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">THE CHERRY BLOSSOM TREE HOUSE :: beautiful ornate treehouse in a gigantic pink cherry blossom tree :: on a high blue grey and brown cliff with light snow and pink cherry blossom trees :: Roger Deakins and Moebius and Alphonse Much and Guweiz :: Intricate details, very realistic, cinematic lighting, volumetric lighting, photographic, --ar 9:20 --no blur bokeh defocus dof --s 4000</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510074134903.png" alt="image-20230510074134903"></p>
+<blockquote>
+<p>真好看，MD，这提词怎么写的</p>
+</blockquote>
+<p>示例：看看细致的阴阳鱼</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Yin and Yang Pisces,Yin is a bright blue water wave,Yang is a fiery rea fire,intertwined,3D,photorealistic style,very detailed,HD,portrait,cinematic lighting,sony a7 II,realistic,focal 1.8</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510074400689.png" alt="image-20230510074400689"></p>
+<p>示例：汉服美女</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">The photo features a stunningly beautiful Chinese girl stanging upright in a traditional Hanfu drees.The dress is intricately detailed with embroidery and other decorative elements,highlinghting the beauty of traditional Chinese attire. The girl&#x27;s long,straight black hair cascades down her sholders in a neat and orderly fashion,adding to her elegant appearance.Her facial features are soft and graceful,and her captivating smile exudes warmth and charm.Her gaze is resolute and powerful,radiating confidence and courage.The photo is incredibly detailed,down to the way she holds the long sword with her precise and flawless fingers,the intricate patterns on her skin,and the highly detailed iris and minimal glare in her eyes. The soft lighting and dark background create a stunning contrast that further highlights her features,while the sharp focus and perfect composition make for a truly realistic and detailed art piece.Overail,the photo showcases the beauty and elegance of traditional Chinese culture through the stunningly beauty girl and her Hanfu dress.</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510074611858.png" alt="image-20230510074611858"></p>
+<p>示例：生成王者荣耀</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">试着给我一个王者荣耀游戏中角色的属性值，并且翻译成英文</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510124142133.png" alt="image-20230510124142133"></p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510124206613.png" alt="image-20230510124206613"></p>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">一个女孩，刘海，五官精致，(头发高高扎起)，绿色头发，头顶两边各一个麻花辫，闭着嘴，大红色耳环，朋克风，长发飘逸，看着观众，化妆，肖像，褐色眼睛，红唇，简单背景，独奏，白色背景，漂亮的绿色校服，（闪亮的皮肤），(有光泽的皮肤)，（杰作：1.4），（最佳质量：1.4）完整头像，(半身像)(旁边留白多一点，构图完美)，大家可以翻译成英文</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510194927910.png" alt="image-20230510194927910"></p>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kopenhagen at night in style of van gogh,8k --v 5</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510201317476.png" alt="image-20230510201317476"></p>
+<p>示例：五彩斑斓的黑 皮克斯电影风格</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510210609092.png" alt="image-20230510210609092"></p>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我喜欢那个戴着护目镜和衬衫的3D动漫角色，风格类似于波普艺术风格的插画，使用了Vray追踪技术，拥有32000像素的超高清画质，独特的鼻子设计，精细的设计，采用了Lensbaby光学和Canon 7高清相机。</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510222059722.png" alt="image-20230510222059722"></p>
+<p>示例：古藤老树昏鸦，小桥流水人家</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510224919947.png" alt="image-20230510224919947"></p>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">骷髅那个是</span><br><span class="line">a cybernetic skeleton knight wielding a cyberpunk sword, cyberpunk, fantasy, unreal engine 5, RTX, ultradetailed, hyper realistic, 8k, epic, cinematic, hyperrealistic, very detailed一个控制骷髅骑士挥舞着赛博朋克剑，赛博朋克，幻想，虚幻引擎5，RTX，超详细，超现实，8k，史诗，电影，超现实，非常详细 </span><br><span class="line">mj的就输入英文部分就好</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510225801435.png" alt="image-20230510225801435"></p>
+<p>示例：风景</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">风景是</span><br><span class="line">this is a surreal complex cg rendering transparent, starry sky, moon, aurora, cg3d effect, cliff, purple waterfall, purple river, purple sequins embellishment, super wide angle, blue sky, super shocking reality impact complex details 8k, photoreal volume light, symmetry, 8k, highdefinition </span><br><span class="line">这是一个超现实的复杂cg渲染透明，星空，月亮，极光，cg3d效果，悬崖，紫色瀑布，紫色河流，紫色亮片点缀，超广角，蓝天，超震撼现实冲击复杂细节8k，照片级体光，对称，8k，高清</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510225830187.png" alt="image-20230510225830187"></p>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">An ancient Chinese beauty stands in the water, 关键关键词：posing in a dynamic pose, her gorgeous gauze skirt sticks to her skin, water drops slip off her pale skin, attractive beauty, flirty expression, gorgeous eyes, elegant face, by Yoshitaka Amano and Ross Tran, detailed, hyper realistic, hd, 8k, 3d, rubber texture, --ar 9:16 --niji 5 --v 5</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510225920099.png" alt="image-20230510225920099"></p>
+<p>示例：动漫悟空</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510234343260.png" alt="image-20230510234343260"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510235418225.png" alt="image-20230510235418225"></p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230510235404509.png" alt="image-20230510235404509"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511001014091.png" alt="image-20230511001014091"></p>
+<p>示例：放学回家的女孩</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">正向提示词：</span><br><span class="line">（full body：2），（tram：2）</span><br><span class="line">best quality, super detailed, masterpiece, illustration, (clear background), (detailed light), lighting, clear sky,</span><br><span class="line">outdoors, scenery, cloud, sky, day, sign, road, grass, vending machine, utility pole, road sign, power lines,（ railroad tracks：1.5）, building, , （cumulonimbus cloud：2）</span><br><span class="line">Dynamic, floating, luminous, wide-angle viewing angle,walking,</span><br><span class="line">(lam_style, colorful_hair),(person standing in the distance)，</span><br><span class="line">1girl, solo, skirt, school uniform, necktie, plaid skirt, bag, plaid, jacket, shoes, white socks, socks, brown hair, school bag, long hair, blazer, standing, blue skirt, head out of frame, loafers, black hair, black footwear, shirt, indoors, pleated skirt, long sleeves</span><br><span class="line">&lt;lora:koreanDollLikeness_v15:0.6&gt; pureerosface_v1 &lt;lora:cuteGirlMix4_v10:0.4&gt; &lt;lora:ghibliStyleConcept_v1:0.4&gt; &lt;lora:howlsMovingCastleInterior_v3:0.2&gt;</span><br><span class="line"></span><br><span class="line">负面提示词：</span><br><span class="line">paintings, sketches, (worst quality:2), (low quality:2), (normal quality:2), lowres, normal quality, ((monochrome)), ((grayscale)), skin spots, acnes, skin blemishes, age spot, (outdoor:1.6), manboobs, backlight,(ugly:1.331), (duplicate:1.331), (morbid:1.21), (mutilated:1.21), (tranny:1.331), mutated hands, (poorly drawn hands:1.331), blurry, (bad anatomy:1.21), (bad proportions:1.331), extra limbs, (disfigured:1.331), (more than 2 nipples:1.331), (missing arms:1.331), (extra legs:1.331), (fused fingers:1.61051), (too many fingers:1.61051), (unclear eyes:1.331), bad hands, missing fingers, extra digit, (futa:1.1), bad body, NG_DeepNegative_V1_75T, pubic hair, glans, refraction, diffusion, diffraction, nude, open mouth, teeth，(worst quality, low quality:1.4), bad anatomy, low quality lowres, low quality lowres low polygon 3D game, low quality lowres monochrome sketch rough graffiti, low quality lowres very ugly fat obesity scar, low quality lowres chibi, low quality lowres poorly drawn bad anatomy, low quality lowres graffiti unbecoming colorfully, low quality lowres incoherent background, low quality lowres long body, low quality lowres duplicate comparison,low quality lowres sketch retro_artstyle doujinshi, low quality lowres sketch, low quality lowres text font ui error missing digit blurry, low quality lowres JPEG artifacts signature hazy bleary, low quality lowres monochrome parody meme, low quality lowres historical picture, low quality lowres disfigured mutated malformed twisted human body, low quality lowres futanari tranny, low quality lowres tentacle skeleton</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511002250947.png" alt="image-20230511002250947"></p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511002307327.png" alt="image-20230511002307327"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511002957987.png" alt="image-20230511002957987"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511004409426.png" alt="image-20230511004409426"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511004831048.png" alt="image-20230511004831048"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511005745761.png" alt="image-20230511005745761"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511012549847.png" alt="image-20230511012549847"></p>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Amazing epic ancient Chinese theme in Chinese martial arts style, Rebecca Guay style, a 18 - year - old girl stands in front 58 of a huge White tiger, burning fire, martial 15 arts style, panorama, low angle, impactful picture, dynamic expressive force, cinematic shock, realistic lighting, vivid, vibrant, 8k, rich detail, artistically realistic, uhd  --ar 9:16</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511013747476.png" alt="image-20230511013747476"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511020814779.png" alt="image-20230511020814779"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511122935497.png" alt="image-20230511122935497"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511123055242.png" alt="image-20230511123055242"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511123124332.png" alt="image-20230511123124332"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511123959222.png" alt="image-20230511123959222"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511124232718.png" alt="image-20230511124232718"></p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511124208144.png" alt="image-20230511124208144"></p>
+<p>示例：</p>
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230511125640457.png" alt="image-20230511125640457"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a portrait of Skadi from arknights, holding red ocra pillow, standing in the ocean --ar 9:16 --niji 5 --style expressive - Image </span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20231007080227140.png" alt="image-20231007080227140"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">White and beautiful girl. --niji 5</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ai-chatgpt-draw-mj-base-concept/image-20230514165351557.png" alt="image-20230514165351557"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbchen.com">左耳</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbchen.com/posts/ai-chatgpt-draw-mj-base-concept.html">https://nbchen.com/posts/ai-chatgpt-draw-mj-base-concept.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbchen.com" target="_blank">左耳</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/chatgpt/">chatgpt</a><a class="post-meta__tags" href="/tags/openai/">openai</a><a class="post-meta__tags" href="/tags/midjourney/">midjourney</a></div><div class="post-share"><div class="social-share" data-image="/img/cover/post_cover_2.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赛博打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/site/wechat.png" target="_blank"><img class="post-qr-code-img" src="/img/site/wechat.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/site/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/site/alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><a class="prev-post pull-left" href="/posts/ai-chatgpt-draw-mj-prompt.html" title="【手牵手学习Midjourney】Midjourney基础教程(四)：提示参数"><img class="cover" src="/img/cover/post_cover_1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【手牵手学习Midjourney】Midjourney基础教程(四)：提示参数</div></div></a><a class="next-post pull-right" href="/posts/ai-chatgpt-base-can-do.html" title="【ChatGPT全攻略】ChatGPT能干嘛"><img class="cover" src="/img/cover/post_cover_2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【ChatGPT全攻略】ChatGPT能干嘛</div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a href="/posts/ai-chatgpt-draw-mj-command.html" title="【手牵手学习Midjourney】Midjourney基础教程(三)：帮助命令"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-09</div><div class="title">【手牵手学习Midjourney】Midjourney基础教程(三)：帮助命令</div></div></a><a href="/posts/ai-chatgpt-draw-mj-prompt.html" title="【手牵手学习Midjourney】Midjourney基础教程(四)：提示参数"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-09</div><div class="title">【手牵手学习Midjourney】Midjourney基础教程(四)：提示参数</div></div></a><a href="/posts/ai-chatgpt-draw-mj-base-opt.html" title="【手牵手学习Midjourney】Midjourney基础教程(六)：基础操作"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-09</div><div class="title">【手牵手学习Midjourney】Midjourney基础教程(六)：基础操作</div></div></a><a href="/posts/ai-chatgpt-draw-mj-find.html" title="【手牵手学习Midjourney】Midjourney基础教(八)：经验探索"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-09</div><div class="title">【手牵手学习Midjourney】Midjourney基础教(八)：经验探索</div></div></a><a href="/posts/ai-chatgpt-draw-mj-prompt-tips.html" title="【手牵手学习Midjourney】Midjourney基础教程(五)：提示技巧"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-09</div><div class="title">【手牵手学习Midjourney】Midjourney基础教程(五)：提示技巧</div></div></a><a href="/posts/ai-chatgpt-draw-mj-photo.html" title="【手牵手学习Midjourney】Midjourney基础教程(九)：摄影学"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-09</div><div class="title">【手牵手学习Midjourney】Midjourney基础教程(九)：摄影学</div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info is-center"><div class="avatar-img"><img src="/img/logo/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">左耳</div><div class="author-info-description">一夜鱼龙舞</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">275</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">248</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/zuoer96"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/zuoer96" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:1745233303@gmail.com" target="_blank" title="QQ邮箱"><i class="fas fa-envelope" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">我想尽可能的记录下我生命中的瞬间，好的，或是坏的。</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Midjourney%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="toc-number">1.</span> <span class="toc-text">Midjourney基础概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.1.</span> <span class="toc-text">是什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MJ%E5%92%8CSD%E5%8C%BA%E5%88%AB"><span class="toc-number">1.2.</span> <span class="toc-text">MJ和SD区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C"><span class="toc-number">1.3.</span> <span class="toc-text">注册</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C%E5%B9%B6%E5%88%9B%E5%BB%BA%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.3.1.</span> <span class="toc-text">注册并创建服务器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BD%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.3.2.</span> <span class="toc-text">下载客户端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%93%BE%E6%8E%A5MJ%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.3.3.</span> <span class="toc-text">链接MJ服务器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E6%88%BF%E9%97%B4%E5%92%8C%E6%B7%BB%E5%8A%A0%E6%9C%BA%E5%99%A8%E4%BA%BA"><span class="toc-number">1.3.4.</span> <span class="toc-text">创建房间和添加机器人</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%9C%E5%93%81%E6%9F%A5%E7%9C%8B-%E5%AD%98%E6%94%BE"><span class="toc-number">1.4.</span> <span class="toc-text">作品查看&#x2F;存放</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%87%E7%BA%A7%E4%BC%9A%E5%91%98"><span class="toc-number">1.5.</span> <span class="toc-text">升级会员</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E"><span class="toc-number">1.6.</span> <span class="toc-text">版本说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%87%E7%BA%A7%E5%99%A8-Upscalers"><span class="toc-number">1.7.</span> <span class="toc-text">升级器 Upscalers</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9C%8B%E5%88%AB%E4%BA%BA%E7%9A%84%E7%A4%BA%E4%BE%8B"><span class="toc-number">1.8.</span> <span class="toc-text">看别人的示例</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/devops-container-docker-desktop.html" title="【devops系列】一文了解Docker Desktop"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【devops系列】一文了解Docker Desktop"/></a><div class="content"><a class="title" href="/posts/devops-container-docker-desktop.html" title="【devops系列】一文了解Docker Desktop">【devops系列】一文了解Docker Desktop</a><time datetime="2025-01-02T11:34:15.000Z" title="发表于 2025-01-02 19:34:15">2025-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-qs.html" title="【项目系列】雀思管理项目"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】雀思管理项目"/></a><div class="content"><a class="title" href="/posts/project-qs.html" title="【项目系列】雀思管理项目">【项目系列】雀思管理项目</a><time datetime="2024-12-27T06:03:42.000Z" title="发表于 2024-12-27 14:03:42">2024-12-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-rydkd.html" title="【项目系列】帝可得后台管理项目"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】帝可得后台管理项目"/></a><div class="content"><a class="title" href="/posts/project-rydkd.html" title="【项目系列】帝可得后台管理项目">【项目系列】帝可得后台管理项目</a><time datetime="2024-12-25T09:32:23.000Z" title="发表于 2024-12-25 17:32:23">2024-12-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-airy.html" title="【项目系列】AI若依项目"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】AI若依项目"/></a><div class="content"><a class="title" href="/posts/project-airy.html" title="【项目系列】AI若依项目">【项目系列】AI若依项目</a><time datetime="2024-12-25T09:17:33.000Z" title="发表于 2024-12-25 17:17:33">2024-12-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/hexo-async.html" title="用 Hexo 主题 Async 搭建一个精致小巧的博客"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="用 Hexo 主题 Async 搭建一个精致小巧的博客"/></a><div class="content"><a class="title" href="/posts/hexo-async.html" title="用 Hexo 主题 Async 搭建一个精致小巧的博客">用 Hexo 主题 Async 搭建一个精致小巧的博客</a><time datetime="2024-12-13T12:46:19.352Z" title="发表于 2024-12-13 20:46:19">2024-12-13</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By 左耳</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/#/Integrated/index"><span>备案号：闽ICP备2022007849号-1</span></a> <a target="_blank" rel="noopener" href="https://beian.mps.gov.cn/#/query/webSearch"><img class="icp-icon" src="/img/site/icp.png"><span>闽ICP备2022007849号</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const initGitalk = () => {
+    const gitalk = new Gitalk(Object.assign({
+      clientID: 'f5adbf6afe0a4b1a5259',
+      clientSecret: '2aa273b1981e0841b91db860a815d252d7fce5b2',
+      repo: 'zuoer96.github.io',
+      owner: 'zuoer96',
+      admin: ['zuoer96'],
+      id: 'a858d5ba1d6a24e2982cd2987c32950a',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  const loadGitalk = async() => {
+    if (typeof Gitalk === 'function') initGitalk()
+    else {
+      await btf.getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+      await btf.getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js')
+      initGitalk()
+    }
+  }
+  
+  const commentCount = n => {
+    const isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+    if (isCommentCount) {
+      isCommentCount.textContent= n
+    }
+  }
+
+  if ('Gitalk' === 'Gitalk' || !false) {
+    if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+    else loadGitalk()
+  } else {
+    window.loadOtherComment = loadGitalk
+  }
+})()</script></div><script src="/js/webstack.js"></script><script src="/js/echarts.min.js"></script><script src="/js/common.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: true,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><script src="/js/markmap.js"></script></body></html>

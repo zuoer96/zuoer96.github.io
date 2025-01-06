@@ -1,0 +1,404 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>【手牵手学习Stable Diffusion】SD基础教程(二)：安装 | 左耳</title><meta name="author" content="左耳"><meta name="copyright" content="左耳"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="知道了它的强大，人类会变得更加狂热和浮躁，某种程度上也是好事，但是我们更应该关注个人的心理健康。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【手牵手学习Stable Diffusion】SD基础教程(二)：安装">
+<meta property="og:url" content="https://nbchen.com/posts/ai-chatgpt-draw-sd-base-install.html">
+<meta property="og:site_name" content="左耳">
+<meta property="og:description" content="知道了它的强大，人类会变得更加狂热和浮躁，某种程度上也是好事，但是我们更应该关注个人的心理健康。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbchen.com/img/cover/post_cover_2.png">
+<meta property="article:published_time" content="2024-12-13T07:22:30.000Z">
+<meta property="article:modified_time" content="2024-12-13T07:22:31.630Z">
+<meta property="article:author" content="左耳">
+<meta property="article:tag" content="chatgpt">
+<meta property="article:tag" content="openai">
+<meta property="article:tag" content="stable diffusion">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbchen.com/img/cover/post_cover_2.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://nbchen.com/posts/ai-chatgpt-draw-sd-base-install.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lWO9QTcbfhCMrpHW2Iz8w1cT6iVDffApIJepQIhimJU"/><meta name="baidu-site-verification" content="17911f388d35a0ab926c0cfff1ca6ea7"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?17911f388d35a0ab926c0cfff1ca6ea7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-3FC1C6JTVL"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-3FC1C6JTVL')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-3FC1C6JTVL', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":100,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【手牵手学习Stable Diffusion】SD基础教程(二)：安装',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-12-13 15:22:31'
+}</script><link rel="stylesheet" href="/css/equipment.css"><link rel="stylesheet" href="/css/movies.css"><link rel="stylesheet" href="/css/webstack.css"><link rel="stylesheet" href="/css/flag.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/logo/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">275</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">248</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 影视</span></a></li><li><a class="site-page child" href="/books/"><i class="fa-fw fa-brands fa-readme"></i><span> 书籍</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover/post_cover_2.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">左耳</span></a><a class="nav-page-title" href="/"><span class="site-name">【手牵手学习Stable Diffusion】SD基础教程(二)：安装</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 检索</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/charts/"><i class="fa-fw fa fa-area-chart"></i><span> 统计</span></a></li><li><a class="site-page child" href="/markmap/"><i class="fa-fw fa-solid fa-route"></i><span> 链路</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-star"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-film"></i><span> 影视</span></a></li><li><a class="site-page child" href="/books/"><i class="fa-fw fa-brands fa-readme"></i><span> 书籍</span></a></li><li><a class="site-page child" href="/equipment/"><i class="fa-fw fas fa-cube"></i><span> 好物</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-leaf"></i><span> 瞬间</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-bullhorn"></i><span> 说说</span></a></li><li><a class="site-page child" href="/talk2me/"><i class="fa-fw fas fa-comment-dots"></i><span> 留言</span></a></li><li><a class="site-page child" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></li><li><a class="site-page child" href="/flag/"><i class="fa-fw fa fa-flag"></i><span> Flag</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-paper-plane"></i><span> 网站</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/webstack/"><i class="fa-fw fa fa-share-alt"></i><span> 导航</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://www.foreverblog.cn/go.html"><i class="fa-fw fa-brands fa-superpowers"></i><span> 十年之约</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travellings.now.sh/"><i class="fa-fw fa fa-subway"></i><span> 开往友链</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://zhblogs.ohyee.cc/go"><i class="fa-fw fa-solid fa-b"></i><span> 中文博客</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://storeweb.cn/s/1818"><i class="fa-fw fa-solid fa-store"></i><span> 个站商店</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://travel.moe/go.html"><i class="fa-fw fa-solid fa-earth-americas"></i><span> 异次元之旅</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">【手牵手学习Stable Diffusion】SD基础教程(二)：安装</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-12-13T07:22:30.000Z" title="发表于 2024-12-13 15:22:30">2024-12-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-12-13T07:22:31.630Z" title="更新于 2024-12-13 15:22:31">2024-12-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI/">AI</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">1.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>4分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="SD安装"><a href="#SD安装" class="headerlink" title="SD安装"></a>SD安装</h2><h3 id="配置要求"><a href="#配置要求" class="headerlink" title="配置要求"></a>配置要求</h3><blockquote>
+<p>只要是吃显卡</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>最低配备</th>
+<th>建议配备</th>
+<th>我的配置</th>
+<th>注解</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>显卡(GPU)</td>
+<td>GTX1050Ti</td>
+<td>RTX3060Ti</td>
+<td>RTX3060</td>
+<td>支持的显卡芯片有Nvidia&#x2F;AMD&#x2F;Intel Arc&#x2F;Apple M。显卡需求看的是显存(VRAM)大小，最低要4GB才不会内存不足。</td>
+</tr>
+<tr>
+<td>内存(RAM)</td>
+<td>8GB</td>
+<td>16GB</td>
+<td>64G</td>
+<td>您可以激活分页档或挂载SWAP增加系统内存。</td>
+</tr>
+<tr>
+<td>显存(VRAM)</td>
+<td>4G</td>
+<td>8G</td>
+<td>6G</td>
+<td></td>
+</tr>
+<tr>
+<td>磁盘空间</td>
+<td>20GB，最好是SSD</td>
+<td></td>
+<td>2T</td>
+<td></td>
+</tr>
+<tr>
+<td>处理器(CPU)</td>
+<td>x86架构的Intel或AMD处理器皆可。若为Mac电脑建议使用搭载M系列芯片的机型</td>
+<td></td>
+<td>Intel(R) core(TM) I7</td>
+<td></td>
+</tr>
+<tr>
+<td>网络连接</td>
+<td>可以正常连接到Github和Youtube的网络</td>
+<td></td>
+<td><strong>不可描述的网络</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>操作系统</td>
+<td>windows&#x2F;Linux&#x2F;macOS</td>
+<td></td>
+<td>windows 10 64位 家庭版</td>
+<td>Windows 7不行,mac建议使用搭载Apple Silicon M芯片 (M1、M2)</td>
+</tr>
+</tbody></table>
+<ul>
+<li>显卡(VRAM)在4GB以下的会很容易遇到内存不足的问题，并且生图速度很慢。尽管可以 <a target="_blank" rel="noopener" href="https://ivonblog.com/posts/stable-diffusion-running-on-cpu/">用CPU跑Stable Diffusion WebUI</a>，但是速度会非常慢。一张显卡30秒就能算好的图，CPU要算10分钟。<strong>因此用独立显卡跑Stable Diffsuion仍是比较好的选择。</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vram 对应出图时间</span><br><span class="line">4g 勉强能跑，出图时间很长</span><br><span class="line">6g 20-50s </span><br><span class="line">8g 5-20s</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>硬件不够力的话，用云端服务跑也是可以。</li>
+</ul>
+<h3 id="环境要求"><a href="#环境要求" class="headerlink" title="环境要求"></a>环境要求</h3><h4 id="Git环境"><a href="#Git环境" class="headerlink" title="Git环境"></a>Git环境</h4><p>克隆代码用的</p>
+<h4 id="Python-环境"><a href="#Python-环境" class="headerlink" title="Python 环境"></a>Python 环境</h4><p><code>stable-diffusion-webui</code> 主要是使用 Python 开发的，所以运行这个工程，需要安装一下 Python 环境并配置好环境变量，通过以下命令查看 Python 的版本号，验证环境是否正常：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python --version</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：官方推荐安装 <code>Python 3.10.6</code> 版本</p>
+</blockquote>
+<p>另外，建议使用 <code>Anaconda</code> 管理多个 Python 环境，详见</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-NVidia-GPUs#alternative-installation-on-windows-using-conda">官方的 conda 环境安装说明</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/ligous/article/details/124209700">anaconda 常用命令</a></li>
+</ul>
+<h3 id="本地部署SD"><a href="#本地部署SD" class="headerlink" title="本地部署SD"></a>本地部署SD</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/CompVis/stable-diffusion">stable-diffussion</a>：官方github项目，不适合新手直接使用</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/AUTOMATIC1111/stable-diffusion-webui">stable-diffussion-webui</a>：基于 <code>stable-diffusion</code> 封装的 <code>webui</code> 热门开源项目，通过界面交互使用 <code>stable-diffusion</code>，极大的降低了使用门槛</li>
+<li>其他比较火的 <code>webui</code> 项目：<a target="_blank" rel="noopener" href="https://github.com/Sygil-Dev/sygil-webui">sygil-webui</a></li>
+</ul>
+<h4 id="克隆项目"><a href="#克隆项目" class="headerlink" title="克隆项目"></a>克隆项目</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git</span><br><span class="line">// 项目更新频率块，及时 git pull 拉取最新代码</span><br></pre></td></tr></table></figure>
+
+<h4 id="CUDA-环境"><a href="#CUDA-环境" class="headerlink" title="CUDA 环境"></a>CUDA 环境</h4><p>默认 <code>stable-diffusion-webui</code> 运行使用的是 GPU 算力，也就是说需要用到 Nvidia 显卡（配置越高，绘图越快）。这里我们需要安装 CUDA 驱动，先确定一下电脑能安装的 CUDA 版本，桌面右下角-&gt;右键 NVIDIA 设置图标-&gt;NVIDIA 控制面板：</p>
+<p><img src="/posts/ai-chatgpt-draw-sd-base-install/image-20231007080130824.png" alt="image-20231007080130824"></p>
+<p>可以看到我的电脑的显示的是 <code>NVIDIA CUDA 11.6.134 driver</code>，所以我的电脑要安装的 CUDA 版本不能超过 11.6。</p>
+<blockquote>
+<p>注意：高版本显卡是可以安装低版本的 CUDA 驱动的，比如我也可以安装经典的 10.2 版本，但是安装 11.6 版本可以获得更高的 GPU 运行效率，所以一般来说推荐安装显卡支持的最高 CUDA 版本。</p>
+</blockquote>
+<p>在下面的网址中找到对应的 CUDA 版本进行安装：</p>
+<ul>
+<li>CUDA 官方归档：<a target="_blank" rel="noopener" href="https://developer.nvidia.com/cuda-toolkit-archive">https://developer.nvidia.com/cuda-toolkit-archive</a></li>
+</ul>
+<p><img src="/posts/ai-chatgpt-draw-sd-base-install/image-20231007080143478.png" alt="image-20231007080143478"></p>
+<p>直接选择 “精简” 安装就可以了，安装完成之后，可以使用如下命令查看 CUDA 版本，来验证 CUDA 是否安装成功：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvcc --version</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/ai-chatgpt-draw-sd-base-install/image-20231007080158126.png" alt="image-20231007080158126"></p>
+<blockquote>
+<p>注：如果你没有 Nvidia 显卡，也可以通过给 <code>stable-diffusion-webui</code> 指定运行参数 <code>--use-cpu sd</code>，让其使用 CPU 算力运行，但是非常不建议你这么做，CPU 算力跟 GPU 算力相比简直天差地别，可能 GPU 只需要 10 秒就能绘制完成，而 CPU 却要 10 分钟，这不是开玩笑的。另外，如果你的显卡内存不多，建议 4G 的显卡加上 <code>--medvram</code> 启动参数，2G 的显卡加上 <code>--lowvram</code> 启动参数。怎么配置启动参数我们后面说。</p>
+</blockquote>
+<h4 id="启动项目"><a href="#启动项目" class="headerlink" title="启动项目"></a>启动项目</h4><p>在安装配置好运行环境之后，直接运行工程下的 <code>webui-user.bat</code> 文件即可（如果是类 Unix 系统，则运行 <code>webui-user.sh</code>）。</p>
+<p>首次启动会自动下载一些 Python 依赖库（具体哪些库请看工程下的 <code>requirements.txt</code>） ，以及项目需要用到的配置和模型文件（比如：<code>v1-5-pruned-emaonly.safetensors</code>，将近 <a target="_blank" rel="noopener" href="https://huggingface.co/runwayml/stable-diffusion-v1-5/blob/main/v1-5-pruned-emaonly.safetensors">4 个 G</a>~），初始化一次之后，下次启动就快了。</p>
+<p><img src="/posts/ai-chatgpt-draw-sd-base-install/image-20230810093838407.png" alt="image-20230810093838407"></p>
+<p>看到这个提示就说明成功运行起来了，打开网址就可以看到程序的运行界面了：</p>
+<p><img src="/posts/ai-chatgpt-draw-sd-base-install/image-20231007080110417.png" alt="image-20231007080110417"></p>
+<blockquote>
+<p>温馨提示：该项目是英文页面，可以使用浏览器的翻译功能转成中文来使用~</p>
+</blockquote>
+<h4 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h4><ul>
+<li>启动报错</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">No module &#x27;xformers&#x27;. Proceeding without it</span><br></pre></td></tr></table></figure>
+
+<p>解决：webui-user.bat 文件中添加 <code>set COMMANDLINE_ARGS= --xformers</code></p>
+<ul>
+<li>右上角一直在转</li>
+</ul>
+<p>一般是网络问题</p>
+<ul>
+<li>webui-user.bat会在根目录生成tmp和venv文件夹，如果中途报错，删除，重新生成</li>
+</ul>
+<h3 id="一键安装版SD"><a href="#一键安装版SD" class="headerlink" title="一键安装版SD"></a>一键安装版SD</h3><p>秋叶大佬的整合包，直接解压就能用。界面比默认的SD webUI好看些，功能也多些。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">解压后，sd-webui启动器/启动器运行依赖-dotnet-6.0.11.exe(就是按照一个驱动)</span><br><span class="line">然后将 sd-webui-aki-v4/A启动器.exe发送到桌面，可以开始玩耍了。</span><br><span class="line">双击启动器（第一次要选择显存什么的，有修复就点修复）</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id><a href="#" class="headerlink" title></a></h2></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbchen.com">左耳</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbchen.com/posts/ai-chatgpt-draw-sd-base-install.html">https://nbchen.com/posts/ai-chatgpt-draw-sd-base-install.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbchen.com" target="_blank">左耳</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/chatgpt/">chatgpt</a><a class="post-meta__tags" href="/tags/openai/">openai</a><a class="post-meta__tags" href="/tags/stable-diffusion/">stable diffusion</a></div><div class="post-share"><div class="social-share" data-image="/img/cover/post_cover_2.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赛博打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/site/wechat.png" target="_blank"><img class="post-qr-code-img" src="/img/site/wechat.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/site/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/site/alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><a class="prev-post pull-left" href="/posts/ai-chatgpt-draw-sd-base-webui.html" title="【手牵手学习Stable Diffusion】SD基础教程(三)：web ui项目"><img class="cover" src="/img/cover/post_cover_2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【手牵手学习Stable Diffusion】SD基础教程(三)：web ui项目</div></div></a><a class="next-post pull-right" href="/posts/ai-chatgpt-draw-sd-base-concept.html" title="【手牵手学习Stable Diffusion】SD基础教程(一)：简介"><img class="cover" src="/img/cover/post_cover_1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【手牵手学习Stable Diffusion】SD基础教程(一)：简介</div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a href="/posts/ai-chatgpt-draw-sd-base-concept.html" title="【手牵手学习Stable Diffusion】SD基础教程(一)：简介"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-13</div><div class="title">【手牵手学习Stable Diffusion】SD基础教程(一)：简介</div></div></a><a href="/posts/ai-chatgpt-draw-sd-base-demo.html" title="【手牵手学习Stable Diffusion】SD基础教程(四)：练习"><img class="cover" src="/img/cover/post_cover_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-13</div><div class="title">【手牵手学习Stable Diffusion】SD基础教程(四)：练习</div></div></a><a href="/posts/ai-chatgpt-draw-sd-base-high.html" title="【手牵手学习Stable Diffusion】SD基础教程(五)：进阶"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-13</div><div class="title">【手牵手学习Stable Diffusion】SD基础教程(五)：进阶</div></div></a><a href="/posts/ai-chatgpt-draw-sd-base-webui.html" title="【手牵手学习Stable Diffusion】SD基础教程(三)：web ui项目"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-13</div><div class="title">【手牵手学习Stable Diffusion】SD基础教程(三)：web ui项目</div></div></a><a href="/posts/ai-chatgpt-base-nature.html" title="【ChatGPT全攻略】ChatGPT的本质"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-30</div><div class="title">【ChatGPT全攻略】ChatGPT的本质</div></div></a><a href="/posts/ai-chatgpt-base-interesting.html" title="【ChatGPT全攻略】ChatGPT的一些趣闻"><img class="cover" src="/img/cover/post_cover_2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-30</div><div class="title">【ChatGPT全攻略】ChatGPT的一些趣闻</div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info is-center"><div class="avatar-img"><img src="/img/logo/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">左耳</div><div class="author-info-description">一夜鱼龙舞</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">275</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">248</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/zuoer96"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/zuoer96" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:1745233303@gmail.com" target="_blank" title="QQ邮箱"><i class="fas fa-envelope" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">我想尽可能的记录下我生命中的瞬间，好的，或是坏的。</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#SD%E5%AE%89%E8%A3%85"><span class="toc-number">1.</span> <span class="toc-text">SD安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E8%A6%81%E6%B1%82"><span class="toc-number">1.1.</span> <span class="toc-text">配置要求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E8%A6%81%E6%B1%82"><span class="toc-number">1.2.</span> <span class="toc-text">环境要求</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Git%E7%8E%AF%E5%A2%83"><span class="toc-number">1.2.1.</span> <span class="toc-text">Git环境</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Python-%E7%8E%AF%E5%A2%83"><span class="toc-number">1.2.2.</span> <span class="toc-text">Python 环境</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2SD"><span class="toc-number">1.3.</span> <span class="toc-text">本地部署SD</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%8B%E9%9A%86%E9%A1%B9%E7%9B%AE"><span class="toc-number">1.3.1.</span> <span class="toc-text">克隆项目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CUDA-%E7%8E%AF%E5%A2%83"><span class="toc-number">1.3.2.</span> <span class="toc-text">CUDA 环境</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E9%A1%B9%E7%9B%AE"><span class="toc-number">1.3.3.</span> <span class="toc-text">启动项目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="toc-number">1.3.4.</span> <span class="toc-text">常见问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E9%94%AE%E5%AE%89%E8%A3%85%E7%89%88SD"><span class="toc-number">1.4.</span> <span class="toc-text">一键安装版SD</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text"></span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/devops-container-docker-desktop.html" title="【devops系列】一文了解Docker Desktop"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【devops系列】一文了解Docker Desktop"/></a><div class="content"><a class="title" href="/posts/devops-container-docker-desktop.html" title="【devops系列】一文了解Docker Desktop">【devops系列】一文了解Docker Desktop</a><time datetime="2025-01-02T11:34:15.000Z" title="发表于 2025-01-02 19:34:15">2025-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-qs.html" title="【项目系列】雀思管理项目"><img src="/img/cover/post_cover_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】雀思管理项目"/></a><div class="content"><a class="title" href="/posts/project-qs.html" title="【项目系列】雀思管理项目">【项目系列】雀思管理项目</a><time datetime="2024-12-27T06:03:42.000Z" title="发表于 2024-12-27 14:03:42">2024-12-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-rydkd.html" title="【项目系列】帝可得后台管理项目"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】帝可得后台管理项目"/></a><div class="content"><a class="title" href="/posts/project-rydkd.html" title="【项目系列】帝可得后台管理项目">【项目系列】帝可得后台管理项目</a><time datetime="2024-12-25T09:32:23.000Z" title="发表于 2024-12-25 17:32:23">2024-12-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/project-airy.html" title="【项目系列】AI若依项目"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【项目系列】AI若依项目"/></a><div class="content"><a class="title" href="/posts/project-airy.html" title="【项目系列】AI若依项目">【项目系列】AI若依项目</a><time datetime="2024-12-25T09:17:33.000Z" title="发表于 2024-12-25 17:17:33">2024-12-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/hexo-async.html" title="用 Hexo 主题 Async 搭建一个精致小巧的博客"><img src="/img/cover/post_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="用 Hexo 主题 Async 搭建一个精致小巧的博客"/></a><div class="content"><a class="title" href="/posts/hexo-async.html" title="用 Hexo 主题 Async 搭建一个精致小巧的博客">用 Hexo 主题 Async 搭建一个精致小巧的博客</a><time datetime="2024-12-13T12:46:19.352Z" title="发表于 2024-12-13 20:46:19">2024-12-13</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By 左耳</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/#/Integrated/index"><span>备案号：闽ICP备2022007849号-1</span></a> <a target="_blank" rel="noopener" href="https://beian.mps.gov.cn/#/query/webSearch"><img class="icp-icon" src="/img/site/icp.png"><span>闽ICP备2022007849号</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const initGitalk = () => {
+    const gitalk = new Gitalk(Object.assign({
+      clientID: 'f5adbf6afe0a4b1a5259',
+      clientSecret: '2aa273b1981e0841b91db860a815d252d7fce5b2',
+      repo: 'zuoer96.github.io',
+      owner: 'zuoer96',
+      admin: ['zuoer96'],
+      id: 'f9f9dd221a51f326a394b995ed1997a6',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  const loadGitalk = async() => {
+    if (typeof Gitalk === 'function') initGitalk()
+    else {
+      await btf.getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+      await btf.getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js')
+      initGitalk()
+    }
+  }
+  
+  const commentCount = n => {
+    const isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+    if (isCommentCount) {
+      isCommentCount.textContent= n
+    }
+  }
+
+  if ('Gitalk' === 'Gitalk' || !false) {
+    if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+    else loadGitalk()
+  } else {
+    window.loadOtherComment = loadGitalk
+  }
+})()</script></div><script src="/js/webstack.js"></script><script src="/js/echarts.min.js"></script><script src="/js/common.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: true,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><script src="/js/markmap.js"></script></body></html>
