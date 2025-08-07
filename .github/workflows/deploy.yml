@@ -1,0 +1,34 @@
+name: Hugo Build & Deploy - Private -> Public
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: 'latest'
+          extended: true
+
+      - name: Build Site
+        run: hugo --minify
+
+      - name: Deploy to Pages Repo
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          ssh-key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          repository-name: zuoer96/zuoer96.github.io
+          branch: main
+          folder: public
+          single-commit: true
+          commit-message: "Deploy from source"
