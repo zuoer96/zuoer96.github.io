@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Hugo NexT</title><link>https://zuoer96.github.io/</link><description>Recent content on Hugo NexT</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Wed, 06 Aug 2025 17:28:49 +0800</lastBuildDate><atom:link href="https://zuoer96.github.io/rss.xml" rel="self" type="application/rss+xml"/><item><title>Hello World</title><link>https://zuoer96.github.io/posts/hello-world/</link><pubDate>Wed, 06 Aug 2025 17:28:49 +0800</pubDate><guid>https://zuoer96.github.io/posts/hello-world/</guid><description>&lt;h1 id="博客搭建">博客搭建
+&lt;a class="header-anchor" href="#%e5%8d%9a%e5%ae%a2%e6%90%ad%e5%bb%ba">&lt;/a>
+&lt;/h1>&lt;h2 id="前置环境">前置环境
+&lt;a class="header-anchor" href="#%e5%89%8d%e7%bd%ae%e7%8e%af%e5%a2%83">&lt;/a>
+&lt;/h2>&lt;h3 id="git安装">Git安装
+&lt;a class="header-anchor" href="#git%e5%ae%89%e8%a3%85">&lt;/a>
+&lt;/h3>&lt;p>1.去
+&lt;a href="https://git-scm.com/" title="官网" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+ 官网
+ 
+ &lt;i class="fa fa-external-link-alt">&lt;/i>
+ 
+&lt;/a>下载&lt;code>Download for Windows&lt;/code>，双击安装&lt;/p>
+&lt;p>2.验证：&lt;code>git --version&lt;/code>&lt;/p>
+&lt;p>3.配置git提交信息&lt;/p>
+
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt" id="hl-0-1">&lt;a class="lnlinks" href="#hl-0-1">1&lt;/a>
+&lt;/span>&lt;span class="lnt" id="hl-0-2">&lt;a class="lnlinks" href="#hl-0-2">2&lt;/a>
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">git config --global user.name &lt;span class="s2">&amp;#34;你的名字&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">git config --global user.email &lt;span class="s2">&amp;#34;你的邮箱&amp;#34;&lt;/span> &lt;span class="c1"># 邮箱要和github账户的一致&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>
+
+&lt;p>4.配置github ssh key&lt;/p></description></item></channel></rss>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>Hello World</title><url>/posts/hello-world/</url><categories/><tags/><content type="html"><![CDATA[  博客搭建 前置环境 Git安装 1.去 官网 下载Download for Windows，双击安装
+2.验证：git --version
+3.配置git提交信息
+1 2 git config --global user.name &amp;#34;你的名字&amp;#34; git config --global user.email &amp;#34;你的邮箱&amp;#34; # 邮箱要和github账户的一致 4.配置github ssh key
+1 ssh-keygen -t rsa -b 4096 -C &amp;#34;your_email@example.com&amp;#34; 打开 GitHub 网站 → 右上角头像 → Settings → SSH and GPG keys → New SSH key → 输入说明，粘贴用户目录下公钥 → 点击 Add SSH key
+hugo安装 1.去 hugo官网下载hugo_extended_*_Windows-64bit.zip 。
+2.解压，将目录配置到环境变量Path
+3.验证：hugo version
+创建站点 1 2 3 4 5 6 7 8 9 hugo new site zuoer cd zuoer git init git config --global core.autocrlf true # 【可选】 git submodule add https://github.com/hugo-next/hugo-theme-next.git themes/hugo-theme-next copy themes\hugo-theme-next\exampleSite\hugo.yaml . move hugo.toml hugo.toml.backup # 拷贝一下 data 、layouts和static三个文件夹内容，放到你站点的根目录下 hugo server 后续主题版本更新：git submodule update --remote
+部署站点 双仓GitHub Actions自动部署站点 仓库结构概览 仓库类型 用途 可见性 私有仓库 A 存储 Hugo 源码、NexT 主题等 私密，仅你可见 公开仓库 B 用于部署静态页面 通过 GitHub Pages 自动发布网站（zuoer96.github.io） …  ]]></content></entry></search>
