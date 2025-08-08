@@ -1,4 +1,12 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>hugo+next搭建blog使用github action自动部署</title><url>/site/blog-start.html</url><categories><category>建站</category></categories><tags><tag>Hugo</tag><tag>建站</tag></tags><content type="html"><![CDATA[  种下一棵树，最好的时间是十年前，其次就是现在。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>无事写春秋</title><url>/post/1-%E6%97%A0%E4%BA%8B%E5%86%99%E6%98%A5%E7%A7%8B/</url><categories><category>春秋</category></categories><tags><tag>时事热点</tag><tag>好词好句</tag><tag>闲听窗外事</tag><tag>妙手偶得之</tag></tags><content type="html">  世事如棋，局外人看得清，局中人亦可写得真。
+无意为史官，亦不甘作哑人；春秋笔法，不在评王侯，而在写人心。
+于无事之时，记有事之意；或有言，或无语，皆为心之所感。
+此栏不作高论，只愿以一人之眼，观世间万象；以一人之笔，记时代风声。
+名曰——无事写春秋。
+专栏划分：
+闲听窗外事——时事热点
+妙手偶得之——好词好句
+  </content></entry><entry><title>hugo+next搭建blog使用github action自动部署</title><url>/site/blog-start.html</url><categories><category>建站</category></categories><tags><tag>Hugo</tag><tag>建站</tag></tags><content type="html"><![CDATA[  种下一棵树，最好的时间是十年前，其次就是现在。
 博客搭建 前置环境 Git安装 1.去 官网 下载Download for Windows，双击安装
 2.验证：git --version
 3.配置git提交信息
