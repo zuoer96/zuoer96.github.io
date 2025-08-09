@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>时间线</title><url>/post/2-%E5%BB%BA%E7%AB%99%E7%AC%94%E8%AE%B0/00-%E5%BB%BA%E7%AB%99%E6%97%A5%E5%BF%97/%E6%97%B6%E9%97%B4%E7%BA%BF/</url><categories><category>建站</category></categories><tags><tag>Hugo</tag></tags><content type="html">  时间线
-  </content></entry><entry><title>无事写春秋</title><url>/post/1-%E6%97%A0%E4%BA%8B%E5%86%99%E6%98%A5%E7%A7%8B/</url><categories><category>春秋</category></categories><tags><tag>闲听窗外事</tag><tag>妙手偶得之</tag></tags><content type="html">  世事如棋，局外人看得清，局中人亦可写得真。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>无事写春秋</title><url>/post/1-%E6%97%A0%E4%BA%8B%E5%86%99%E6%98%A5%E7%A7%8B/</url><categories><category>春秋</category></categories><tags><tag>闲听窗外事</tag><tag>妙手偶得之</tag></tags><content type="html">  世事如棋，局外人看得清，局中人亦可写得真。
 无意为史官，亦不甘作哑人；春秋笔法，不在评王侯，而在写人心。
 于无事之时，记有事之意；或有言，或无语，皆为心之所感。
 此栏不作高论，只愿以一人之眼，观世间万象；以一人之笔，记时代风声。
@@ -7,18 +6,8 @@
 专栏划分：
 闲听窗外事——时事热点
 妙手偶得之——好词好句
-  </content></entry><entry><title>hugo+next搭建blog使用github action自动部署</title><url>/site/blog-start.html</url><categories><category>建站</category></categories><tags><tag>Hugo</tag></tags><content type="html"><![CDATA[  种下一棵树，最好的时间是十年前，其次就是现在。
-博客搭建 前置环境 Git安装 1.去 官网 下载Download for Windows，双击安装
-2.验证：git --version
-3.配置git提交信息
-1 2 git config --global user.name &amp;#34;你的名字&amp;#34; git config --global user.email &amp;#34;你的邮箱&amp;#34; # 邮箱要和github账户的一致 4.配置github ssh key
-1 ssh-keygen -t rsa -b 4096 -C &amp;#34;your_email@example.com&amp;#34; 打开 GitHub 网站 → 右上角头像 → Settings → SSH and GPG keys → New SSH key → 输入说明，粘贴用户目录下公钥 → 点击 Add SSH key
-hugo安装 1.去 hugo官网下载hugo_extended_*_Windows-64bit.zip 。
-2.解压，将目录配置到环境变量Path
-3.验证：hugo version
-创建站点 1 2 3 4 5 6 7 8 9 hugo new site zuoer cd zuoer git init git config --global core.autocrlf true # 【可选】 git submodule add https://github.com/hugo-next/hugo-theme-next.git themes/hugo-theme-next copy themes\hugo-theme-next\exampleSite\hugo.yaml . move hugo.toml hugo.toml.backup # 拷贝一下 data 、layouts和static三个文件夹内容，放到你站点的根目录下 hugo server 后续主题版本更新：git submodule update --remote
-部署站点 双仓GitHub Actions自动部署站点 仓库结构概览 仓库类型 用途 可见性 私有仓库 A 存储 Hugo 源码、NexT 主题等 私密，仅你可见 公开仓库 B 用于部署静态页面 通过 GitHub Pages 自动发布网 …  ]]></content></entry><entry><title>墓志铭</title><url>/about.html</url><categories/><tags/><content type="html">  某也，本丘壑间一闲人，误入红尘作市朝客。少好风流，性嗜奇巧，或纸上谈兵，或杯中纵酒，醉卧书阁，不知日月更替；曾妄量天地，嬉笑功名，语惊座客，未尝得一金两粟。富贵于我如云烟，清贫随身似影随形。尝指乾坤而责其错，终觉自我方为虚空。
+  </content></entry><entry><title>墓志铭</title><url>/about.html</url><categories/><tags/><content type="html">  某也，本丘壑间一闲人，误入红尘作市朝客。少好风流，性嗜奇巧，或纸上谈兵，或杯中纵酒，醉卧书阁，不知日月更替；曾妄量天地，嬉笑功名，语惊座客，未尝得一金两粟。富贵于我如云烟，清贫随身似影随形。尝指乾坤而责其错，终觉自我方为虚空。
 少时意气如火，好灯好戏好笔砚；中年风雨如晦，家业如沙，风吹即散。老来栖身断瓦残书之间，一粥一菜，不改诗心。回顾半生繁华，恍若昨夜旧梦。
 知我者谓我痴，不知者谓我狂；我自知此生，只与天地做一场好梦耳。
 黄土之下，不求青史留名；惟愿风过石上，仍有一字余香。
-  </content></entry><entry><title>友链</title><url>/flinks.html</url><categories/><tags/><content type="html">    </content></entry></search>
+  </content></entry><entry><title>网站日志</title><url>/timeline.html</url><categories/><tags/><content type="html">    </content></entry><entry><title>友链</title><url>/flinks.html</url><categories/><tags/><content type="html">    </content></entry></search>
