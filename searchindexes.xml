@@ -1,9 +1,24 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>个人博客建站系列 #006 | 多仓库自动化部署到github Pages</title><url>/build-blog/morepo-ci-deploy.html</url><categories><category>建站</category></categories><tags><tag>Hugo</tag></tags><content type="html"><![CDATA[  我想要只访问一个域名，访问到主站Hugo-Next主题搭建的站点，然后由于其他主题各有特色和适用场景，比如友链，我希望可以用/webstack子路径访问，技术文档用/docs子路径访问。所以有了下面的设计。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>多多自走棋 基拉虫研究</title><url>/games-duoduozizouqi-chongjila.html</url><categories><category>游戏</category></categories><tags><tag>多多自走棋</tag><tag>阵容</tag><tag>基拉虫</tag></tags><content type="html">  兄弟兄弟，你的九光羽、九刺、九眠、九猎确实很猛，但太吃操作了，有简单好上分的阵容吗？
+有的兄弟有的，今天我们来看看草鸡捡蛋的玩法——基拉虫。
+尽量讲清楚思路，至于数据，由于版本更替，需要不停的实战测试。
+序 在公频抱怨了一下不好上分，有没有不用动脑就能上分的阵容推荐下。结果网友@耗子扛刀一路找向我推荐了一下基拉虫。并咨询了几下节奏的大致玩法后，我也是迅速的引用过了一下基拉虫的阵容设定，在一片欢声笑语中开始实战。
+一开始没有牧师，前几个回合打不过还扣血，有点慌
+7回合的时候搜到了2个牧师，开始走卖血连败
+round9，利息到5（max）、round11，连败利息到3（max），round18，等级到9级。
+round23，血量16，差点被抬走。all in，梭哈搜棋，直至阵容大成。
+后半局是爽着打完的，满屏幕的三星虫子，于是我决定好好研究一下这个阵容。
+中间玩着玩着，网友@耗子扛刀一路找还进入了观战，我一开始都没注意，直到他发弹幕指导我才注意到，哈哈。
+真心感谢该网友的热心指导，让我在手把手教学中一路打完一局，仿佛找到了最初玩游戏的快乐。
+核心理论 闲言少叙，先说重点
+基拉虫阵容的核心是：人口 → 召唤 → 攻速 → 生存。
+讲解一下：
+人口 —— 阵容成型的基础 快速提升人口是基拉虫阵容的首要目标。 高人口能解锁更多棋位，配备足够的辅助和前排单位。 8级人口是基拉虫发挥的关键阶段，能保证足够的召唤物和装备分配。 升人口节奏通常结合卖血流、牧师流或野兽战士流等过渡阵容完成。 召唤 —— 场面控制与输出来源 基拉虫技能持续召唤小虫，召唤物数量越多，场面越难被突破。 搭配其他召唤棋子（如熊灵、狼灵、沙地之主等）增强场面厚度。 召唤物不仅分担伤害，还能打出稳定的持续输出。 召唤体系是基拉虫阵容的核心卖点和防守手段。 攻速 —— 技能释放与召唤频率的关键 基拉虫的技能释放频率与攻速密切相关，攻速越高，召唤频率越快。 高攻速能实现技能快速循环，带来指数级输出提升。 攻速装备（电锤、狂战斧、攻速爪等）是阵容优先收集的关键。 攻速保证基拉虫“源源不断”制造召唤物，维持战场优势。 生存 —— 确保基拉虫持续输出 高攻速也意味着基拉虫可能成为敌方优先集火目标。 需配备生存装备（吸血、护甲、魔抗等）提升续航能力。 稳定的生存能力能保证基拉虫持续召唤，而不是被快速秒杀。 生存是阵容后期稳定 …  </content></entry><entry><title>个人博客建站系列 #006 | 多仓库自动化部署到github Pages</title><url>/build-blog/morepo-ci-deploy.html</url><categories><category>建站</category></categories><tags><tag>Hugo</tag></tags><content type="html"><![CDATA[  我想要只访问一个域名，访问到主站Hugo-Next主题搭建的站点，然后由于其他主题各有特色和适用场景，比如友链，我希望可以用/webstack子路径访问，技术文档用/docs子路径访问。所以有了下面的设计。
 仓库结构规划 本地库 私有库 公开仓库 B(静态文件) zuoer blog,存Hugo+Next源码 CI构建到zuoer96.github.io zuoer-vuepress blog-vuepress，存Hugo+Webstack源码 CI构建到zuoer96.github.io/docs zuoer-webstack blog-webstack，存Vuepress源码 CI构建到zuoer96.github.io/webstack 生成 SSH Deploy Key 在本地终端运行：
 1 ssh-keygen -t ed25519 -C &amp;#34;1745233303@qq.com&amp;#34; -f deploy_key -N &amp;#34;&amp;#34; 你会在执行目录下获得私钥 deploy_key 和公钥 deploy_key.pub
 将 私钥内容 (deploy_key) 添加到 私有源码仓库 A 的 Settings → Secrets 中，命名为 ACTIONS_DEPLOY_KEY 将 公钥内容 (deploy_key.pub) 添加到 公开仓库 B 的 Settings → Deploy keys 中，注意选中 Allow write access 以允许写入发布内容 注意不要在项目目录下执行，并将生成的key提交到私有库，否则推送的时候，部署会报错。【绝对禁止将私钥提交到版本库】
 创建子项目 vuepress 根据 官网 创建项目
-1 2 3 4 5 6 7 8 9 10 11 12 13 # 创建 npm init vuepress zuoer_vuepress # 推送 git init git add . git comment -m &amp;#34;提交&amp;#34; git branch -M main git remote add origin git@github.com:zuoer96/blog_vuepress.git git push -u origin main # 启动 npm run docs:dev 创建子项目 webstack …  ]]></content></entry><entry><title>个人博客建站系列 #005 | 使用hugo创建第一个站点</title><url>/build-blog/create-first-site.html</url><categories><category>建站</category></categories><tags><tag>Hugo</tag></tags><content type="html">  创建第一个站点
+1 2 3 4 5 6 7 8 9 10 11 12 13 # 创建 npm init vuepress zuoer_vuepress # 推送 git init git add . git comment -m &amp;#34;提交&amp;#34; git branch -M main git remote add origin git@github.com:zuoer96/blog_vuepress.git git push -u origin main # 启动 npm run docs:dev 用 plume 主题
+1 …  ]]></content></entry><entry><title>个人博客建站系列 #005 | 使用hugo创建第一个站点</title><url>/build-blog/create-first-site.html</url><categories><category>建站</category></categories><tags><tag>Hugo</tag></tags><content type="html">  创建第一个站点
 创建站点 切换至相应目录下，使用如下语句： hugo new site blog 。这将在一个叫 blog 的文件夹内创建一个新的 Hugo 站点。然后 hugo 会自动生成这样一个目录结构：
 目录 备注 archetypes default. Md 为模板 content 放的是你写的 markdown 文章 layouts 网站的模板文件 static 图片、css、js 等资源 config. Toml 网站的配置文件 这样就建立了新的站点。但此时新站点无法启动，需要安装主题。- 主题的挑选可以到官方的 主题页面 还是喜欢NexT
 添加NexT主题 1 2 3 4 5 6 7 hugo new site zuoer cd zuoer git init git config --global core.autocrlf true # 【可选】 git submodule add https://github.com/hugo-next/hugo-theme-next.git themes/hugo-theme-next xcopy themes\hugo-theme-next\exampleSite\* . /E /H /K hugo server 后续主题版本更新：git submodule update --remote
@@ -33,7 +48,10 @@ Next Sakura Butterfly 我的选择 Hugo + Next + GitHub Pages
 此外，我尝试过自己写博客项目（Java + Spring Boot），但二次开发消耗精力过大，最终放弃。
 为什么选择 Next 主题 ？ 我曾尝试过多个主题，但花了大量时间在主题美化和细节调整上，文章反而写得不多。Next 主题设计简洁，功能丰富，且配置灵活，适合专注写作，保持页面干净利落。
 其他技术和主题的尝试
-VuePress：适合技术文档，但作为个人博客稍显复杂。 WordPress + Blocksy：部署体验一般，风格不是很合我口味，最终弃用。 Zibll 主题：购买了会员版，但使用体验不佳，也选择放弃。 Halo：Java后台的博客建站工具，用起来太重用着也放弃了。 为什么选择 Github Pages ? 在建站过程中，我尝试过购买多次服务器和多个域名，经历了不少折腾。最终，我选择直接使用 GitHub 提供的免费静态托管服务，即 github pages : zuoer96.github.io。
+VuePress：适合技术文档，但作为个人博客稍显复杂。 WordPress + Blocksy：部署体验一般，风格不是很合我口味，最终弃用。 Zibll 主题：购买了会员版，但使用体验不佳，也选择放弃。 Halo：Java后台的博客建站工具，用起来太重用着也放弃了。 主页网站使用hugo+next
+技术文档使用vuepress+plume
+导航网站使用hugo+webstack
+为什么选择 Github Pages ? 在建站过程中，我尝试过购买多次服务器和多个域名，经历了不少折腾。最终，我选择直接使用 GitHub 提供的免费静态托管服务，即 github pages : zuoer96.github.io。
 购买服务器和域名虽然自由度高，但维护和配置成本较大。 对于个人博客和技术分享，GitHub Pages 足够用且易用。 使用 GitHub Pages 还能方便地与代码仓库联动，实现自动化部署。 总结 基于速度、稳定性和写作效率的考量，我最终选择了 Hugo 搭配 Next 主题，托管到github pages，作为个人博客的技术方案。后续会围绕这一组合持续优化和实践。并且希望可以专注内容。
   </content></entry><entry><title>无事写春秋</title><url>/post/1-%E6%97%A0%E4%BA%8B%E5%86%99%E6%98%A5%E7%A7%8B/</url><categories><category>春秋</category></categories><tags><tag>闲听窗外事</tag><tag>妙手偶得之</tag></tags><content type="html">  世事如棋，局外人看得清，局中人亦可写得真。
 无意为史官，亦不甘作哑人；春秋笔法，不在评王侯，而在写人心。
