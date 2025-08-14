@@ -1,3 +1,3 @@
-Sitemap: https://zuoer96.github.io/docs/sitemap.xml
+Sitemap: https://zuoer96.github.io/docs/docs/sitemap.xml
 User-agent:*
 Disallow:
