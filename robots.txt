@@ -1,1 +1,2 @@
 User-agent: *
+Sitemap: https://zuoer96.github.io/sitemap.xml
